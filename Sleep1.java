@@ -49,7 +49,7 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
             driveRight.setPower(1);
             sleep(2000);
             driveLeft.setPower(1);
-            driveRight.setPower(1);
+            driveRight.setPower(-1);
             telemetry.addData("Status", "Running");
             telemetry.update();
         }
