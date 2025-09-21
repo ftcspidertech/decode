@@ -45,13 +45,16 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         waitForStart();
         // run until the end of the match (driver presses STOP)
         if (opModeIsActive()) {
-            driveLeft.setPower(-1);
-            driveRight.setPower(1);
-            sleep(2000);
-            driveLeft.setPower(1);
-            driveRight.setPower(-1);
-            telemetry.addData("Status", "Running");
-            telemetry.update();
+            move(driveLeft,driveRight);
         }
+    }
+    private void move (DcMotor driveLeft, DcMotor driveRight) {
+        driveLeft.setPower(-1);
+        driveRight.setPower(1);
+        sleep(2000);
+        driveLeft.setPower(1);
+        driveRight.setPower(-1);
+        telemetry.addData("Status", "Running");
+        telemetry.update();
     }
 }
