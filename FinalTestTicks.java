@@ -23,10 +23,10 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         driveLeft = hardwareMap.get(DcMotor.class, "driveLeft");
         driveRight = hardwareMap.get(DcMotor.class, "driveRight");
         
-        int x = 15; // Distance for moving forward (inches)
-        int y = 10;   // Distance for moving backward (inches)
-        int degrees_left = 90; // Degrees for left turn
-        int degrees_right = 45;  // Degrees for right turn
+        int x = inches for moving forward; // Distance for moving forward (inches)  
+        int y = inches for moving backward;   // Distance for moving backward (inches)
+        int degrees_left = degrees for left turn; // Degrees for left turn
+        int degrees_right = degrees for right turn;  // Degrees for right turn
         
         // Calculate ticks for movement
         move_forward = (int)(50.31 * x);   // Forward movement
