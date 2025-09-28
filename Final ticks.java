@@ -10,11 +10,13 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
     private DcMotor driveLeft = null;
     private DcMotor driveRight = null;
     
-    // Declare all variables properly
+    // Declare all movement variables separately
     private int move_forward;
     private int move_backward;
-    private int turn_left_90;
-    private int turn_right_90;
+    private int move_left;
+    private int move_right;
+    private int turn_left;
+    private int turn_right;
     
     @Override
     public void runOpMode() {
@@ -26,14 +28,16 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         int x = 10;   
         int degrees = 45;
         
-        // Calculate ticks for x inches of movement
+        // Calculate ticks for x inches of movement (different for each direction)
         move_forward = (int)(50.31 * x);   // Forward movement
         move_backward = (int)(50.31 * x);  // Backward movement
+        move_left = (int)(50.31 * x);      // Left movement (strafing if applicable)
+        move_right = (int)(50.31 * x);     // Right movement (strafing if applicable)
         
-        // FIXED: Calculate ticks for degrees using your formula
-        int ticks_for_degrees = (int)(5600* degrees / 360);
-        turn_left_90 = ticks_for_degrees;
-        turn_right_90 = ticks_for_degrees;
+        // Calculate ticks for turning
+        int ticks_for_degrees = (int)(5600 * degrees / 360);
+        turn_left = ticks_for_degrees;
+        turn_right = ticks_for_degrees;
         
         // Set motor directions
         driveLeft.setDirection(DcMotor.Direction.REVERSE);
@@ -50,11 +54,15 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         driveLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         driveRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         
-        // FIXED: Corrected telemetry
+        // Display movement variables
         telemetry.addData("Status", "Ready to move " + x + " inches and turn " + degrees + "°");
         telemetry.addData("Forward Ticks", move_forward);
-        telemetry.addData(degrees + "° Turn Ticks", ticks_for_degrees);
-        telemetry.addData("Formula Used", "560 * (" + degrees + "/360) = " + ticks_for_degrees);
+        telemetry.addData("Backward Ticks", move_backward);
+        telemetry.addData("Left Ticks", move_left);
+        telemetry.addData("Right Ticks", move_right);
+        telemetry.addData("Turn Left Ticks", turn_left);
+        telemetry.addData("Turn Right Ticks", turn_right);
+        telemetry.addData("Formula Used", "5600 * (" + degrees + "/360) = " + ticks_for_degrees);
         telemetry.addData("Ticks per inch", "50.31");
         telemetry.update();
         
@@ -67,15 +75,15 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
             testTickMovement(move_forward, "1. Moving Forward (" + move_forward + " ticks = " + x + " inches)");
             sleep(2000);
             
-            // 2. Turn left 90 degrees
-            testTurnMovement(-turn_left_90, turn_left_90, "2. Turning Left " + degrees + "°");
+            // 2. Turn left using turn_left variable
+            testTurnMovement(-turn_left, turn_left, "2. Turning Left " + degrees + "°");
             sleep(2000);
             
-            // 3. Turn right 90 degrees (back to original heading)
-            testTurnMovement(turn_right_90, -turn_right_90, "3. Turning Right " + degrees + "°");
+            // 3. Turn right using turn_right variable (back to original heading)
+            testTurnMovement(turn_right, -turn_right, "3. Turning Right " + degrees + "°");
             sleep(2000);
             
-            // 4. Move backward x inches
+            // 4. Move backward x inches using move_backward variable
             testTickMovement(-move_backward, "4. Moving Backward (" + move_backward + " ticks = " + x + " inches)");
             sleep(2000);
             
