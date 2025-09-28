@@ -10,8 +10,9 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
     private DcMotor driveLeft = null;
     private DcMotor driveRight = null;
     
-    // FIXED: Declare variable properly
+    // FIXED: Declare both variables properly
     private int move_forward;
+    private int move_backward;
     
     @Override
     public void runOpMode() {
@@ -19,9 +20,12 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         // Initialize motors
         driveLeft = hardwareMap.get(DcMotor.class, "driveLeft");
         driveRight = hardwareMap.get(DcMotor.class, "driveRight");
-        int x = inches;      //Inches need to be inputted before running code
-        // FIXED: Calculate ticks for 1 inch movement (moved after motor initialization)
-        move_forward = (int)(50.31 * x);
+        
+        int x = 10;   // Distance in inches
+        
+        // Calculate ticks for x inches of movement
+        move_forward = (int)(50.31 * x);   // Forward movement (positive ticks)
+        move_backward = (int)(50.31 * x);  // FIXED: Backward uses positive ticks too
         
         // Set motor directions
         driveLeft.setDirection(DcMotor.Direction.REVERSE);
@@ -38,10 +42,11 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         driveLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         driveRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         
-        // FIXED: Updated telemetry to show single test
-        telemetry.addData("Status", "Ready to move 1 inch");
-        telemetry.addData("Movement", move_forward + " ticks = 1 inch");
-        telemetry.addData("Ticks per inch", "50.31 (DUO Omni 90mm)");
+        // FIXED: Corrected telemetry string formatting
+        telemetry.addData("Status", "Ready to move " + x + " inches");
+        telemetry.addData("Forward Ticks", move_forward);
+        telemetry.addData("Backward Ticks", move_backward);
+        telemetry.addData("Ticks per inch", "50.31");
         telemetry.update();
         
         // Wait for start
@@ -49,12 +54,19 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         
         if (opModeIsActive()) {
             
-            // Only test the 1-inch movement (50.31 ticks)
-            testTickMovement(move_forward, "Moving ("+ move_forward + " ticks or "+ x +"inches");
+            // Move forward x inches
+            testTickMovement(move_forward, "Moving Forward (" + move_forward + " ticks = " + x + " inches)");
+            
+            // Pause between movements
+            sleep(2000);
+            
+            // Move backward x inches (using negative ticks for backward direction)
+            testTickMovement(-move_backward, "Moving Backward (-" + move_backward + " ticks = " + x + " inches)");
             
             telemetry.addData("=== MOVEMENT COMPLETE ===", "");
             telemetry.addData("Final Position Left", driveLeft.getCurrentPosition());
             telemetry.addData("Final Position Right", driveRight.getCurrentPosition());
+            telemetry.addData("Expected Final Position", "Should be close to 0 (returned to start)");
             telemetry.update();
             
             // Keep running to display results
@@ -97,13 +109,15 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
             driveLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             driveRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             
-            // Start moving with power
-            driveLeft.setPower(0.5);
-            driveRight.setPower(0.5);
+            // FIXED: Set appropriate power based on direction
+            double power = (ticks > 0) ? 0.5 : -0.5;  // Positive for forward, negative for backward
+            driveLeft.setPower(power);
+            driveRight.setPower(power);
             
             telemetry.addData("Status", "Motors should be moving...");
             telemetry.addData("Left Power", driveLeft.getPower());
             telemetry.addData("Right Power", driveRight.getPower());
+            telemetry.addData("Direction", (ticks > 0) ? "FORWARD" : "BACKWARD");
             telemetry.update();
             
             // Wait up to 5 seconds for movement
@@ -119,6 +133,12 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
                 telemetry.addData("Right Moving?", driveRight.isBusy() ? "YES" : "NO");
                 telemetry.addData("Left Target", driveLeft.getTargetPosition());
                 telemetry.addData("Right Target", driveRight.getTargetPosition());
+                
+                // Show progress
+                int progressLeft = currentLeft - startLeft;
+                int progressRight = currentRight - startRight;
+                telemetry.addData("Progress Left", progressLeft + " / " + ticks);
+                telemetry.addData("Progress Right", progressRight + " / " + ticks);
                 telemetry.update();
                 
                 sleep(100);
@@ -152,6 +172,6 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
             telemetry.update();
         }
         
-        sleep(2000); // Pause between tests
+        sleep(3000); // Longer pause to see results
     }
 }
