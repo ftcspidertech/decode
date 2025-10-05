@@ -107,34 +107,23 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         if (opModeIsActive()) {
             
             // 1. Move forward x inches
+
             testTickMovement(move_forward, "1. Moving Forward (" + move_forward + " ticks = " + x + " inches)");
             sleep(1000);
-            
-            
             // 4. Turn left using turn_left variable
             testTurnMovement(-turn_left, turn_left, "2. Turning Left " + degrees_left + "°");
+
             sleep(1000);
-            
+
             // 5. Shoot artifacts after positioning
+
             shootThreeArtifacts();
             sleep(1000);
             
-            // 6. Move forward to second position
-            testTickMovement(move_forward/2, "3. Moving to Second Position");
+            testTurnMovement(turn_right, -turn_right, "6. Turning Right " + degrees_right + "°");
             sleep(1000);
             
-            // 7. Deploy actuator to place second artifact
-            deployActuator(actuator_extended, "4. Deploying Actuator for Second Artifact");
-            sleep(2000);
-            
-            // 8. Retract actuator
-            retractActuator(actuator_retracted, "5. Retracting Actuator");
-            sleep(1000);
-            
-            testTurnMovement(turn_right, turn_right, "6. Turning Right " + degrees_left + "°");
-            sleep(1000);
-            
-            testTickMovement(move_backward, "7. Moving Bckward (" + move_backward+ " ticks = " + y + " inches)");
+            testTickMovement(-move_backward, "7. Moving Bckward (" + move_backward+ " ticks = " + y + " inches)");
             sleep(1000);
             
             telemetry.addData("=== MOVEMENT COMPLETE ===", "");
