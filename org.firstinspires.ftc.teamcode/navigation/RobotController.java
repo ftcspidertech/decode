@@ -28,7 +28,7 @@ public class RobotController {
         
         // Left motor
         leftMotor = hardwareMap.get(DcMotor.class, "leftDrive");
-        leftMotor.setDirection(DcMotor.Direction.FORWARD);
+        leftMotor.setDirection(DcMotor.Direction.REVERSE);
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -60,7 +60,7 @@ public class RobotController {
     }
     
     public void driveMotorCurveLeft(double speed, double ratio){
-        double leftSpeed = -speed;
+        double leftSpeed = speed;
         double rightSpeed = (1-ratio)*speed;
         
         leftMotor.setPower(leftSpeed);
@@ -77,12 +77,12 @@ public class RobotController {
     }
 
     private void driveMotor(double speed){
-        leftMotor.setPower(-speed);
+        leftMotor.setPower(speed);
         rightMotor.setPower(speed);
     }
     
     public void goForward(double speed){
-        telemetry.addData("Going forward: ",speed);
+        //telemetry.addData("Going forward: ",speed);
         driveMotor(speed);
         
         robotMoving = true;
@@ -101,7 +101,7 @@ public class RobotController {
     }
 
     private void turnMotor(double speed){
-        leftMotor.setPower(speed);
+        leftMotor.setPower(-speed);
         rightMotor.setPower(speed);
     }
 
@@ -142,10 +142,10 @@ public class RobotController {
         rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         
         // Set target positions
-        telemetry.addData("leftMotor.CurrentPosition = ",leftMotor.getCurrentPosition());
-        telemetry.addData("rightMotor.CurrentPosition = ",rightMotor.getCurrentPosition());
+        //telemetry.addData("leftMotor.CurrentPosition = ",leftMotor.getCurrentPosition());
+        //telemetry.addData("rightMotor.CurrentPosition = ",rightMotor.getCurrentPosition());
         
-        leftMotor.setTargetPosition(leftMotor.getCurrentPosition() - targetPosition);
+        leftMotor.setTargetPosition(leftMotor.getCurrentPosition() + targetPosition);
         rightMotor.setTargetPosition(rightMotor.getCurrentPosition() + targetPosition);
         
         // Set power and move the robot. Wait until it's done.
@@ -172,7 +172,7 @@ public class RobotController {
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         
-        telemetry.addData("Movement Complete!", "");
+        //telemetry.addData("Movement Complete!", "");
     }
     
     public void goBackward(double speed, double distance, DistanceUnit unit){
@@ -196,7 +196,7 @@ public class RobotController {
         imu.resetYaw();
         currentHeading = getHeading(AngleUnit.DEGREES);
         initialHeading = currentHeading;
-        telemetry.addData("    Initial heading (deg):",initialHeading);
+        //telemetry.addData("    Initial heading (deg):",initialHeading);
 
         // Target heading
         targetHeading = currentHeading + (Math.abs(angle)%divisor);
@@ -240,11 +240,11 @@ public class RobotController {
         imu.resetYaw();
         currentHeading = getHeading(AngleUnit.DEGREES);
         initialHeading = currentHeading;
-        telemetry.addData("    Initial heading (deg):",initialHeading);
+        //telemetry.addData("    Initial heading (deg):",initialHeading);
 
         targetHeading = currentHeading - (Math.abs(angle)%divisor);
-        telemetry.addData("    target heading (deg):",targetHeading);
-        telemetry.addData("    Motor turning right with power:",speed);
+        //telemetry.addData("    target heading (deg):",targetHeading);
+        //telemetry.addData("    Motor turning right with power:",speed);
 
         robotMoving = true;
         
@@ -263,7 +263,12 @@ public class RobotController {
         stopMotor();
 
         robotMoving = false;
-        telemetry.addData("    current heading (deg):",currentHeading);
+        //telemetry.addData("    current heading (deg):",currentHeading);
+    }
+
+    public void splitStickArcadeDrive(double leftSpeed, double rightSpeed) {
+        leftMotor.setPower(leftSpeed);//Y - X);
+        rightMotor.setPower(rightSpeed);//Y + X);
     }
 
     public double getHeading(AngleUnit angleUnit) {
