@@ -32,9 +32,25 @@ public class TeleRobotController {
     }
     
     public void run(){
+        // Control robot with joystick.
+        float x = gamepad.right_stick_x;
+        float y = -gamepad.left_stick_y;
+        if (x!=0 || y!=0){
+            robot.splitStickArcadeDrive(y-x, y+x);            
+            return;
+        }
+        
+        // Update max speeds
+        if(gamepad.left_bumper){
+            maxMoveSpeed = Math.min(1,1.01*maxMoveSpeed);
+            telemetry.addData("Max move speed: ", maxMoveSpeed);
+        }else if(gamepad.left_trigger==1.0){
+            maxMoveSpeed = Math.max(0.5,0.99*maxMoveSpeed);
+            telemetry.addData("Max move speed: ", maxMoveSpeed);
+        }
+        
         // Control robot with arrow keys.
         double speed, curvature;
-        
         if(gamepad.dpad_left){
             currSpeed += accel;
             currSpeed = Math.min(maxTurnSpeed,currSpeed);
@@ -71,7 +87,6 @@ public class TeleRobotController {
             }
         }else if(motionMode==2){
             speed = sigmoid(currSpeed,15,maxMoveSpeed/2.0,maxMoveSpeed);
-            //goBackward(sfilter(currSpeed,0,maxMoveSpeed));
             if(curvature<0){
                 robot.driveMotorCurveRight(-speed,Math.abs(curvature));
             }else if(curvature>0){
@@ -80,12 +95,15 @@ public class TeleRobotController {
                 robot.goBackward(speed);
             }
         }else if(motionMode==3 && curvature==0){
-            robot.turnLeft(sfilter(currSpeed,0,maxTurnSpeed));
+            speed = sigmoid(currSpeed,15,maxTurnSpeed/2.0,maxTurnSpeed);
+            robot.turnLeft(speed);//sfilter(currSpeed,0,maxTurnSpeed));
         }else if(motionMode==4 && curvature==0){
-            robot.turnRight(sfilter(currSpeed,0,maxTurnSpeed));
+            speed = sigmoid(currSpeed,15,maxTurnSpeed/2.0,maxTurnSpeed);
+            robot.turnRight(speed);//sfilter(currSpeed,0,maxTurnSpeed));
         }else{
             robot.stopMotor();
         }
+        //telemetry.addData("Current speed: ", currSpeed);
         
         /*
         if(gamepad.y){
