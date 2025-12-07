@@ -31,22 +31,7 @@ public class IntakeController {
                 coreHex.setPower(0.0);
                 isRunning = false;
             }
-        }/*else if (gamepad.back){
-            coreHex.setPower(0.0);
-        }else if(gamepad.right_trigger==1.0 || gamepad.right_bumper){
-            telemetry.addData("right trigger || right_bumper","");
-            if (isRunning){
-                currentPower = -coreHex.getPower();
-                coreHex.setPower(0);
-                coreHex.setPower(currentPower);
-                // try{
-                //     Thread.sleep(100);
-                // } catch (Exception e){
-                //     telemetry.addData("Error: ", e.getMessage());
-                // }
-                telemetry.addData("Power set to: ",currentPower);
-            }
-        }*/
+        }
     }
     
 }
