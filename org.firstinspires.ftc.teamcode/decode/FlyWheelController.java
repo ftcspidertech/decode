@@ -14,9 +14,9 @@ public class FlyWheelController {
     private Gamepad gamepad;
     private CRServo servo;
     private Telemetry telemetry;
-    //private static final int bankVelocity = 1300;
-    //private static final int farVelocity = 1900;
-    private int maxVelocity = 1700;//2200;
+    private int maxVelocity = 2200;
+    private int minVelocity = 1500;
+    private int currentVelocity = 1700;
     private double WHEELS_INCHES_TO_TICKS = (28 * 5 * 3) / (3 * Math.PI);
     private boolean flyWheelStarted = false;
 
@@ -33,25 +33,25 @@ public class FlyWheelController {
 
     public void run() {
         // Update max speeds
+        int rate = 1;
         if(gamepad.right_bumper){
-            //maxVelocity = ;
-            maxVelocity = Math.min(2200,maxVelocity + 1);
+            currentVelocity = Math.min(maxVelocity,currentVelocity + rate);
             if(flyWheelStarted){
-                ((DcMotorEx) flywheel).setVelocity(maxVelocity);
+                ((DcMotorEx) flywheel).setVelocity(currentVelocity);
             }
-            telemetry.addData("Fly wheel velocity: ", maxVelocity);
+            telemetry.addData("Fly wheel velocity: ", currentVelocity);
         }else if(gamepad.right_trigger==1.0){
-            maxVelocity = Math.max(1700,maxVelocity - 1);
+            currentVelocity = Math.max(minVelocity,currentVelocity - rate);
             if(flyWheelStarted){
-                ((DcMotorEx) flywheel).setVelocity(maxVelocity);
+                ((DcMotorEx) flywheel).setVelocity(currentVelocity);
             }
-            telemetry.addData("Fly wheel velocity: ", maxVelocity);
+            telemetry.addData("Fly wheel velocity: ", currentVelocity);
         }
 
         // Flywheel power
         if (gamepad.xWasPressed()) {
             if(!flyWheelStarted){
-                ((DcMotorEx) flywheel).setVelocity(maxVelocity);
+                ((DcMotorEx) flywheel).setVelocity(currentVelocity);
                 flyWheelStarted = true;
             }else{
                 ((DcMotorEx) flywheel).setVelocity(0);
