@@ -47,8 +47,8 @@ public class RobotController {
         avgTicksPerRotation = (leftMotorTicksPerRotation+rightMotorTicksPerRotation)/2.0;
         ticksPerInch = avgTicksPerRotation/(WHEEL_DIAMETER_INCH*Math.PI);
         ticksPerMM = avgTicksPerRotation/(WHEEL_DIAMETER_MM*Math.PI);
-        telemetry.addData("ticksPerInch = ",ticksPerInch);
-        telemetry.addData("ticksPerMM = ",ticksPerMM);
+        //telemetry.addData("ticksPerInch = ",ticksPerInch);
+        //telemetry.addData("ticksPerMM = ",ticksPerMM);
         
         // IMU
         imu = hardwareMap.get(IMU.class, "imu");
@@ -94,6 +94,10 @@ public class RobotController {
         robotMoving = true;
     }
 
+    public void stop(){
+        stopMotor();
+    }
+
     public void stopMotor(){
         driveMotor(0);
         
@@ -135,7 +139,7 @@ public class RobotController {
         }else{ //if(unit==DistanceUnit.M){
             targetPosition = (int)(distance * ticksPerMM * 1000.0);        
         }
-        telemetry.addData("Ticks to move: ", targetPosition);
+        //telemetry.addData("Ticks to move: ", targetPosition);
         
         // Set motor options
         leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -152,10 +156,10 @@ public class RobotController {
         speed = Math.abs(speed);
         try{
             if(distance>0){
-                telemetry.addData("Going forward ...", "");
+                //telemetry.addData("Going forward ...", "");
                 goForward(speed);
             }else{
-                telemetry.addData("Going backward ...", "");
+                //telemetry.addData("Going backward ...", "");
                 goBackward(speed);
             }
             while ((leftMotor.isBusy() || rightMotor.isBusy())) {
