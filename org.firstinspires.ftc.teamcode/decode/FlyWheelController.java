@@ -67,4 +67,9 @@ public class FlyWheelController {
         }
     }
 
+    public void stop(){
+        flywheel.setPower(0);
+        servo.setPower(0);
+    }
+
 }
