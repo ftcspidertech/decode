@@ -53,8 +53,16 @@ public class AutoDecode  extends OpMode{
     public void init() {
     	    	
     	// Initialize controllers.
+    	robotController = new  RobotController(hardwareMap,telemetry);
+        flyWheelController = new FlyWheelController(hardwareMap,gamepad1,telemetry);
+        intakeController = new IntakeController(hardwareMap,gamepad1,telemetry);
+        goalTagProcessor = new GoalTagProcessor(hardwareMap,24); // ID 24 for Red Gate
+        
+        // Initially pause camera stream.
+        goalTagProcessor.stopStreaming();
     	
-    	    	
+        // Display status
+        telemetry.addData("Status", "Initialized");    	    	
     }
 
     @Override
@@ -68,4 +76,12 @@ public class AutoDecode  extends OpMode{
     @Override
     public void loop() {
     }
+    
+    @Override
+    public void stop() {
+        robotController.stop();
+        flyWheelController.stop();
+        intakeController.stop();
+        goalTagProcessor.close();
+    }    
 }
