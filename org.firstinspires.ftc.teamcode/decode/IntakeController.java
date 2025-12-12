@@ -33,5 +33,8 @@ public class IntakeController {
             }
         }
     }
-    
+
+    public void stop(){
+        coreHex.setPower(0.0);
+    }    
 }
