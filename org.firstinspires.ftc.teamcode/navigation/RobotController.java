@@ -127,7 +127,7 @@ public class RobotController {
 
     public void goToPosition(double speed, double distance, DistanceUnit unit) {
         int targetPosition;
-        long waitTime = 10; // milliseconds
+        long waitTime = 50; // milliseconds
         
         // Get target tick number
         if(unit==DistanceUnit.INCH){
@@ -141,16 +141,17 @@ public class RobotController {
         }
         //telemetry.addData("Ticks to move: ", targetPosition);
         
-        // Set motor options
-        leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        
         // Set target positions
         //telemetry.addData("leftMotor.CurrentPosition = ",leftMotor.getCurrentPosition());
         //telemetry.addData("rightMotor.CurrentPosition = ",rightMotor.getCurrentPosition());
         
         leftMotor.setTargetPosition(leftMotor.getCurrentPosition() + targetPosition);
         rightMotor.setTargetPosition(rightMotor.getCurrentPosition() + targetPosition);
+        
+        // Set motor options
+        leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
         
         // Set power and move the robot. Wait until it's done.
         speed = Math.abs(speed);
@@ -191,7 +192,7 @@ public class RobotController {
         double currentHeading,initialHeading;
         double targetHeading;
         int id;
-        long waitTime = 0; // 10 milliseconds
+        long waitTime = 50; // 10 milliseconds
         double divisor = 360.0;
         
         telemetry.addData("Turn left (deg):",angle);
@@ -235,7 +236,7 @@ public class RobotController {
         double currentHeading,initialHeading;
         double targetHeading;
         int id;
-        long waitTime = 0; // 10 milliseconds
+        long waitTime = 50; // 10 milliseconds
         double divisor = 360.0;
         
         telemetry.addData("Turn right (deg):",angle);
