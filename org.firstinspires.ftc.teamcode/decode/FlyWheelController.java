@@ -67,6 +67,22 @@ public class FlyWheelController {
         }
     }
 
+    public void setVelocity(int velocity){
+        ((DcMotorEx) flywheel).setVelocity(velocity);
+    }
+    
+    public void stopFlyWheel(){
+        flywheel.setPower(0);
+    }
+    
+    public void openDoor(){
+        servo.setPower(-1);
+    }
+
+    public void closeDoor(){
+        servo.setPower(-0.25);
+    }
+
     public void stop(){
         flywheel.setPower(0);
         servo.setPower(0);
