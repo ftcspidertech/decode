@@ -33,12 +33,12 @@ public class AutoDecode  extends OpMode{
 	
 	// State variables ------------------------------------
 	// Task 1: Throw pre-loaded balls. 
+	private boolean preMoveCompleteToThrowPreloadedBalls = false;
 	private boolean preloadedBallsThrown = false;
 	private boolean preloadedBall1Thrown = false;
 	private boolean preloadedBall2Thrown = false;
-	private boolean preMoveCompleteToThrowPreloadedBalls = false;
 	// Task 2: Collect 1st set of collected balls
-	private private boolean preMoveCompleteToCollect1stSetOfBalls = false;
+	private boolean preMoveCompleteToCollect1stSetOfBalls = false;
 	private boolean collectionComplete1stSetOfBalls = false;
 	// Task 3: Throw 1st set of collected balls
 	private boolean goalTagFound = false;
@@ -67,6 +67,7 @@ public class AutoDecode  extends OpMode{
 
     @Override
     public void init_loop() {
+    	
     }
 
     @Override
@@ -75,6 +76,26 @@ public class AutoDecode  extends OpMode{
 
     @Override
     public void loop() {
+    	if(!preMoveCompleteToThrowPreloadedBalls) {
+    		robotController.goForward(0.5,12,DistanceUnit.INCH);
+    		robotController.turnRight(0.5,45);
+    	}else if(!preloadedBallsThrown) {
+    		if(!preloadedBall1Thrown) {
+    			
+    		}else if(!preloadedBall1Thrown) {
+    			
+    		}
+    	}else if(!preMoveCompleteToCollect1stSetOfBalls) {
+    		
+    	}else if(!collectionComplete1stSetOfBalls) {
+    		
+    	}else if(!goalTagFound) {
+    		
+    	}else if(!moveCompleteToThrow1stSetOfCollectedBalls) {
+    		
+    	}else if(!thrown1stSetOfCollectedBalls) {
+    		
+    	}
     }
     
     @Override
