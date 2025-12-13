@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -32,6 +33,7 @@ public class AutoDecode  extends OpMode{
     private GoalTagProcessor goalTagProcessor = null;
     
     private int flyWheelVelocity = 1300;
+    private ElapsedTime autoLauncherTimer = new ElapsedTime();
     
     // State variables ------------------------------------
     // Task 1: Throw pre-loaded balls. 
@@ -69,7 +71,7 @@ public class AutoDecode  extends OpMode{
 
     @Override
     public void init_loop() {
-        
+        flyWheelController.closeDoor();    
     }
 
     @Override
@@ -79,19 +81,39 @@ public class AutoDecode  extends OpMode{
     @Override
     public void loop() {
         if(!preMoveCompleteToThrowPreloadedBalls) {
-            robotController.goForward(0.5,12,DistanceUnit.INCH);
+            robotController.goForward(0.8,12,DistanceUnit.INCH);
+            wait(200);
             robotController.turnRight(0.5,45);
-            
-            flyWheelController.setVelocity(flyWheelVelocity);
-            flyWheelController.closeDoor();
-            
+
             preMoveCompleteToThrowPreloadedBalls = true;
+
+            flyWheelController.setVelocity(flyWheelVelocity);
+            //flyWheelController.closeDoor();
+            intakeController.start();
+            
+            wait(2000);
         }else if(!preloadedBallsThrown) {
-            if(!preloadedBall1Thrown) {
-                
-            }else if(!preloadedBall1Thrown) {
-                
-            }
+            //*
+            //if(!preloadedBall1Thrown) {
+                flyWheelController.openDoor();
+                wait(6000);
+                //flyWheelController.closeDoor();
+                //wait(2000);
+                //preloadedBall1Thrown = true;
+            //}else if(!preloadedBall2Thrown) {
+                //flyWheelController.openDoor();
+                //wait(2000);
+                //flyWheelController.closeDoor();
+                //wait(2000);
+                //preloadedBall2Thrown = true;
+            //}
+            
+            //if(preloadedBall1Thrown && preloadedBall2Thrown){
+                flyWheelController.stopFlyWheel();
+                intakeController.stop();
+                flyWheelController.closeDoor();
+                preloadedBallsThrown = true;
+            //}//*/
         }else if(!preMoveCompleteToCollect1stSetOfBalls) {
             
         }else if(!collectionComplete1stSetOfBalls) {
@@ -111,5 +133,18 @@ public class AutoDecode  extends OpMode{
         flyWheelController.stop();
         intakeController.stop();
         goalTagProcessor.close();
-    }    
+    }
+    
+    private void wait(int ms){
+        autoLauncherTimer.reset();
+        while(autoLauncherTimer.milliseconds()<ms);
+    }
+    
+    private void sleep(int ms){
+        try{
+            Thread.sleep(ms);
+        }catch(Exception e){
+            telemetry.addData("Error: ",e.getMessage());
+        }
+    }
 }
