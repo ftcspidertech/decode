@@ -15,10 +15,13 @@ public class FlyWheelController {
     private CRServo servo;
     private Telemetry telemetry;
     private int maxVelocity = 2200;
-    private int minVelocity = 1500;
+    private int minVelocity = 1300;
     private int currentVelocity = 1700;
     private double WHEELS_INCHES_TO_TICKS = (28 * 5 * 3) / (3 * Math.PI);
     private boolean flyWheelStarted = false;
+    private boolean rightBumperPressed = false;
+    private boolean leftBumperPressed = false;
+    private static final int rate = 50;
 
     public FlyWheelController(HardwareMap hardwareMap, Gamepad pad, Telemetry tmetry){
         flywheel = hardwareMap.get(DcMotor.class, "flywheel");
@@ -33,19 +36,25 @@ public class FlyWheelController {
 
     public void run() {
         // Update max speeds
-        int rate = 1;
-        if(gamepad.right_bumper){
-            currentVelocity = Math.min(maxVelocity,currentVelocity + rate);
-            if(flyWheelStarted){
+        if(gamepad.right_bumper && flyWheelStarted){
+            leftBumperPressed = false;
+            if(!rightBumperPressed){
+                rightBumperPressed = true;
+                currentVelocity = Math.min(maxVelocity,currentVelocity + rate);
                 ((DcMotorEx) flywheel).setVelocity(currentVelocity);
             }
             telemetry.addData("Fly wheel velocity: ", currentVelocity);
-        }else if(gamepad.right_trigger==1.0){
-            currentVelocity = Math.max(minVelocity,currentVelocity - rate);
-            if(flyWheelStarted){
+        }else if(gamepad.left_bumper && flyWheelStarted){//(gamepad.right_trigger==1.0){
+            rightBumperPressed = false;
+            if(!leftBumperPressed){
+                leftBumperPressed = true;
+                currentVelocity = Math.max(minVelocity,currentVelocity - rate);
                 ((DcMotorEx) flywheel).setVelocity(currentVelocity);
             }
             telemetry.addData("Fly wheel velocity: ", currentVelocity);
+        }else{
+            rightBumperPressed = false;
+            leftBumperPressed = false;
         }
 
         // Flywheel power
@@ -84,8 +93,9 @@ public class FlyWheelController {
     }
 
     public void stop(){
-        flywheel.setPower(0);
-        servo.setPower(0);
+        stopFlyWheel();
+        //closeDoor();
+        openDoor();
     }
 
 }
