@@ -245,7 +245,7 @@ public class RobotController {
         double currentHeading,initialHeading;
         double targetHeading;
         int id;
-        long waitTime = 10; // milliseconds
+        long waitTime = 50; // milliseconds
         double divisor = 360.0;
         
         telemetry.addData("Turn right (deg):",angle);
