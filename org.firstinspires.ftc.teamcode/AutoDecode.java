@@ -128,7 +128,7 @@ public class AutoDecode  extends OpMode{
              robotController.goForward(0.5,33,DistanceUnit.INCH);
              robotController.goBackward(0.5,33,DistanceUnit.INCH);
              wait(200);
-             robotController.turnRight(0.5,125);
+             robotController.turnRight(0.5,128);
              flyWheelController.openDoor();
             telemetry.addData("Door open","");
             wait(2500);
