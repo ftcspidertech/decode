@@ -87,10 +87,10 @@ public class AutoDecode  extends OpMode{
     @Override
     public void loop() {
         if(!preMoveCompleteToThrowPreloadedBalls) {
-            robotController.goForward(0.75,45,DistanceUnit.INCH);
-            wait(100);
+            robotController.goForward(0.75,45,DistanceUnit.INCH); // 45
+            wait(0);
             robotController.turnRight(0.5,40);
-            robotController.goForward(0.75,6,DistanceUnit.INCH);
+            robotController.goForward(0.75,6,DistanceUnit.INCH); //6
 
             preMoveCompleteToThrowPreloadedBalls = true;
             
