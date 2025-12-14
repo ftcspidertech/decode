@@ -32,7 +32,7 @@ public class AutoDecode  extends OpMode{
     private IntakeController intakeController = null;
     private GoalTagProcessor goalTagProcessor = null;
     
-    private int flyWheelVelocity = 1300;
+    private int flyWheelVelocity = 1750;
     private ElapsedTime autoLauncherTimer = new ElapsedTime();
     
     // State variables ------------------------------------
@@ -62,8 +62,15 @@ public class AutoDecode  extends OpMode{
         intakeController = new IntakeController(hardwareMap,gamepad1,telemetry);
         goalTagProcessor = new GoalTagProcessor(hardwareMap,24); // ID 24 for Red Gate
         
+        
         // Initially pause camera stream.
         goalTagProcessor.stopStreaming();
+        
+        // Starting flywheel early.
+        flyWheelController.setVelocity(flyWheelVelocity);
+        
+        // Close exit door.
+        flyWheelController.closeDoor();    
         
         // Display status
         telemetry.addData("Status", "Initialized");                
@@ -71,7 +78,6 @@ public class AutoDecode  extends OpMode{
 
     @Override
     public void init_loop() {
-        flyWheelController.closeDoor();    
     }
 
     @Override
@@ -81,49 +87,47 @@ public class AutoDecode  extends OpMode{
     @Override
     public void loop() {
         if(!preMoveCompleteToThrowPreloadedBalls) {
-            robotController.goForward(0.8,12,DistanceUnit.INCH);
-            wait(200);
-            robotController.turnRight(0.5,45);
+            robotController.goForward(0.75,45,DistanceUnit.INCH);
+            wait(500);
+            robotController.turnRight(0.5,40);
+            robotController.goForward(0.75,6,DistanceUnit.INCH);
 
             preMoveCompleteToThrowPreloadedBalls = true;
 
-            flyWheelController.setVelocity(flyWheelVelocity);
-            //flyWheelController.closeDoor();
             intakeController.start();
             
-            wait(2000);
+            //wait(1000);
         }else if(!preloadedBallsThrown) {
-            //*
-            //if(!preloadedBall1Thrown) {
-                flyWheelController.openDoor();
-                wait(6000);
-                //flyWheelController.closeDoor();
-                //wait(2000);
-                //preloadedBall1Thrown = true;
-            //}else if(!preloadedBall2Thrown) {
-                //flyWheelController.openDoor();
-                //wait(2000);
-                //flyWheelController.closeDoor();
-                //wait(2000);
-                //preloadedBall2Thrown = true;
-            //}
+            flyWheelController.openDoor();
+            wait(3000);
+            //flyWheelController.closeDoor();
+            //wait(1000);
+            //flyWheelController.openDoor();
+            //wait(1000);
             
-            //if(preloadedBall1Thrown && preloadedBall2Thrown){
-                flyWheelController.stopFlyWheel();
-                intakeController.stop();
-                flyWheelController.closeDoor();
-                preloadedBallsThrown = true;
-            //}//*/
+            flyWheelController.stopFlyWheel();
+            
+            intakeController.stop();
+            flyWheelController.closeDoor();
+            
+            preloadedBallsThrown = true;
         }else if(!preMoveCompleteToCollect1stSetOfBalls) {
             
+            preMoveCompleteToCollect1stSetOfBalls = true;
         }else if(!collectionComplete1stSetOfBalls) {
             
+            collectionComplete1stSetOfBalls = true;
         }else if(!goalTagFound) {
             
+            goalTagFound = true;
         }else if(!moveCompleteToThrow1stSetOfCollectedBalls) {
             
+            moveCompleteToThrow1stSetOfCollectedBalls = true;
         }else if(!thrown1stSetOfCollectedBalls) {
             
+            thrown1stSetOfCollectedBalls = true;
+        }else{
+            stop();
         }
     }
     
