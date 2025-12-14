@@ -32,7 +32,7 @@ public class AutoDecode  extends OpMode{
     private IntakeController intakeController = null;
     private GoalTagProcessor goalTagProcessor = null;
     
-    private int flyWheelVelocity = 1750;
+    private int flyWheelVelocity = 1600; //stable set of parameters
     private ElapsedTime autoLauncherTimer = new ElapsedTime();
     
     // State variables ------------------------------------
@@ -66,11 +66,15 @@ public class AutoDecode  extends OpMode{
         // Initially pause camera stream.
         goalTagProcessor.stopStreaming();
         
+        // Close exit door.
+        flyWheelController.closeDoor();
+        
         // Starting flywheel early.
         flyWheelController.setVelocity(flyWheelVelocity);
         
-        // Close exit door.
-        flyWheelController.closeDoor();    
+        
+        // Start intake wheels
+        intakeController.start();
         
         // Display status
         telemetry.addData("Status", "Initialized");                
@@ -87,33 +91,49 @@ public class AutoDecode  extends OpMode{
     @Override
     public void loop() {
         if(!preMoveCompleteToThrowPreloadedBalls) {
-            robotController.goForward(0.75,45,DistanceUnit.INCH); // 45
-            wait(0);
+            robotController.goForward(0.75,45,DistanceUnit.INCH); // 45 //stable set of parameters
+            wait(200);
             robotController.turnRight(0.5,40);
+        
             robotController.goForward(0.75,6,DistanceUnit.INCH); //6
 
             preMoveCompleteToThrowPreloadedBalls = true;
-            
-            intakeController.start();
+
+            telemetry.addData("preMoveCompleteToThrowPreloadedBalls",preMoveCompleteToThrowPreloadedBalls);
             
             //wait(1000);
         }else if(!preloadedBallsThrown) {
             //*
+            telemetry.addData("!preloadedBallsThrown","");
             flyWheelController.openDoor();
-            wait(3000);
+            telemetry.addData("Door open","");
+            wait(2500); //stable set of parameters
             //flyWheelController.closeDoor();
             //wait(1000);
             //flyWheelController.openDoor();
             //wait(1000);
             
-            flyWheelController.stopFlyWheel();
+            //flyWheelController.stopFlyWheel();
             
-            intakeController.stop();
+            //intakeController.stop();
             flyWheelController.closeDoor();
             //*/
             
             preloadedBallsThrown = true;
         }else if(!preMoveCompleteToCollect1stSetOfBalls) {
+            // flyWheelController.closeDoor();
+             //wait(1000);
+             robotController.turnLeft(0.5,130);
+             wait(200);
+             robotController.goForward(0.5,33,DistanceUnit.INCH);
+             robotController.goBackward(0.5,33,DistanceUnit.INCH);
+             wait(200);
+             robotController.turnRight(0.5,125);
+             flyWheelController.openDoor();
+            telemetry.addData("Door open","");
+            wait(2500);
+             
+             
             
             preMoveCompleteToCollect1stSetOfBalls = true;
         }else if(!collectionComplete1stSetOfBalls) {
