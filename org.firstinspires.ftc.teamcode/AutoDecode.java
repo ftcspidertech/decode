@@ -88,16 +88,17 @@ public class AutoDecode  extends OpMode{
     public void loop() {
         if(!preMoveCompleteToThrowPreloadedBalls) {
             robotController.goForward(0.75,45,DistanceUnit.INCH);
-            wait(500);
+            wait(100);
             robotController.turnRight(0.5,40);
             robotController.goForward(0.75,6,DistanceUnit.INCH);
 
             preMoveCompleteToThrowPreloadedBalls = true;
-
+            
             intakeController.start();
             
             //wait(1000);
         }else if(!preloadedBallsThrown) {
+            //*
             flyWheelController.openDoor();
             wait(3000);
             //flyWheelController.closeDoor();
@@ -109,6 +110,7 @@ public class AutoDecode  extends OpMode{
             
             intakeController.stop();
             flyWheelController.closeDoor();
+            //*/
             
             preloadedBallsThrown = true;
         }else if(!preMoveCompleteToCollect1stSetOfBalls) {
