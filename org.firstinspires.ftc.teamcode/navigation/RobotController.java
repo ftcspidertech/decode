@@ -127,7 +127,8 @@ public class RobotController {
 
     public void goToPosition(double speed, double distance, DistanceUnit unit) {
         int targetPosition;
-        long waitTime = 50; // milliseconds
+        long waitTime = 10; // milliseconds
+        int tolerance;
         
         // Get target tick number
         if(unit==DistanceUnit.INCH){
@@ -139,6 +140,7 @@ public class RobotController {
         }else{ //if(unit==DistanceUnit.M){
             targetPosition = (int)(distance * ticksPerMM * 1000.0);        
         }
+        tolerance = (int)(targetPosition*0.01);
         //telemetry.addData("Ticks to move: ", targetPosition);
         
         // Set target positions
@@ -163,9 +165,16 @@ public class RobotController {
                 //telemetry.addData("Going backward ...", "");
                 goBackward(speed);
             }
-            while ((leftMotor.isBusy() || rightMotor.isBusy())) {
+            
+            //while ((leftMotor.isBusy() || rightMotor.isBusy())) {
+            //    Thread.sleep(waitTime);
+            //}
+            
+            // Loop until within tolerance or opmode stops
+            while (Math.abs(leftMotor.getCurrentPosition() - targetPosition) > tolerance) {
                 Thread.sleep(waitTime);
-            }
+            }            
+            
         } catch (Exception e) {
             telemetry.addData("Error: ", e.getMessage());
         }
@@ -192,7 +201,7 @@ public class RobotController {
         double currentHeading,initialHeading;
         double targetHeading;
         int id;
-        long waitTime = 50; // 10 milliseconds
+        long waitTime = 10; // 10 milliseconds
         double divisor = 360.0;
         
         telemetry.addData("Turn left (deg):",angle);
@@ -236,7 +245,7 @@ public class RobotController {
         double currentHeading,initialHeading;
         double targetHeading;
         int id;
-        long waitTime = 50; // 10 milliseconds
+        long waitTime = 10; // milliseconds
         double divisor = 360.0;
         
         telemetry.addData("Turn right (deg):",angle);
@@ -261,6 +270,9 @@ public class RobotController {
         
             }
             currentHeading = getHeading(AngleUnit.DEGREES);
+            //if(currentHeading>0){
+            //    continue;
+            //}
             if(currentHeading>0.1 && currentHeading>initialHeading){
                 currentHeading = currentHeading - divisor;
             }
@@ -271,6 +283,26 @@ public class RobotController {
         //telemetry.addData("    current heading (deg):",currentHeading);
     }
 
+    private void runToPositionWithTolerance(DcMotor motor, int targetPosition, 
+        double power, int tolerance) {
+        // Set target position
+        motor.setTargetPosition(targetPosition);
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motor.setPower(Math.abs(power));
+    
+        // Loop until within tolerance or opmode stops
+        while (Math.abs(motor.getCurrentPosition() - targetPosition) > tolerance) {
+            telemetry.addData("Target", targetPosition);
+            telemetry.addData("Current", motor.getCurrentPosition());
+            telemetry.addData("Error", Math.abs(motor.getCurrentPosition() - targetPosition));
+            telemetry.update();
+        }
+    
+        // Stop motor
+        motor.setPower(0);
+        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+    
     public void splitStickArcadeDrive(double leftSpeed, double rightSpeed) {
         leftMotor.setPower(leftSpeed);//Y - X);
         rightMotor.setPower(rightSpeed);//Y + X);
