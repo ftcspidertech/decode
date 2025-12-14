@@ -15,7 +15,6 @@ public class IntakeController {
 
     public IntakeController(HardwareMap hardwareMap, Gamepad pad, Telemetry tmetry){
         coreHex = hardwareMap.get(DcMotor.class, "coreHex");
-        //coreHex.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         coreHex.setDirection(DcMotor.Direction.REVERSE);
 
         gamepad = pad;
@@ -28,12 +27,34 @@ public class IntakeController {
                 coreHex.setPower(1.0);
                 isRunning = true;
             }else{
-                coreHex.setPower(0.0);
-                isRunning = false;
+                if (coreHex.getPower()<0){
+                    coreHex.setPower(0.0);
+                    coreHex.setPower(1.0);
+                }else{
+                    coreHex.setPower(0.0);
+                    isRunning = false;
+                }
+            }
+        }else if(gamepad.backWasPressed()){
+            if(!isRunning){
+                coreHex.setPower(-1.0);
+                isRunning = true;
+            }else{
+                if (coreHex.getPower()>0){
+                    coreHex.setPower(0.0);
+                    coreHex.setPower(-1.0);
+                }else{
+                    coreHex.setPower(0.0);
+                    isRunning = false;
+                }
             }
         }
     }
 
+    public void start(){
+        coreHex.setPower(1.0);
+    } 
+    
     public void stop(){
         coreHex.setPower(0.0);
     }    
