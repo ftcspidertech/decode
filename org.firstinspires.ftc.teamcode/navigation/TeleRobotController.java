@@ -42,7 +42,7 @@ public class TeleRobotController {
         
         // Update max speeds
         double rate = 0.001;
-        if(gamepad.left_bumper){
+        if(gamepad.right_trigger==1.0){
             maxMoveSpeed = Math.min(1,(1.0+rate)*maxMoveSpeed);
             telemetry.addData("Max move speed: ", maxMoveSpeed);
         }else if(gamepad.left_trigger==1.0){
