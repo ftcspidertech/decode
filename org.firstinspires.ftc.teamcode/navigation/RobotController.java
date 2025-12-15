@@ -127,8 +127,12 @@ public class RobotController {
 
     public void goToPosition(double speed, double distance, DistanceUnit unit) {
         int targetPosition;
-        long waitTime = 10; // milliseconds
-        int tolerance;
+        long waitTime = 0; // milliseconds
+        //int tolerance;
+        
+        stopMotor();
+        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
+        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
         
         // Get target tick number
         if(unit==DistanceUnit.INCH){
@@ -140,7 +144,7 @@ public class RobotController {
         }else{ //if(unit==DistanceUnit.M){
             targetPosition = (int)(distance * ticksPerMM * 1000.0);        
         }
-        tolerance = (int)(targetPosition*0.01);
+        //tolerance = Math.abs((int)(targetPosition*0.01));
         //telemetry.addData("Ticks to move: ", targetPosition);
         
         // Set target positions
@@ -149,7 +153,10 @@ public class RobotController {
         
         leftMotor.setTargetPosition(leftMotor.getCurrentPosition() + targetPosition);
         rightMotor.setTargetPosition(rightMotor.getCurrentPosition() + targetPosition);
-        
+
+        //telemetry.addData("leftMotor.TargetPosition = ",leftMotor.getTargetPosition());
+        //telemetry.addData("rightMotor.TargetPosition = ",rightMotor.getTargetPosition());
+
         // Set motor options
         leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -166,14 +173,21 @@ public class RobotController {
                 goBackward(speed);
             }
             
-            //while ((leftMotor.isBusy() || rightMotor.isBusy())) {
-            //    Thread.sleep(waitTime);
-            //}
+            /*
+            while ((leftMotor.isBusy() || rightMotor.isBusy())) {
+                telemetry.addData("Current left motor position: ",leftMotor.getCurrentPosition());
+                telemetry.addData("    Current right motor position: ",rightMotor.getCurrentPosition());
+                Thread.sleep(waitTime);
+            }*/
             
             // Loop until within tolerance or opmode stops
-            while (Math.abs(leftMotor.getCurrentPosition() - targetPosition) > tolerance) {
+            //*
+            while (Math.abs(leftMotor.getCurrentPosition()-targetPosition)>10 ||
+                Math.abs(rightMotor.getCurrentPosition()-targetPosition)>10) {
+                //telemetry.addData("Current left motor position: ",leftMotor.getCurrentPosition());
+                //telemetry.addData("    Current right motor position: ",rightMotor.getCurrentPosition());
                 Thread.sleep(waitTime);
-            }            
+            }//*/            
             
         } catch (Exception e) {
             telemetry.addData("Error: ", e.getMessage());
@@ -185,7 +199,7 @@ public class RobotController {
         // Switch back to normal mode
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        
+
         //telemetry.addData("Movement Complete!", "");
     }
     
@@ -201,10 +215,10 @@ public class RobotController {
         double currentHeading,initialHeading;
         double targetHeading;
         int id;
-        long waitTime = 10; // 10 milliseconds
+        long waitTime = 0; // 10 milliseconds
         double divisor = 360.0;
         
-        telemetry.addData("Turn left (deg):",angle);
+        //telemetry.addData("Turn left (deg):",angle);
         
         // With Yaw reset, current heading is always close to 0.
         imu.resetYaw();
@@ -214,8 +228,8 @@ public class RobotController {
 
         // Target heading
         targetHeading = currentHeading + (Math.abs(angle)%divisor);
-        telemetry.addData("    target heading (deg):",targetHeading);
-        telemetry.addData("    Motor turning left with power:",speed);
+        //telemetry.addData("    target heading (deg):",targetHeading);
+        //telemetry.addData("    Motor turning left with power:",speed);
 
         robotMoving = true;
         
@@ -227,14 +241,16 @@ public class RobotController {
                 telemetry.addData("Error: ", e.getMessage());
             }
             currentHeading = getHeading(AngleUnit.DEGREES);
+            //telemetry.addData("Current heading: ",currentHeading);
             if(currentHeading<-0.1 && currentHeading<initialHeading){
                 currentHeading = divisor + currentHeading;
+                //telemetry.addData("Current heading: ",currentHeading);
             }
         }
         stopMotor();
 
         robotMoving = false;
-        telemetry.addData("    current heading (deg):",currentHeading);
+        //telemetry.addData("    current heading (deg):",currentHeading);
     }
 
     public void turnRight(double speed, double angle){
@@ -245,10 +261,10 @@ public class RobotController {
         double currentHeading,initialHeading;
         double targetHeading;
         int id;
-        long waitTime = 50; // milliseconds
+        long waitTime = 0; // milliseconds
         double divisor = 360.0;
         
-        telemetry.addData("Turn right (deg):",angle);
+        //telemetry.addData("Turn right (deg):",angle);
         
         // With Yaw reset, current heading is always close to 0.
         imu.resetYaw();
@@ -267,14 +283,13 @@ public class RobotController {
             try{
                 Thread.sleep(waitTime);
             }catch(InterruptedException e){
-        
+                telemetry.addData("Error: ",e.getMessage());
             }
             currentHeading = getHeading(AngleUnit.DEGREES);
-            //if(currentHeading>0){
-            //    continue;
-            //}
+            //telemetry.addData("Current heading: ",currentHeading);
             if(currentHeading>0.1 && currentHeading>initialHeading){
                 currentHeading = currentHeading - divisor;
+                //telemetry.addData("Current heading: ",currentHeading);
             }
         }
         stopMotor();
