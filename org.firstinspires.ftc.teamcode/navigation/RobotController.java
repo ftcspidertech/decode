@@ -128,9 +128,9 @@ public class RobotController {
     public void goToPosition(double speed, double distance, DistanceUnit unit) {
         int targetPosition;
         long waitTime = 0; // milliseconds
-        //int tolerance;
+        int tolerance = 10;;
         
-        stopMotor();
+        //stopMotor();
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
         rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
         
@@ -165,13 +165,14 @@ public class RobotController {
         // Set power and move the robot. Wait until it's done.
         speed = Math.abs(speed);
         try{
+            /*
             if(distance>0){
                 //telemetry.addData("Going forward ...", "");
                 goForward(speed);
             }else{
                 //telemetry.addData("Going backward ...", "");
                 goBackward(speed);
-            }
+            }*/
             
             /*
             while ((leftMotor.isBusy() || rightMotor.isBusy())) {
@@ -180,12 +181,17 @@ public class RobotController {
                 Thread.sleep(waitTime);
             }*/
             
-            // Loop until within tolerance or opmode stops
+            // Loop until within tolerance
             //*
-            while (Math.abs(leftMotor.getCurrentPosition()-targetPosition)>10 ||
-                Math.abs(rightMotor.getCurrentPosition()-targetPosition)>10) {
+            while (Math.abs(leftMotor.getCurrentPosition()-targetPosition)>tolerance ||
+                Math.abs(rightMotor.getCurrentPosition()-targetPosition)>tolerance) {
                 //telemetry.addData("Current left motor position: ",leftMotor.getCurrentPosition());
                 //telemetry.addData("    Current right motor position: ",rightMotor.getCurrentPosition());
+                if(distance>0){
+                    goForward(speed);
+                }else{
+                    goBackward(speed);
+                }
                 Thread.sleep(waitTime);
             }//*/            
             
