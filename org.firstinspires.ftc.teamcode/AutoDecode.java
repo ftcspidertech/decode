@@ -30,7 +30,7 @@ public class AutoDecode  extends OpMode{
     private RobotController robotController = null;
     private FlyWheelController flyWheelController = null;
     private IntakeController intakeController = null;
-    private GoalTagProcessor goalTagProcessor = null;
+    //private GoalTagProcessor goalTagProcessor = null;
     
     private int flyWheelVelocity = 1600; //stable set of parameters
     private ElapsedTime autoLauncherTimer = new ElapsedTime();
@@ -51,20 +51,26 @@ public class AutoDecode  extends OpMode{
     // Task 4: Collect 2nd set of balls
     
     
+    // Test task
+    private boolean testComplete = false;
+    
     
     
     @Override
     public void init() {
-                
-        // Initialize controllers.
+        // Initialize controllers
+        initControllers();
+    }
+
+    private void initControllers(){
+        // Initialize controller variables.
         robotController = new  RobotController(hardwareMap,telemetry);
         flyWheelController = new FlyWheelController(hardwareMap,gamepad1,telemetry);
         intakeController = new IntakeController(hardwareMap,gamepad1,telemetry);
-        goalTagProcessor = new GoalTagProcessor(hardwareMap,24); // ID 24 for Red Gate
-        
+        //goalTagProcessor = new GoalTagProcessor(hardwareMap,24); // ID 24 for Red Gate
         
         // Initially pause camera stream.
-        goalTagProcessor.stopStreaming();
+        //goalTagProcessor.stopStreaming();
         
         // Close exit door.
         flyWheelController.closeDoor();
@@ -72,12 +78,11 @@ public class AutoDecode  extends OpMode{
         // Starting flywheel early.
         flyWheelController.setVelocity(flyWheelVelocity);
         
-        
         // Start intake wheels
         intakeController.start();
         
         // Display status
-        telemetry.addData("Status", "Initialized");                
+        telemetry.addData("Status", "Robot controllers initialized");                
     }
 
     @Override
@@ -90,51 +95,64 @@ public class AutoDecode  extends OpMode{
 
     @Override
     public void loop() {
+        stableLoopDec14();
+        
+        //telemetry.addData("Running ", "test loop");
+        //testLoop();
+    }
+    
+    @Override
+    public void stop() {
+        robotController.stop();
+        flyWheelController.stop();
+        intakeController.stop();
+        //goalTagProcessor.close();
+    }
+    
+    private void wait(int ms){
+        autoLauncherTimer.reset();
+        while(autoLauncherTimer.milliseconds()<ms);
+    }
+    
+    private void sleep(int ms){
+        try{
+            Thread.sleep(ms);
+        }catch(Exception e){
+            telemetry.addData("Error: ",e.getMessage());
+        }
+    }
+    
+    private void stableLoopDec14(){
         if(!preMoveCompleteToThrowPreloadedBalls) {
             robotController.goForward(0.75,45,DistanceUnit.INCH); // 45 //stable set of parameters
             wait(200);
             robotController.turnRight(0.5,40);
-        
+            wait(200);
             robotController.goForward(0.75,6,DistanceUnit.INCH); //6
 
             preMoveCompleteToThrowPreloadedBalls = true;
-
-            telemetry.addData("preMoveCompleteToThrowPreloadedBalls",preMoveCompleteToThrowPreloadedBalls);
-            
-            //wait(1000);
         }else if(!preloadedBallsThrown) {
             //*
-            telemetry.addData("!preloadedBallsThrown","");
             flyWheelController.openDoor();
-            telemetry.addData("Door open","");
             wait(2500); //stable set of parameters
-            //flyWheelController.closeDoor();
-            //wait(1000);
-            //flyWheelController.openDoor();
-            //wait(1000);
-            
-            //flyWheelController.stopFlyWheel();
-            
+
             //intakeController.stop();
             flyWheelController.closeDoor();
             //*/
-            
             preloadedBallsThrown = true;
         }else if(!preMoveCompleteToCollect1stSetOfBalls) {
-            // flyWheelController.closeDoor();
-             //wait(1000);
+            //*
              robotController.turnLeft(0.5,130);
              wait(200);
              robotController.goForward(0.5,33,DistanceUnit.INCH);
+             wait(200);
              robotController.goBackward(0.5,33,DistanceUnit.INCH);
              wait(200);
              robotController.turnRight(0.5,130);
              flyWheelController.openDoor();
             telemetry.addData("Door open","");
             wait(2500);
-             
-             
-            
+            //*/
             preMoveCompleteToCollect1stSetOfBalls = true;
         }else if(!collectionComplete1stSetOfBalls) {
             
@@ -153,24 +171,26 @@ public class AutoDecode  extends OpMode{
         }
     }
     
-    @Override
-    public void stop() {
-        robotController.stop();
-        flyWheelController.stop();
-        intakeController.stop();
-        goalTagProcessor.close();
-    }
-    
-    private void wait(int ms){
-        autoLauncherTimer.reset();
-        while(autoLauncherTimer.milliseconds()<ms);
-    }
-    
-    private void sleep(int ms){
-        try{
-            Thread.sleep(ms);
-        }catch(Exception e){
-            telemetry.addData("Error: ",e.getMessage());
+    private void testLoop(){
+        telemetry.addData("    Inside ", "test loop");
+            telemetry.addData("        testComplete",testComplete);
+        if(!testComplete) {
+            telemetry.addData("        Go ", "forward");
+            robotController.goForward(0.5,6,DistanceUnit.INCH);
+            //try{
+            //    Thread.sleep(5000);
+            //}catch(Exception e){
+            //}
+            //wait(200);
+            telemetry.addData("        Turn ", "right");
+            
+            robotController.turnRight(0.5,45);
+            telemetry.addData("        Task ", "done");
+        
+            testComplete = true;
+            telemetry.addData("        testComplete",testComplete);
+        }else{
+            stop();
         }
     }
 }
