@@ -21,14 +21,33 @@ public class TeleOpDecode extends OpMode {
         intakeController = new IntakeController(hardwareMap,gamepad1,telemetry);
 
         // Display status
-        telemetry.addData("Status", "Initialized");
+        telemetry.addData("Status", "Robot controllers initialized");
     }
 
     @Override
+    public void start(){
+        telemetry.addData("Status","Bismillah, starting now."); 
+    }
+    
+    @Override
     public void loop() {
+        if(getRuntime()>=2.0){
+            telemetry.addData("Status","Alhamdulillah, done!");            
+            requestOpModeStop();
+            idle();
+        }
+            
         teleRobotController.run();
         flyWheelController.run();
         intakeController.run();
+    }
+
+    @Override
+    public void stop(){
+        teleRobotController.stop();
+        flyWheelController.stop();
+        intakeController.stop();
+        telemetry.addData("Status ","Robot controllers stopped."); 
     }
     
 }
