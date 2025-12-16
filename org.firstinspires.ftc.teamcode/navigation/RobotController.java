@@ -128,7 +128,7 @@ public class RobotController {
     public void goToPosition(double speed, double distance, DistanceUnit unit) {
         int targetPosition;
         long waitTime = 0; // milliseconds
-        int tolerance = 10;;
+        int tolerance;
         
         //stopMotor();
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
@@ -144,7 +144,7 @@ public class RobotController {
         }else{ //if(unit==DistanceUnit.M){
             targetPosition = (int)(distance * ticksPerMM * 1000.0);        
         }
-        //tolerance = Math.abs((int)(targetPosition*0.01));
+        tolerance = Math.abs(targetPosition);
         //telemetry.addData("Ticks to move: ", targetPosition);
         
         // Set target positions
@@ -183,8 +183,12 @@ public class RobotController {
             
             // Loop until within tolerance
             //*
-            while (Math.abs(leftMotor.getCurrentPosition()-targetPosition)>tolerance ||
-                Math.abs(rightMotor.getCurrentPosition()-targetPosition)>tolerance) {
+            //while (Math.abs(leftMotor.getCurrentPosition())<tolerance ||
+            //    Math.abs(rightMotor.getCurrentPosition())<tolerance) {
+            
+            while (Math.abs(leftMotor.getCurrentPosition()-targetPosition)>10 ||
+                Math.abs(rightMotor.getCurrentPosition()-targetPosition)>10) {
+                    
                 //telemetry.addData("Current left motor position: ",leftMotor.getCurrentPosition());
                 //telemetry.addData("    Current right motor position: ",rightMotor.getCurrentPosition());
                 if(distance>0){
