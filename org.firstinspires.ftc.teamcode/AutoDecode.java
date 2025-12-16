@@ -134,7 +134,7 @@ public class AutoDecode  extends OpMode{
         }else if(!preloadedBallsThrown) {
             //*
             flyWheelController.openDoor();
-            wait(2500); //stable set of parameters
+            wait(5000); //stable set of parameters
 
             //intakeController.stop();
             flyWheelController.closeDoor();
