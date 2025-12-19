@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.navigation.TeleRobotController;
 import org.firstinspires.ftc.teamcode.decode.FlyWheelController;
 import org.firstinspires.ftc.teamcode.decode.IntakeController;
@@ -12,6 +13,7 @@ public class TeleOpDecode extends OpMode {
     private TeleRobotController teleRobotController;
     private FlyWheelController flyWheelController;
     private IntakeController intakeController;
+    private ElapsedTime runTimer = new ElapsedTime();
 
     @Override
     public void init() {
@@ -26,16 +28,19 @@ public class TeleOpDecode extends OpMode {
 
     @Override
     public void start(){
-        telemetry.addData("Status","Bismillah, starting now."); 
+        telemetry.addData("Status","Bismillah, starting now.");
+        runTimer.reset();
     }
     
     @Override
     public void loop() {
-        if(getRuntime()>=2.0){
+        double runtime = runTimer.seconds();//getRuntime();
+        //telemetry.addData("Runtime",runtime);            
+        //*
+        if(runtime>=120.0){
             telemetry.addData("Status","Alhamdulillah, done!");            
             requestOpModeStop();
-            idle();
-        }
+        }//*/
             
         teleRobotController.run();
         flyWheelController.run();
