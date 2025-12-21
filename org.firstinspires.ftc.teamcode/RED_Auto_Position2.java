@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.vision.GoalTagProcessor;
 
 /*
  * Autonomous tasks:
- *   1. Throw the pre-loaded balls. The robot may need to move to a suitable location from its initial position for this task.
+ *   1. Step back x inches than throw the pre-loaded balls. The robot may need to move to a suitable location from its initial position for this task.
  *   2. Use odometry or camera to move to another location to collect more balls.
  *   3. Collect balls.
  *   4. Use camera to find the designated goal tag.
@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.vision.GoalTagProcessor;
  *   6. Throw the collected balls.
  *   7. If possible collect more balls. 
  *   
- */
+ *
 
 @Autonomous()
 public class RED_Auto_Position2  extends OpMode{
@@ -95,7 +95,7 @@ public class RED_Auto_Position2  extends OpMode{
 
     @Override
     public void loop() {
-        stableLoopDec14();
+        stableLoopREDPosition2();
         
         //telemetry.addData("Running ", "test loop");
         //testLoop();
@@ -121,8 +121,42 @@ public class RED_Auto_Position2  extends OpMode{
             telemetry.addData("Error: ",e.getMessage());
         }
     }
+
+    private void stableLoopREDPosition2(){
+        if(!preMoveCompleteToThrowPreloadedBalls) {
+            robotController.goBackward(0.75,39.5,DistanceUnit.INCH); // 39.5 //stable set of parameters
+            wait(200);
+            flyWheelController.openDoor();
+             wait(5000); //stable set of parameters
+             flyWheelController.closeDoor();
+                         
+            preMoveCompleteToThrowPreloadedBalls = true;
+        }else if(!preloadedBallsThrown) {
+       
+            preloadedBallsThrown = true;
+        }else if(!preMoveCompleteToCollect1stSetOfBalls) {
+            
+             
+            preMoveCompleteToCollect1stSetOfBalls = true;
+        }else if(!collectionComplete1stSetOfBalls) {
+            
+            collectionComplete1stSetOfBalls = true;
+        }else if(!goalTagFound) {
+            
+            goalTagFound = true;
+        }else if(!moveCompleteToThrow1stSetOfCollectedBalls) {
+            
+            moveCompleteToThrow1stSetOfCollectedBalls = true;
+        }else if(!thrown1stSetOfCollectedBalls) {
+            
+            thrown1stSetOfCollectedBalls = true;
+        }else{
+            stop();
+        }
+    }
+
     
-    private void stableLoopDec14(){
+    private void stableLoopREDPosition1(){
         if(!preMoveCompleteToThrowPreloadedBalls) {
             robotController.goForward(0.75,45,DistanceUnit.INCH); // 45 //stable set of parameters
             wait(200);
