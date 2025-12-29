@@ -137,6 +137,10 @@ public class TeleRobotController {
         
     }
     
+    public void stop(){
+        robot.stop();
+    }
+    
     private double sfilter(double x, double a, double b){
         double y;
         if(x<=a){
