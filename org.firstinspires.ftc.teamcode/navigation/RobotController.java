@@ -21,8 +21,21 @@ public class RobotController {
     private IMU imu;
     private Telemetry telemetry;
     private boolean robotMoving = false;
+    //private double calibrationFactor = 1.0;
+    private double leftCalibrationFactor = 1.0;
+    private double rightCalibrationFactor = 1.0;
     
     public RobotController(HardwareMap hardwareMap, Telemetry tmetry) {
+        initRobotController(hardwareMap,tmetry);
+    }
+
+    public RobotController(HardwareMap hardwareMap, Telemetry tmetry, double leftCalib, double rightCalib) {
+        initRobotController(hardwareMap,tmetry);
+        leftCalibrationFactor = Math.abs(leftCalib);
+        rightCalibrationFactor = Math.abs(rightCalib);
+    }
+    
+    private void initRobotController(HardwareMap hardwareMap, Telemetry tmetry){
         // Telemetry
         telemetry = tmetry;
         
@@ -77,8 +90,20 @@ public class RobotController {
     }
 
     private void driveMotor(double speed){
-        leftMotor.setPower(speed);
-        rightMotor.setPower(speed);
+        double leftSpeed = Math.max(Math.min(speed*leftCalibrationFactor,1),-1);
+        double rightSpeed = Math.max(Math.min(speed*rightCalibrationFactor,1),-1);
+        
+        /*
+        if (leftSpeed>1.0){
+            leftSpeed = 1.0;
+        }else if(leftSpeed<-1){
+            leftSpeed = -1;
+        }
+        */
+        //telemetry.addData("Right motor speed",rightSpeed);
+        //telemetry.addData("Left motor speed",leftSpeed);
+        leftMotor.setPower(leftSpeed);
+        rightMotor.setPower(rightSpeed);
     }
     
     public void goForward(double speed){
@@ -105,8 +130,10 @@ public class RobotController {
     }
 
     private void turnMotor(double speed){
-        leftMotor.setPower(-speed);
-        rightMotor.setPower(speed);
+        double leftSpeed = Math.max(Math.min(speed*leftCalibrationFactor,1),-1);
+        double rightSpeed = Math.max(Math.min(speed*rightCalibrationFactor,1),-1);
+        leftMotor.setPower(-leftSpeed);
+        rightMotor.setPower(rightSpeed);
     }
 
     public void turnLeft(double speed){
@@ -183,11 +210,9 @@ public class RobotController {
             
             // Loop until within tolerance
             //*
-            //while (Math.abs(leftMotor.getCurrentPosition())<tolerance ||
-            //    Math.abs(rightMotor.getCurrentPosition())<tolerance) {
-            
-            while (Math.abs(leftMotor.getCurrentPosition()-targetPosition)>10 ||
+            while (Math.abs(leftMotor.getCurrentPosition()-targetPosition)>10||
                 Math.abs(rightMotor.getCurrentPosition()-targetPosition)>10) {
+            //while (Math.abs(rightMotor.getCurrentPosition()-targetPosition)>10) {
                     
                 //telemetry.addData("Current left motor position: ",leftMotor.getCurrentPosition());
                 //telemetry.addData("    Current right motor position: ",rightMotor.getCurrentPosition());
