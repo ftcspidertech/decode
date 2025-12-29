@@ -32,8 +32,10 @@ public class AutoDecode  extends OpMode{
     private IntakeController intakeController = null;
     //private GoalTagProcessor goalTagProcessor = null;
     
-    private int flyWheelVelocity = 1600; //stable set of parameters
+    private int flyWheelVelocity = 1500; //stable set of parameters
     private ElapsedTime autoLauncherTimer = new ElapsedTime();
+    private double movePower = 0.8;
+    private double turnPower = 0.5;
     
     // State variables ------------------------------------
     // Task 1: Throw pre-loaded balls. 
@@ -85,14 +87,7 @@ public class AutoDecode  extends OpMode{
         telemetry.addData("Status", "Robot controllers initialized");                
     }
 
-    @Override
-    public void init_loop() {
-    }
-
-    @Override
-    public void start() {
-    }
-
+    
     @Override
     public void loop() {
         stableLoopDec14();
@@ -124,11 +119,11 @@ public class AutoDecode  extends OpMode{
     
     private void stableLoopDec14(){
         if(!preMoveCompleteToThrowPreloadedBalls) {
-            robotController.goForward(0.75,45,DistanceUnit.INCH); // 45 //stable set of parameters
+            robotController.goForward(movePower,45,DistanceUnit.INCH); // 45 //stable set of parameters
             wait(200);
-            robotController.turnRight(0.5,40);
+            robotController.turnRight(turnPower,45);
             wait(200);
-            robotController.goForward(0.75,6,DistanceUnit.INCH); //6
+            robotController.goForward(movePower,6,DistanceUnit.INCH); //6
 
             preMoveCompleteToThrowPreloadedBalls = true;
         }else if(!preloadedBallsThrown) {
@@ -142,16 +137,24 @@ public class AutoDecode  extends OpMode{
             preloadedBallsThrown = true;
         }else if(!preMoveCompleteToCollect1stSetOfBalls) {
             //*
-             robotController.turnLeft(0.5,130);
+             robotController.turnLeft(turnPower,135);// turn left to the balls
              wait(200);
-             robotController.goForward(0.5,33,DistanceUnit.INCH);
+             robotController.goForward(movePower,39,DistanceUnit.INCH); // move forward to get balls
              wait(200);
-             robotController.goBackward(0.5,33,DistanceUnit.INCH);
+             robotController.goBackward(movePower,39,DistanceUnit.INCH);// go back to the throwing position
              wait(200);
-             robotController.turnRight(0.5,130);
+             robotController.turnRight(turnPower,139); // turn right to gate to shoot
              flyWheelController.openDoor();
-            telemetry.addData("Door open","");
-            wait(2500);
+             wait(4500); // wait for balls to shoot
+             flyWheelController.closeDoor(); // close door after done 
+             robotController.turnLeft(turnPower,175);// turn to retrieve balls from other side 
+             wait(200);
+             robotController.goForward(movePower,45,DistanceUnit.INCH);// aqquire the balls 
+             //robotController.driveMotorCurveLeft(movePower,0.5);
+             wait(200);
+             robotController.turnLeft(turnPower,90); 
+             wait(200);
+             robotController.goForward(movePower,12,DistanceUnit.INCH); 
             //*/
             preMoveCompleteToCollect1stSetOfBalls = true;
         }else if(!collectionComplete1stSetOfBalls) {
@@ -176,7 +179,7 @@ public class AutoDecode  extends OpMode{
             telemetry.addData("        testComplete",testComplete);
         if(!testComplete) {
             telemetry.addData("        Go ", "forward");
-            robotController.goForward(0.5,6,DistanceUnit.INCH);
+            robotController.goForward(movePower,45,DistanceUnit.INCH);
             //try{
             //    Thread.sleep(5000);
             //}catch(Exception e){
@@ -184,7 +187,7 @@ public class AutoDecode  extends OpMode{
             //wait(200);
             telemetry.addData("        Turn ", "right");
             
-            robotController.turnRight(0.5,45);
+            robotController.turnRight(turnPower,45);
             telemetry.addData("        Task ", "done");
         
             testComplete = true;
