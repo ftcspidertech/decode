@@ -67,7 +67,7 @@ public class RED_Auto_Position2  extends OpMode{
     private void initControllers(){
         // Initialize controller variables.
         double leftCalib = 1.0;
-        double rightCalib = 0.98;
+        double rightCalib = 1.0;
         robotController = new  RobotController(hardwareMap,telemetry,leftCalib,rightCalib);
         flyWheelController = new FlyWheelController(hardwareMap,gamepad1,telemetry);
         intakeController = new IntakeController(hardwareMap,gamepad1,telemetry);
