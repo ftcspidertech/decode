@@ -25,7 +25,7 @@ import org.firstinspires.ftc.teamcode.vision.GoalTagProcessor;
  */
 
 @Autonomous()
-public class BLUE_Auto_Position2  extends OpMode{
+public class RED_Auto_Position2  extends OpMode{
     // Controller variables -------------------------------
     private RobotController robotController = null;
     private FlyWheelController flyWheelController = null;
@@ -131,18 +131,18 @@ public class BLUE_Auto_Position2  extends OpMode{
         if(!preMoveCompleteToThrowPreloadedBalls) {
             robotController.goBackward(moveSpeed,45,DistanceUnit.INCH); // 39.5 //stable set of parameters
             wait(200);
-            robotController.turnRight(turnSpeed,3);
+            robotController.turnLeft(turnSpeed,3);
             wait(200);
             flyWheelController.openDoor();
              wait(5000); //stable set of parameters
              flyWheelController.closeDoor();
-             robotController.turnRight(turnSpeed,30);
+             robotController.turnLeft(turnSpeed,30);
              wait(200);
              robotController.goForward(moveSpeed,32,DistanceUnit.INCH);
              wait(200);
              robotController.goBackward(moveSpeed,28,DistanceUnit.INCH);
              wait(200);
-             robotController.turnLeft(turnSpeed,40);
+             robotController.turnRight(turnSpeed,40);
              wait(200);
              flyWheelController.openDoor();
              wait(5000);
