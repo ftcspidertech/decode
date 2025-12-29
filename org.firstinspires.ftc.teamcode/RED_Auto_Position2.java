@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.vision.GoalTagProcessor;
  *   6. Throw the collected balls.
  *   7. If possible collect more balls. 
  *   
- *
+ */
 
 @Autonomous()
 public class RED_Auto_Position2  extends OpMode{
@@ -32,7 +32,7 @@ public class RED_Auto_Position2  extends OpMode{
     private IntakeController intakeController = null;
     //private GoalTagProcessor goalTagProcessor = null;
     
-    private int flyWheelVelocity = 1600; //stable set of parameters
+    private int flyWheelVelocity = 1400; //stable set of parameters
     private ElapsedTime autoLauncherTimer = new ElapsedTime();
     
     // State variables ------------------------------------
@@ -53,6 +53,8 @@ public class RED_Auto_Position2  extends OpMode{
     
     // Test task
     private boolean testComplete = false;
+    private double moveSpeed = 0.75;
+    private double turnSpeed = 0.5;
     
     
     
@@ -64,10 +66,13 @@ public class RED_Auto_Position2  extends OpMode{
 
     private void initControllers(){
         // Initialize controller variables.
-        robotController = new  RobotController(hardwareMap,telemetry);
+        double leftCalib = 1.0;
+        double rightCalib = 0.98;
+        robotController = new  RobotController(hardwareMap,telemetry,leftCalib,rightCalib);
         flyWheelController = new FlyWheelController(hardwareMap,gamepad1,telemetry);
         intakeController = new IntakeController(hardwareMap,gamepad1,telemetry);
         //goalTagProcessor = new GoalTagProcessor(hardwareMap,24); // ID 24 for Red Gate
+        flyWheelController.setCurrentVelocity(flyWheelVelocity);
         
         // Initially pause camera stream.
         //goalTagProcessor.stopStreaming();
@@ -124,10 +129,23 @@ public class RED_Auto_Position2  extends OpMode{
 
     private void stableLoopREDPosition2(){
         if(!preMoveCompleteToThrowPreloadedBalls) {
-            robotController.goBackward(0.75,39.5,DistanceUnit.INCH); // 39.5 //stable set of parameters
+            robotController.goBackward(moveSpeed,45,DistanceUnit.INCH); // 39.5 //stable set of parameters
+            wait(200);
+            robotController.turnRight(turnSpeed,3);
             wait(200);
             flyWheelController.openDoor();
              wait(5000); //stable set of parameters
+             flyWheelController.closeDoor();
+             robotController.turnRight(turnSpeed,30);
+             wait(200);
+             robotController.goForward(moveSpeed,32,DistanceUnit.INCH);
+             wait(200);
+             robotController.goBackward(moveSpeed,28,DistanceUnit.INCH);
+             wait(200);
+             robotController.turnLeft(turnSpeed,40);
+             wait(200);
+             flyWheelController.openDoor();
+             wait(5000);
              flyWheelController.closeDoor();
                          
             preMoveCompleteToThrowPreloadedBalls = true;
