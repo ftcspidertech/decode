@@ -19,8 +19,8 @@ public class TeleOpDecode extends OpMode {
     public void init() {
         // Controllers
         teleRobotController = new TeleRobotController(hardwareMap,gamepad1,telemetry);
-        flyWheelController = new FlyWheelController(hardwareMap,gamepad1,telemetry);
-        intakeController = new IntakeController(hardwareMap,gamepad1,telemetry);
+        flyWheelController = new FlyWheelController(hardwareMap,gamepad2,telemetry);
+        intakeController = new IntakeController(hardwareMap,gamepad2,telemetry);
 
         // Display status
         telemetry.addData("Status", "Robot controllers initialized");
@@ -35,7 +35,7 @@ public class TeleOpDecode extends OpMode {
     @Override
     public void loop() {
         double runtime = runTimer.seconds();//getRuntime();
-        //telemetry.addData("Runtime",runtime);            
+        telemetry.addData("Remaining time",(120.0-runtime));            
         //*
         if(runtime>=120.0){
             telemetry.addData("Status","Alhamdulillah, done!");            
