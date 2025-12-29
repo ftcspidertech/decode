@@ -15,8 +15,8 @@ public class FlyWheelController {
     private CRServo servo;
     private Telemetry telemetry;
     private int maxVelocity = 2200;
-    private int minVelocity = 1300;
-    private int currentVelocity = 1700;
+    private int minVelocity = 1000;
+    private int currentVelocity = 1500;
     private double WHEELS_INCHES_TO_TICKS = (28 * 5 * 3) / (3 * Math.PI);
     private boolean flyWheelStarted = false;
     private boolean rightBumperPressed = false;
@@ -33,6 +33,12 @@ public class FlyWheelController {
         gamepad = pad;
         telemetry = tmetry;
     }
+
+    public void setCurrentVelocity(int velocity){
+        currentVelocity = velocity;
+        //((DcMotorEx) flywheel).setVelocity(currentVelocity);
+    }
+
 
     public void run() {
         // Update max speeds
@@ -94,8 +100,8 @@ public class FlyWheelController {
 
     public void stop(){
         stopFlyWheel();
-        //closeDoor();
-        openDoor();
+        closeDoor();
+       // openDoor();
     }
 
 }
