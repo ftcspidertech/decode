@@ -74,7 +74,7 @@ public class RED_Auto_Position1_with_Camera extends OpMode{
 		goalTagProcessor = new GoalTagProcessor(hardwareMap,24); // ID 24 for Red Gate
 
 		// Initially pause camera stream.
-		goalTagProcessor.stopStreaming();
+		//goalTagProcessor.stopStreaming();
 
 		// Close exit door.
 		flyWheelController.closeDoor();
@@ -102,7 +102,7 @@ public class RED_Auto_Position1_with_Camera extends OpMode{
 	public void stop() {
 		robotController.stop();
 		flyWheelController.stop();
-		intakeController.stop();
+		intakeController.stop();		
 		goalTagProcessor.close();
 	}
 
@@ -146,11 +146,11 @@ public class RED_Auto_Position1_with_Camera extends OpMode{
 			robotController.goBackward(movePower,30,DistanceUnit.INCH);
 			wait(200);
 			// Resume camera streaming
-			goalTagProcessor.resumeStreaming();
+			//goalTagProcessor.resumeStreaming();
 			robotController.turnLeft(turnPower,40);
 			// Get goal tag location
 			rangeBearing = goalTagProcessor.getRangeBearing();
-			goalTagProcessor.stopStreaming();
+			//goalTagProcessor.stopStreaming();
 			if(rangeBearing!=null){
 				telemetry.addData("range = ",rangeBearing[0]);
 				telemetry.addData("bearing = ",rangeBearing[1]);
