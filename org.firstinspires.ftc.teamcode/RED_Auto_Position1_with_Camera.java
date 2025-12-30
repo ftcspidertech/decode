@@ -120,6 +120,8 @@ public class RED_Auto_Position1_with_Camera extends OpMode{
     }
     
     private void runAutoTasks(){
+        private double[] rangeBearing;
+
         if(!preMoveCompleteToThrowPreloadedBalls) {
             robotController.goForward(movePower,48,DistanceUnit.INCH); // 70
             wait(200);
@@ -143,10 +145,24 @@ public class RED_Auto_Position1_with_Camera extends OpMode{
              wait(200);
              robotController.goBackward(movePower,30,DistanceUnit.INCH);
              wait(200);
+             // Resume camera streaming
+             goalTagProcessor.resumeStreaming();
              robotController.turnLeft(turnPower,40);
+             // Get goal tag location
+            rangeBearing = goalTagProcessor.getRangeBearing();
+            if(rangeBearing!=null){
+                telemetry.addData("range = ",rangeBearing[0]);
+                telemetry.addData("bearing = ",rangeBearing[1]);
+                
+                if(rangeBearing[1]>1){
+                    robotController.turnLeft(turnPower,rangeBearing[1]/1.0);
+                }else if(rangeBearing[1]<-1){
+                    robot.turnRight(turnPower,rangeBearing[1]/1.0);
+                }                
+            }            
              flyWheelController.openDoor();
              wait(6000);
-              flyWheelController.closeDoor();
+             flyWheelController.closeDoor();
             
             preMoveCompleteToCollect1stSetOfBalls = true;
         }else if(!collectionComplete1stSetOfBalls) {
