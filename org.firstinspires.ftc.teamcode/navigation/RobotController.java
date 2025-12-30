@@ -259,6 +259,69 @@ public class RobotController {
         }            
         goToPosition(speed,-distance,unit,true);
     }
+
+    public void goToPositionWithSpeedCorrection(double speed, double distance, DistanceUnit unit) {
+        int targetPosition;
+        long waitTime = 0; // milliseconds
+        int tolerance = 10;
+        double ratio, leftDist, rightDist;
+        
+        // Reset motor encoders.
+        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
+        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
+        
+        // Get target tick number
+        if(unit==DistanceUnit.INCH){
+            targetPosition = (int)(distance * ticksPerInch);
+        }else if(unit==DistanceUnit.MM){
+            targetPosition = (int)(distance * ticksPerMM);        
+        }else if(unit==DistanceUnit.CM){
+            targetPosition = (int)(distance * ticksPerMM * 10.0);        
+        }else{ //if(unit==DistanceUnit.M){
+            targetPosition = (int)(distance * ticksPerMM * 1000.0);        
+        }
+        //telemetry.addData("Ticks to move: ", targetPosition);
+        
+        // Set target positions
+        //telemetry.addData("leftMotor.CurrentPosition = ",leftMotor.getCurrentPosition());
+        //telemetry.addData("rightMotor.CurrentPosition = ",rightMotor.getCurrentPosition());
+        
+        leftMotor.setTargetPosition(leftMotor.getCurrentPosition() + targetPosition);
+        rightMotor.setTargetPosition(rightMotor.getCurrentPosition() + targetPosition);
+
+        //telemetry.addData("leftMotor.TargetPosition = ",leftMotor.getTargetPosition());
+        //telemetry.addData("rightMotor.TargetPosition = ",rightMotor.getTargetPosition());
+
+        // Set motor options
+        leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        
+        // Set power and move the robot. Wait until it's done.
+        speed = Math.abs(speed);
+        try{            
+            // Loop until within tolerance
+            leftDist = Math.abs(leftMotor.getCurrentPosition()-targetPosition);
+            rightDist = Math.abs(rightMotor.getCurrentPosition()-targetPosition);
+            while (leftDist>tolerance || rightDist>tolerance) {
+                //telemetry.addData("Current left motor position: ",leftMotor.getCurrentPosition());
+                //telemetry.addData("    Current right motor position: ",rightMotor.getCurrentPosition());
+                if(distance>0){
+                    goForward(speed);
+                }else{
+                    goBackward(speed);
+                }
+                Thread.sleep(waitTime);
+            }                        
+        } catch (Exception e) {
+            telemetry.addData("Error: ", e.getMessage());
+        }
+        
+        // Switch back to normal mode
+        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        //telemetry.addData("Movement Complete!", "");
+    }
     
     public void turnLeft(double speed, double angle){
         turnLeftToAngleWithIMUReset(speed, angle);
