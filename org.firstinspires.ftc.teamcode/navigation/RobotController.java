@@ -153,28 +153,21 @@ public class RobotController {
     }
 
     public void goForward(double speed, double distance, DistanceUnit unit, double correctionDistance) {
+        if(distance==0){
+            return;
+        }
         correctionDistance = Math.abs(correctionDistance);
         distance = Math.abs(distance);
-        if(correctionDistance==0){
-            correctionDistance = distance + 1;
+        if(correctionDistance==0 || distance<=correctionDistance){
+            goToPosition(speed,distance,unit,true);
+            return;
         }
         int ct = (int)(distance/correctionDistance);
-        if(correctionDistance<distance){
-            ct = ct + 1;
-            double tmpDistance;
-            for(int loop=0;loop<ct,loop++){
-                if(loop==ct-1){
-                    tmpDistance = distance;
-                    goToPosition(speed, Math.abs(distance),unit,true);    
-                }else{
-                    tmpDistance = correctionDistance;
-                    goToPosition(speed, Math.abs(distance),unit,false);    
-                }
-                distance = distance - correctionDistance;
-            }            
-        }else{
-            goToPosition(speed,distance,unit,true);
-        }                
+        for(int loop=0;loop<ct,loop++){
+            goToPosition(speed,correctionDistance,unit,false);    
+            distance = distance - correctionDistance;
+        }            
+        goToPosition(speed,distance,unit,true);
     }
     
     public void goToPosition(double speed, double distance, DistanceUnit unit) {
@@ -247,6 +240,24 @@ public class RobotController {
     
     public void goBackward(double speed, double distance, DistanceUnit unit){
         goToPosition(speed, -Math.abs(distance),unit,true);        
+    }
+
+    public void goBackward(double speed, double distance, DistanceUnit unit, double correctionDistance) {
+        if(distance==0){
+            return;
+        }
+        correctionDistance = Math.abs(correctionDistance);
+        distance = Math.abs(distance);
+        if(correctionDistance==0 || distance<=correctionDistance){
+            goToPosition(speed,-distance,unit,true);
+            return;
+        }
+        int ct = (int)(distance/correctionDistance);
+        for(int loop=0;loop<ct,loop++){
+            goToPosition(speed,-correctionDistance,unit,false);    
+            distance = distance - correctionDistance;
+        }            
+        goToPosition(speed,-distance,unit,true);
     }
     
     public void turnLeft(double speed, double angle){
