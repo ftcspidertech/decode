@@ -149,15 +149,40 @@ public class RobotController {
     }
     
     public void goForward(double speed, double distance, DistanceUnit unit) {
-        goToPosition(speed, Math.abs(distance),unit);
+        goToPosition(speed, Math.abs(distance),unit,true);
     }
 
+    public void goForward(double speed, double distance, DistanceUnit unit, double correctionDistance) {
+        correctionDistance = Math.abs(correctionDistance);
+        distance = Math.abs(distance);
+        if(correctionDistance==0){
+            correctionDistance = distance + 1;
+        }
+        int ct = (int)(distance/correctionDistance);
+        if(correctionDistance<distance){
+            ct = ct + 1;
+            double tmpDistance;
+            for(int loop=0;loop<ct,loop++){
+                if(loop==ct-1){
+                    tmpDistance = distance;
+                    goToPosition(speed, Math.abs(distance),unit,true);    
+                }else{
+                    tmpDistance = correctionDistance;
+                    goToPosition(speed, Math.abs(distance),unit,false);    
+                }
+                distance = distance - correctionDistance;
+            }            
+        }else{
+            goToPosition(speed,distance,unit,true);
+        }                
+    }
+    
     public void goToPosition(double speed, double distance, DistanceUnit unit) {
         int targetPosition;
         long waitTime = 0; // milliseconds
-        int tolerance;
+        int tolerance = 10;;
         
-        //stopMotor();
+        // Reset motor encoders.
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
         rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
         
@@ -171,7 +196,6 @@ public class RobotController {
         }else{ //if(unit==DistanceUnit.M){
             targetPosition = (int)(distance * ticksPerMM * 1000.0);        
         }
-        tolerance = Math.abs(targetPosition);
         //telemetry.addData("Ticks to move: ", targetPosition);
         
         // Set target positions
@@ -187,33 +211,13 @@ public class RobotController {
         // Set motor options
         leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
         
         // Set power and move the robot. Wait until it's done.
         speed = Math.abs(speed);
-        try{
-            /*
-            if(distance>0){
-                //telemetry.addData("Going forward ...", "");
-                goForward(speed);
-            }else{
-                //telemetry.addData("Going backward ...", "");
-                goBackward(speed);
-            }*/
-            
-            /*
-            while ((leftMotor.isBusy() || rightMotor.isBusy())) {
-                telemetry.addData("Current left motor position: ",leftMotor.getCurrentPosition());
-                telemetry.addData("    Current right motor position: ",rightMotor.getCurrentPosition());
-                Thread.sleep(waitTime);
-            }*/
-            
+        try{            
             // Loop until within tolerance
-            //*
-            while (Math.abs(leftMotor.getCurrentPosition()-targetPosition)>10||
-                Math.abs(rightMotor.getCurrentPosition()-targetPosition)>10) {
-            //while (Math.abs(rightMotor.getCurrentPosition()-targetPosition)>10) {
-                    
+            while (Math.abs(leftMotor.getCurrentPosition()-targetPosition)>tolerance||
+                Math.abs(rightMotor.getCurrentPosition()-targetPosition)>tolerance) {
                 //telemetry.addData("Current left motor position: ",leftMotor.getCurrentPosition());
                 //telemetry.addData("    Current right motor position: ",rightMotor.getCurrentPosition());
                 if(distance>0){
@@ -222,14 +226,10 @@ public class RobotController {
                     goBackward(speed);
                 }
                 Thread.sleep(waitTime);
-            }//*/            
-            
+            }                        
         } catch (Exception e) {
             telemetry.addData("Error: ", e.getMessage());
         }
-        
-        // Stop motors
-        stopMotor();
         
         // Switch back to normal mode
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -237,9 +237,16 @@ public class RobotController {
 
         //telemetry.addData("Movement Complete!", "");
     }
+
+    public void goToPosition(double speed, double distance, DistanceUnit unit, boolean stopMotors) {
+        goToPosition(speed,distance,unit);
+        if(stopMotors){
+            stopMotor();
+        }
+    }
     
     public void goBackward(double speed, double distance, DistanceUnit unit){
-        goToPosition(speed, -Math.abs(distance),unit);        
+        goToPosition(speed, -Math.abs(distance),unit,true);        
     }
     
     public void turnLeft(double speed, double angle){
