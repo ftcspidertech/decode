@@ -150,6 +150,7 @@ public class RED_Auto_Position1_with_Camera extends OpMode{
              robotController.turnLeft(turnPower,40);
              // Get goal tag location
             rangeBearing = goalTagProcessor.getRangeBearing();
+            goalTagProcessor.stopStreaming();
             if(rangeBearing!=null){
                 telemetry.addData("range = ",rangeBearing[0]);
                 telemetry.addData("bearing = ",rangeBearing[1]);
