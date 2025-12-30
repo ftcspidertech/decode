@@ -25,7 +25,7 @@ import org.firstinspires.ftc.teamcode.vision.GoalTagProcessor;
  */
 
 @Autonomous()
-public class RED_Auto_Position2  extends OpMode{
+public class BLUE_Auto_Position2  extends OpMode{
     // Controller variables -------------------------------
     private RobotController robotController = null;
     private FlyWheelController flyWheelController = null;
