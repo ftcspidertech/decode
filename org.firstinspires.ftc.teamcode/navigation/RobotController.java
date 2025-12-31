@@ -170,7 +170,7 @@ public class RobotController {
         goToPosition(speed,distance,unit,true);
     }
     
-    public void goToPosition(double speed, double distance, DistanceUnit unit) {
+    private void goToPosition(double speed, double distance, DistanceUnit unit) {
         int targetPosition;
         long waitTime = 0; // milliseconds
         int tolerance = 10;;
@@ -231,7 +231,7 @@ public class RobotController {
         //telemetry.addData("Movement Complete!", "");
     }
 
-    public void goToPosition(double speed, double distance, DistanceUnit unit, boolean stopMotors) {
+    private void goToPosition(double speed, double distance, DistanceUnit unit, boolean stopMotors) {
         goToPosition(speed,distance,unit);
         if(stopMotors){
             stopMotor();
@@ -261,10 +261,13 @@ public class RobotController {
     }
 
     public void goToPositionWithSpeedCorrection(double speed, double distance, DistanceUnit unit) {
+        if(distance==0){
+            return;
+        }
         int targetPosition;
         long waitTime = 0; // milliseconds
         int tolerance = 10;
-        double ratio, leftDist, rightDist;
+        double ratio, leftDist, rightDist, preLeftCalib, preRightCalib, leftPose, rightPose;
         
         // Reset motor encoders.
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
@@ -298,23 +301,52 @@ public class RobotController {
         
         // Set power and move the robot. Wait until it's done.
         speed = Math.abs(speed);
+
+        // Store current calibration factprs.
+        preLeftCalib = leftCalibrationFactor;
+        preRightCalib = rightCalibrationFactor;
+
+        // Move to the target distance.
         try{            
             // Loop until within tolerance
-            leftDist = Math.abs(leftMotor.getCurrentPosition()-targetPosition);
-            rightDist = Math.abs(rightMotor.getCurrentPosition()-targetPosition);
+            leftDist = tolerance + 1;
+            rightDist = leftDist;
+            ratio = 1.0;
             while (leftDist>tolerance || rightDist>tolerance) {
                 //telemetry.addData("Current left motor position: ",leftMotor.getCurrentPosition());
                 //telemetry.addData("    Current right motor position: ",rightMotor.getCurrentPosition());
+                if(ratio>1){
+                    leftCalibrationFactor = 1.0/ratio;
+                    rightCalibrationFactor = 1.0;
+                }else if(ratio<1){
+                    leftCalibrationFactor = 1.0;
+                    rightCalibrationFactor = ratio;
+                }else{
+                    leftCalibrationFactor = 1.0;
+                    rightCalibrationFactor = 1.0;
+                }
                 if(distance>0){
                     goForward(speed);
                 }else{
                     goBackward(speed);
                 }
                 Thread.sleep(waitTime);
-            }                        
+            }
+            leftPose = leftMotor.getCurrentPosition();
+            rightPose = rightMotor.getCurrentPosition();
+            ratio = Math.abs(leftPose/rightPose);
+            leftDist = Math.abs(leftPose-targetPosition);
+            rightDist = Math.abs(rightPose-targetPosition);
         } catch (Exception e) {
             telemetry.addData("Error: ", e.getMessage());
         }
+
+        // Stop motors.
+        stopMotor();
+
+        // Store current calibration factprs.
+        leftCalibrationFactor = preLeftCalib;
+        rightCalibrationFactor = preRightCalib;
         
         // Switch back to normal mode
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
