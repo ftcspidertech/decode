@@ -265,7 +265,7 @@ public class RobotController {
             return;
         }
         int targetPosition;
-        long waitTime = 0; // milliseconds
+        long waitTime = 10; // milliseconds
         int tolerance = 10;
         double ratio, leftDist, rightDist, preLeftCalib, preRightCalib, leftPose, rightPose;
         
