@@ -90,10 +90,10 @@ public class AutoDecode  extends OpMode{
     
     @Override
     public void loop() {
-        stableLoopDec14();
+        //stableLoopDec14();
         
-        //telemetry.addData("Running ", "test loop");
-        //testLoop();
+        telemetry.addData("Running ", "test loop");
+        testLoop();
     }
     
     @Override
@@ -176,20 +176,26 @@ public class AutoDecode  extends OpMode{
     
     private void testLoop(){
         telemetry.addData("    Inside ", "test loop");
-            telemetry.addData("        testComplete",testComplete);
+        telemetry.addData("        testComplete",testComplete);
         if(!testComplete) {
             telemetry.addData("        Go ", "forward");
-            robotController.goForward(movePower,45,DistanceUnit.INCH);
+            robotController.goToPositionWithSpeedCorrection(movePower,60,DistanceUnit.INCH);
+
+            telemetry.addData("        Go ", "backward");
+            robotController.goBackward(movePower,60,DistanceUnit.INCH,12);
+            
+            telemetry.addData("        Go ", "forward");
+            robotController.goForward(movePower,60,DistanceUnit.INCH);
+            
             //try{
             //    Thread.sleep(5000);
             //}catch(Exception e){
             //}
             //wait(200);
-            telemetry.addData("        Turn ", "right");
-            
+            telemetry.addData("        Turn ", "right");            
             robotController.turnRight(turnPower,45);
-            telemetry.addData("        Task ", "done");
-        
+            
+            telemetry.addData("        Task ", "done");        
             testComplete = true;
             telemetry.addData("        testComplete",testComplete);
         }else{
