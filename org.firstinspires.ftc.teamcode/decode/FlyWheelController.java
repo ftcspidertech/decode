@@ -63,7 +63,9 @@ public class FlyWheelController {
             leftBumperPressed = false;
         }
 
-        // Flywheel power
+        // Flywheel power - - -
+        // Commented out to reduce an operator's load to start/stop the flywheel.
+        /*
         if (gamepad.xWasPressed()) {
             if(!flyWheelStarted){
                 ((DcMotorEx) flywheel).setVelocity(currentVelocity);
@@ -72,7 +74,7 @@ public class FlyWheelController {
                 ((DcMotorEx) flywheel).setVelocity(0);
                 flyWheelStarted = false;
             }
-        }
+        }*/
         
         // Servo power
         if (gamepad.y){
@@ -84,6 +86,7 @@ public class FlyWheelController {
 
     public void startWithDefaultVelocity(){
         ((DcMotorEx) flywheel).setVelocity(currentVelocity);
+        flyWheelStarted = true;
     }
     
     public void setVelocity(int velocity){
@@ -92,6 +95,7 @@ public class FlyWheelController {
     
     public void stopFlyWheel(){
         flywheel.setPower(0);
+        flyWheelStarted = false;
     }
     
     public void openDoor(){
