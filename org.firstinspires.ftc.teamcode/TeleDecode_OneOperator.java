@@ -29,6 +29,7 @@ public class TeleDecode_OneOperator extends OpMode {
     @Override
     public void start(){
         telemetry.addData("Status","Bismillah, starting now.");
+        flyWheelController.startWithDefaultVelocity();
         runTimer.reset();
     }
     
