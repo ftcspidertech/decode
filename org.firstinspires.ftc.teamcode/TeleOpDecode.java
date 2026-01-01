@@ -29,7 +29,16 @@ public class TeleOpDecode extends OpMode {
     @Override
     public void start(){
         telemetry.addData("Status","Bismillah, starting now.");
-        runTimer.reset();
+        
+        // Start the flywheel at the beginning. The operator can only change its speed. 
+        // NOTE: The operator can't stop the flywheel anymore.
+        flyWheelController.startWithDefaultVelocity();
+
+        // Start the intake controller at the beginning. The operator, however, can start/stop and
+        // change its direction.
+        intakeController.start();
+        
+        runTimer.reset();    
     }
     
     @Override
