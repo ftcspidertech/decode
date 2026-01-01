@@ -82,6 +82,10 @@ public class FlyWheelController {
         }
     }
 
+    public void startWithDefaultVelocity(){
+        ((DcMotorEx) flywheel).setVelocity(currentVelocity);
+    }
+    
     public void setVelocity(int velocity){
         ((DcMotorEx) flywheel).setVelocity(velocity);
     }
