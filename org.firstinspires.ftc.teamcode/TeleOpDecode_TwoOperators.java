@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.decode.FlyWheelController;
 import org.firstinspires.ftc.teamcode.decode.IntakeController;
 
 @TeleOp()
-public class TeleOpDecode extends OpMode {
+public class TeleOpDecode_TwoOperators extends OpMode {
     //variables
     private TeleRobotController teleRobotController;
     private FlyWheelController flyWheelController;
