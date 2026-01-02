@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.practice;
+package org.firstinspires.ftc.teamcode.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
