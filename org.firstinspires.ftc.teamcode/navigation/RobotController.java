@@ -163,7 +163,7 @@ public class RobotController {
             return;
         }
         int ct = (int)(distance/correctionDistance);
-        for(int loop=0;loop<ct,loop++){
+        for(int loop=0;loop<ct;loop++){
             goToPosition(speed,correctionDistance,unit,false);    
             distance = distance - correctionDistance;
         }            
@@ -253,7 +253,7 @@ public class RobotController {
             return;
         }
         int ct = (int)(distance/correctionDistance);
-        for(int loop=0;loop<ct,loop++){
+        for(int loop=0;loop<ct;loop++){
             goToPosition(speed,-correctionDistance,unit,false);    
             distance = distance - correctionDistance;
         }            
@@ -313,8 +313,6 @@ public class RobotController {
             rightDist = leftDist;
             ratio = 1.0;
             while (leftDist>tolerance || rightDist>tolerance) {
-                //telemetry.addData("Current left motor position: ",leftMotor.getCurrentPosition());
-                //telemetry.addData("    Current right motor position: ",rightMotor.getCurrentPosition());
                 if(ratio>1){
                     leftCalibrationFactor = 1.0/ratio;
                     rightCalibrationFactor = 1.0;
@@ -333,10 +331,20 @@ public class RobotController {
                 Thread.sleep(waitTime);
             }
             leftPose = leftMotor.getCurrentPosition();
+            leftPose = (leftPose==0)?1:leftPose;
             rightPose = rightMotor.getCurrentPosition();
+            rightPose = (rightPose==0)?1:rightPose;
             ratio = Math.abs(leftPose/rightPose);
             leftDist = Math.abs(leftPose-targetPosition);
             rightDist = Math.abs(rightPose-targetPosition);
+
+            /*
+            telemetry.addLine("Data: ")
+                .addData("Left position",leftPose)
+                .addData("Right position",rightPose)
+                .addData("Ratio",ratio);
+            */
+            telemetry.addData("Data","Left position=%f, Right position=%f, Ratio=%f",leftPose,rightPose,ratio);            
         } catch (Exception e) {
             telemetry.addData("Error: ", e.getMessage());
         }
