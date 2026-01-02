@@ -25,7 +25,7 @@ import org.firstinspires.ftc.teamcode.vision.GoalTagProcessor;
  */
 
 @Autonomous()
-public class AutoDecode  extends OpMode{
+public class TestDecode  extends OpMode{
     // Controller variables -------------------------------
     private RobotController robotController = null;
     private FlyWheelController flyWheelController = null;
@@ -175,25 +175,26 @@ public class AutoDecode  extends OpMode{
     }
     
     private void testLoop(){
-        telemetry.addData("    Inside ", "test loop");
+        telemetry.addLine("    Inside test loop:");
         telemetry.addData("        testComplete",testComplete);
         if(!testComplete) {
-            telemetry.addData("        Go ", "forward");
+            telemetry.addLine("        Go forward with speed correction ...");
             robotController.goToPositionWithSpeedCorrection(movePower,60,DistanceUnit.INCH);
 
-            telemetry.addData("        Go ", "backward");
-            robotController.goBackward(movePower,60,DistanceUnit.INCH,12);
+            telemetry.addLine("        Go backward with speed correction ...");
+            robotController.goToPositionWithSpeedCorrection(movePower,-60,DistanceUnit.INCH);
             
-            telemetry.addData("        Go ", "forward");
+            telemetry.addLine("        Go forward without speed correction ...");
             robotController.goForward(movePower,60,DistanceUnit.INCH);
             
-            //try{
-            //    Thread.sleep(5000);
-            //}catch(Exception e){
-            //}
-            //wait(200);
-            telemetry.addData("        Turn ", "right");            
+            telemetry.addLine("        Go backward without speed correction ...");
+            robotController.goBackward(movePower,60,DistanceUnit.INCH,12);
+            
+            telemetry.addLine("        Turn right ...");            
             robotController.turnRight(turnPower,45);
+
+            telemetry.addLine("        Turn left ...");            
+            robotController.turnLeft(turnPower,45);
             
             telemetry.addData("        Task ", "done");        
             testComplete = true;
