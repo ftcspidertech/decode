@@ -30,7 +30,7 @@ public class TestDecode  extends OpMode{
     private RobotController robotController = null;
     private FlyWheelController flyWheelController = null;
     private IntakeController intakeController = null;
-    //private GoalTagProcessor goalTagProcessor = null;
+    private GoalTagProcessor goalTagProcessor = null;
     
     private int flyWheelVelocity = 1500; //stable set of parameters
     private ElapsedTime autoLauncherTimer = new ElapsedTime();
@@ -69,10 +69,7 @@ public class TestDecode  extends OpMode{
         robotController = new  RobotController(hardwareMap,telemetry);
         flyWheelController = new FlyWheelController(hardwareMap,gamepad1,telemetry);
         intakeController = new IntakeController(hardwareMap,gamepad1,telemetry);
-        //goalTagProcessor = new GoalTagProcessor(hardwareMap,24); // ID 24 for Red Gate
-        
-        // Initially pause camera stream.
-        //goalTagProcessor.stopStreaming();
+        goalTagProcessor = new GoalTagProcessor(hardwareMap,24); // ID 24 for Red Gate
         
         // Close exit door.
         flyWheelController.closeDoor();
@@ -101,7 +98,7 @@ public class TestDecode  extends OpMode{
         robotController.stop();
         flyWheelController.stop();
         intakeController.stop();
-        //goalTagProcessor.close();
+        goalTagProcessor.close();
     }
     
     private void wait(int ms){
