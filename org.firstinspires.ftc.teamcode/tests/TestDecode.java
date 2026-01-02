@@ -1,12 +1,11 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-
 import org.firstinspires.ftc.teamcode.navigation.RobotController;
 import org.firstinspires.ftc.teamcode.decode.FlyWheelController;
 import org.firstinspires.ftc.teamcode.decode.IntakeController;
@@ -24,7 +23,8 @@ import org.firstinspires.ftc.teamcode.vision.GoalTagProcessor;
  *   
  */
 
-@Autonomous()
+//@Autonomous()
+@TeleOp()    
 public class TestDecode  extends OpMode{
     // Controller variables -------------------------------
     private RobotController robotController = null;
