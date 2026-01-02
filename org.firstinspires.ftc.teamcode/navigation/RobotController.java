@@ -264,10 +264,10 @@ public class RobotController {
         if(distance==0){
             return;
         }
-        int targetPosition;
+        int targetPosition, leftPose, rightPose, leftDist, rightDist;
         long waitTime = 10; // milliseconds
         int tolerance = 10;
-        double ratio, leftDist, rightDist, preLeftCalib, preRightCalib, leftPose, rightPose;
+        double ratio, preLeftCalib, preRightCalib;
         
         // Reset motor encoders.
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
@@ -283,17 +283,15 @@ public class RobotController {
         }else{ //if(unit==DistanceUnit.M){
             targetPosition = (int)(distance * ticksPerMM * 1000.0);        
         }
-        //telemetry.addData("Ticks to move: ", targetPosition);
+        telemetry.addData("Ticks to move: ", targetPosition);
         
         // Set target positions
-        //telemetry.addData("leftMotor.CurrentPosition = ",leftMotor.getCurrentPosition());
-        //telemetry.addData("rightMotor.CurrentPosition = ",rightMotor.getCurrentPosition());
+        telemetry.addData("Initial motor positions","left=%d, right=%d",leftMotor.getCurrentPosition(),rightMotor.getCurrentPosition());
         
         leftMotor.setTargetPosition(leftMotor.getCurrentPosition() + targetPosition);
         rightMotor.setTargetPosition(rightMotor.getCurrentPosition() + targetPosition);
 
-        //telemetry.addData("leftMotor.TargetPosition = ",leftMotor.getTargetPosition());
-        //telemetry.addData("rightMotor.TargetPosition = ",rightMotor.getTargetPosition());
+        telemetry.addData("Target motor positions","left=%d, right=%d",leftMotor.getCurrentPosition(),rightMotor.getCurrentPosition());
 
         // Set motor options
         leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -329,24 +327,26 @@ public class RobotController {
                     goBackward(speed);
                 }
                 Thread.sleep(waitTime);
-            }
-            leftPose = leftMotor.getCurrentPosition();
-            leftPose = (leftPose==0)?1:leftPose;
-            rightPose = rightMotor.getCurrentPosition();
-            rightPose = (rightPose==0)?1:rightPose;
-            ratio = Math.abs(leftPose/rightPose);
-            leftDist = Math.abs(leftPose-targetPosition);
-            rightDist = Math.abs(rightPose-targetPosition);
 
-            /*
-            telemetry.addLine("Data: ")
-                .addData("Left position",leftPose)
-                .addData("Right position",rightPose)
-                .addData("Ratio",ratio);
-            */
-            telemetry.addData("Data","Left position=%f, Right position=%f, Ratio=%f",leftPose,rightPose,ratio);            
+                leftPose = leftMotor.getCurrentPosition();
+                leftPose = (leftPose==0)?1:leftPose;
+                rightPose = rightMotor.getCurrentPosition();
+                rightPose = (rightPose==0)?1:rightPose;
+                ratio = Math.abs((double)leftPose/(double)rightPose);
+                leftDist = Math.abs(leftPose-targetPosition);
+                rightDist = Math.abs(rightPose-targetPosition);
+    
+                /*
+                telemetry.addLine("Data: ")
+                    .addData("Left position",leftPose)
+                    .addData("Right position",rightPose)
+                    .addData("Ratio",ratio);
+                */
+                telemetry.addData("Motor positions","left=%d, right=%d",leftPose,rightPose);
+                telemetry.addData("Remaining distance","left=%d, right=%d",leftDist,rightDist);                                
+            } // while loop ends
         } catch (Exception e) {
-            telemetry.addData("Error: ", e.getMessage());
+            telemetry.addData("Error", e.getMessage());
         }
 
         // Stop motors.
@@ -360,7 +360,7 @@ public class RobotController {
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        //telemetry.addData("Movement Complete!", "");
+        telemetry.addLine("Movement Complete!");
     }
     
     public void turnLeft(double speed, double angle){
