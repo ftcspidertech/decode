@@ -152,21 +152,29 @@ public class RobotController {
         goToPosition(speed, Math.abs(distance),unit,true);
     }
 
-    public void goForward(double speed, double distance, DistanceUnit unit, double correctionDistance) {
+    public void goForward(double speed, double distance, DistanceUnit unit, 
+        double correctionDistance) {
         if(distance==0){
+            telemetry.addData("Distance",0);
             return;
         }
         correctionDistance = Math.abs(correctionDistance);
         distance = Math.abs(distance);
         if(correctionDistance==0 || distance<=correctionDistance){
+            telemetry.addData("Condition","correctionDistance==0 || distance<=correctionDistance");
             goToPosition(speed,distance,unit,true);
             return;
         }
         int ct = (int)(distance/correctionDistance);
+        telemetry.addData("Distance",distance);
         for(int loop=0;loop<ct;loop++){
             goToPosition(speed,correctionDistance,unit,false);    
             distance = distance - correctionDistance;
-        }            
+            telemetry.addData("Loop",loop);
+            telemetry.addData("    Distance",distance);
+        }
+        telemetry.addData("Running last go","");
+
         goToPosition(speed,distance,unit,true);
     }
     
@@ -231,7 +239,8 @@ public class RobotController {
         //telemetry.addData("Movement Complete!", "");
     }
 
-    private void goToPosition(double speed, double distance, DistanceUnit unit, boolean stopMotors) {
+    private void goToPosition(double speed, double distance, DistanceUnit unit, 
+        boolean stopMotors) {
         goToPosition(speed,distance,unit);
         if(stopMotors){
             stopMotor();
@@ -253,10 +262,14 @@ public class RobotController {
             return;
         }
         int ct = (int)(distance/correctionDistance);
+        telemetry.addData("ct",ct);
         for(int loop=0;loop<ct;loop++){
+            telemetry.addData("loop",loop);
             goToPosition(speed,-correctionDistance,unit,false);    
             distance = distance - correctionDistance;
+            telemetry.addData("    distance",distance);
         }            
+        telemetry.addData("Running last","go");
         goToPosition(speed,-distance,unit,true);
     }
 
@@ -489,5 +502,10 @@ public class RobotController {
 
     public boolean isBusy() {
         return leftMotor.isBusy() || rightMotor.isBusy();
+    }
+    
+    public void setCalibrationFactors(double left, double right){
+        leftCalibrationFactor = left;
+        rightCalibrationFactor = right;
     }
 }
