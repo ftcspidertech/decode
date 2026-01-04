@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.navigation.RobotController;
+import org.firstinspires.ftc.teamcode.navigation.NavigationType;
 import org.firstinspires.ftc.teamcode.decode.FlyWheelController;
 import org.firstinspires.ftc.teamcode.decode.IntakeController;
 import org.firstinspires.ftc.teamcode.vision.GoalTagProcessor;
@@ -175,23 +176,30 @@ public class TestDecode  extends OpMode{
         telemetry.addLine("    Inside test loop:");
         telemetry.addData("        testComplete",testComplete);
         if(!testComplete) {
+            boolean useSpeedCorrection = true;
             telemetry.addLine("        Go forward with speed correction ...");
-            robotController.goToPositionWithSpeedCorrection(movePower,60,DistanceUnit.INCH);
+            robotController.goForward(movePower,60,DistanceUnit.INCH,useSpeedCorrection);
 
             telemetry.addLine("        Go backward with speed correction ...");
-            robotController.goToPositionWithSpeedCorrection(movePower,-60,DistanceUnit.INCH);
+            robotController.goBackward(movePower,60,DistanceUnit.INCH,useSpeedCorrection);
             
             telemetry.addLine("        Go forward without speed correction ...");
             robotController.goForward(movePower,60,DistanceUnit.INCH);
             
             telemetry.addLine("        Go backward without speed correction ...");
-            robotController.goBackward(movePower,60,DistanceUnit.INCH,12);
+            robotController.goBackward(movePower,60,DistanceUnit.INCH);
             
-            telemetry.addLine("        Turn right ...");            
+            telemetry.addLine("        Turn right with IMU");            
             robotController.turnRight(turnPower,45);
 
-            telemetry.addLine("        Turn left ...");            
+            telemetry.addLine("        Turn left with IMU");            
             robotController.turnLeft(turnPower,45);
+
+            telemetry.addLine("        Turn right with odometry");            
+            robotController.turnRight(turnPower,45,false);
+
+            telemetry.addLine("        Turn left with odometry");            
+            robotController.turnLeft(turnPower,45,false);
             
             telemetry.addData("        Task ", "done");        
             testComplete = true;
