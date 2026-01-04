@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.navigation.RobotController;
 import org.firstinspires.ftc.teamcode.navigation.NavigationType;
+import org.firstinspires.ftc.teamcode.navigation.TurnMethod;
 import org.firstinspires.ftc.teamcode.decode.FlyWheelController;
 import org.firstinspires.ftc.teamcode.decode.IntakeController;
 import org.firstinspires.ftc.teamcode.vision.GoalTagProcessor;
@@ -177,29 +178,33 @@ public class TestDecode  extends OpMode{
         telemetry.addData("        testComplete",testComplete);
         if(!testComplete) {
             boolean useSpeedCorrection = true;
-            telemetry.addLine("        Go forward with speed correction ...");
+            telemetry.addLine("        Go forward with speed correction");
             robotController.goForward(movePower,60,DistanceUnit.INCH,useSpeedCorrection);
-
-            telemetry.addLine("        Go backward with speed correction ...");
+            //robotController.goForward(movePower,60,useSpeedCorrection);
+            wait(200);
+            telemetry.addLine("        Go backward with speed correction");
             robotController.goBackward(movePower,60,DistanceUnit.INCH,useSpeedCorrection);
-            
-            telemetry.addLine("        Go forward without speed correction ...");
+            //robotController.goBackward(movePower,60,useSpeedCorrection);
+            wait(200);
+            telemetry.addLine("        Go forward without speed correction (default)");
             robotController.goForward(movePower,60,DistanceUnit.INCH);
-            
-            telemetry.addLine("        Go backward without speed correction ...");
+            //robotController.goForward(movePower,60);
+            wait(200);
+            telemetry.addLine("        Go backward without speed correction (default)");
             robotController.goBackward(movePower,60,DistanceUnit.INCH);
-            
-            telemetry.addLine("        Turn right with IMU");            
+            //robotController.goBackward(movePower,60);
+            wait(200);
+            telemetry.addLine("        Turn right with IMU (default)");            
             robotController.turnRight(turnPower,45);
-
-            telemetry.addLine("        Turn left with IMU");            
+            wait(200);
+            telemetry.addLine("        Turn left with IMU (default)");            
             robotController.turnLeft(turnPower,45);
-
+            wait(200);
             telemetry.addLine("        Turn right with odometry");            
-            robotController.turnRight(turnPower,45,false);
-
+            robotController.turnRight(turnPower,45,TurnMethod.ODOMETRY);
+            wait(200);
             telemetry.addLine("        Turn left with odometry");            
-            robotController.turnLeft(turnPower,45,false);
+            robotController.turnLeft(turnPower,45,TurnMethod.ODOMETRY);
             
             telemetry.addData("        Task ", "done");        
             testComplete = true;
