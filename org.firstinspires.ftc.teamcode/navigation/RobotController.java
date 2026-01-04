@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.navigation.NavigationType;
+import org.firstinspires.ftc.teamcode.navigation.TurnMethod;
 
 public class RobotController {
     private DcMotor leftMotor;
@@ -431,19 +432,19 @@ public class RobotController {
         telemetry.addLine("Movement Complete!");
     }
 
-    public void turnLeft(double speed, double angle, boolean useIMU){
-        if(useIMU){
+    public void turnLeft(double speed, double angle, TurnMethod turnMethod){
+        if(turnMethod==TurnMethod.IMU){
             turnLeft(speed, angle);            
-        }else{
+        }else{//turnMethod==TurnMethod.ODOMETRY
             double distance = angle*WHEEL_DIAMETER_INCH/360.0;
             goToPosition(speed, distance, DistanceUnit.INCH, NavigationType.TURNLEFT);
         }
     }
 
-    public void turnRight(double speed, double angle, boolean useIMU){
-        if(useIMU){
+    public void turnRight(double speed, double angle, TurnMethod turnMethod){
+        if(turnMethod==TurnMethod.IMU){
             turnRight(speed, angle);            
-        }else{
+        }else{//turnMethod==TurnMethod.ODOMETRY
             double distance = angle*WHEEL_DIAMETER_INCH/360.0;
             goToPosition(speed, distance, DistanceUnit.INCH, NavigationType.TURNRIGHT);
         }
