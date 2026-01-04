@@ -148,12 +148,20 @@ public class RobotController {
         
         robotMoving = true;
     }
+
+    public void goForward(double speed, double distanceInInch) {
+        goForward(speed, distanceInInch, DistanceUnit.INCH, NavigationType.GOFORWARD);
+    }
     
     public void goForward(double speed, double distance, DistanceUnit unit) {
         //goToPosition(speed, Math.abs(distance),unit);
         goToPosition(speed, distance, unit, NavigationType.GOFORWARD);
     }
 
+    public void goForward(double speed, double distanceInInch, boolean useSpeedCorrection) {
+        goForward(speed, distanceInInch, DistanceUnit.INCH, useSpeedCorrection);
+    }
+    
     public void goForward(double speed, double distance, DistanceUnit unit, boolean useSpeedCorrection) {
         if(useSpeedCorrection){
             goForward(speed,distance,unit);
@@ -298,12 +306,20 @@ public class RobotController {
 
         //telemetry.addLine("Movement Complete!");
     }
+
+    public void goBackward(double speed, double distanceInInch){
+        goBackward(speed,distanceInInch,DistanceUnit.INCH);    
+    }
     
     public void goBackward(double speed, double distance, DistanceUnit unit){
         //goToPosition(speed, -Math.abs(distance),unit);
         goToPosition(speed,distance,unit,NavigationType.GOBACKWARD);        
     }
 
+    public void goBackward(double speed, double distanceInInch, boolean useSpeedCorrection) {
+        goBackward(speed, distanceInInch, DistanceUnit.INCH, useSpeedCorrection);
+    }
+    
     public void goBackward(double speed, double distance, DistanceUnit unit, boolean useSpeedCorrection) {
         if(useSpeedCorrection){
             goBackward(speed,distance,unit);
