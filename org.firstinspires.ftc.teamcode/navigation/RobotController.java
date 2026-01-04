@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.navigation.NavigationType;
 
 public class RobotController {
     private DcMotor leftMotor;
@@ -177,7 +178,15 @@ public class RobotController {
 
         goToPosition(speed,distance,unit,true);
     }
-    
+
+    public void goForward(double speed, double distance, DistanceUnit unit, boolean useSpeedCorrection) {
+        if(useSpeedCorrection){
+            goForward(speed,distance,unit);
+        }else{
+            goToPositionWithSpeedCorrection(speed, Math.abs(distance), unit);
+        }
+    }
+
     private void goToPosition(double speed, double distance, DistanceUnit unit) {
         int targetPosition;
         long waitTime = 0; // milliseconds
@@ -273,7 +282,15 @@ public class RobotController {
         goToPosition(speed,-distance,unit,true);
     }
 
-    public void goToPositionWithSpeedCorrection(double speed, double distance, DistanceUnit unit) {
+    public void goBackward(double speed, double distance, DistanceUnit unit, boolean useSpeedCorrection) {
+        if(useSpeedCorrection){
+            goBackward(speed,distance,unit);
+        }else{
+            goToPositionWithSpeedCorrection(speed, -Math.abs(distance), unit);
+        }
+    }
+
+    private void goToPositionWithSpeedCorrection(double speed, double distance, DistanceUnit unit) {
         if(distance==0){
             return;
         }
