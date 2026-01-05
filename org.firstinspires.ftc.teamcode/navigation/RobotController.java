@@ -454,7 +454,7 @@ public class RobotController {
         if(turnMethod==TurnMethod.IMU){
             turnLeft(speed, angle);            
         }else{//turnMethod==TurnMethod.ODOMETRY
-            double distance = angle*(Math.PI*18.0)/360.0;
+            double distance = angle*(Math.PI*16.25)/360.0;
             goToPosition(speed, distance, DistanceUnit.INCH, NavigationType.TURNLEFT);
         }
     }
@@ -463,7 +463,7 @@ public class RobotController {
         if(turnMethod==TurnMethod.IMU){
             turnRight(speed, angle);            
         }else{//turnMethod==TurnMethod.ODOMETRY
-            double distance = angle*(Math.PI*18.0)/360.0;
+            double distance = angle*(Math.PI*16.25)/360.0;
             //telemetry.addData("Turn right","angle=%f distance=%f",angle,distance);
             goToPosition(speed, distance, DistanceUnit.INCH, NavigationType.TURNRIGHT);
         }
