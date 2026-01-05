@@ -32,7 +32,7 @@ public class RED_Auto_Position2  extends OpMode{
     private IntakeController intakeController = null;
     //private GoalTagProcessor goalTagProcessor = null;
     
-    private int flyWheelVelocity = 1400; //stable set of parameters
+    private int flyWheelVelocity = 1350; //stable set of parameters
     private ElapsedTime autoLauncherTimer = new ElapsedTime();
     
     // State variables ------------------------------------
@@ -67,7 +67,7 @@ public class RED_Auto_Position2  extends OpMode{
     private void initControllers(){
         // Initialize controller variables.
         double leftCalib = 1.0;
-        double rightCalib = 1.0;
+        double rightCalib = 0.87;
         robotController = new  RobotController(hardwareMap,telemetry,leftCalib,rightCalib);
         flyWheelController = new FlyWheelController(hardwareMap,gamepad1,telemetry);
         intakeController = new IntakeController(hardwareMap,gamepad1,telemetry);
@@ -100,8 +100,8 @@ public class RED_Auto_Position2  extends OpMode{
 
     @Override
     public void loop() {
-        stableLoopREDPosition2();
-        
+        //stableLoopREDPosition2();
+        frontRedPosition2();
         //telemetry.addData("Running ", "test loop");
         //testLoop();
     }
@@ -126,6 +126,8 @@ public class RED_Auto_Position2  extends OpMode{
             telemetry.addData("Error: ",e.getMessage());
         }
     }
+    
+    
 
     private void stableLoopREDPosition2(){
         if(!preMoveCompleteToThrowPreloadedBalls) {
@@ -134,7 +136,7 @@ public class RED_Auto_Position2  extends OpMode{
             robotController.turnRight(turnSpeed,3);
             wait(200);
             flyWheelController.openDoor();
-             wait(5000); //stable set of parameters
+             wait(6000); //stable set of parameters
              flyWheelController.closeDoor();
              robotController.turnRight(turnSpeed,30);
              wait(200);
@@ -145,7 +147,7 @@ public class RED_Auto_Position2  extends OpMode{
              robotController.turnLeft(turnSpeed,40);
              wait(200);
              flyWheelController.openDoor();
-             wait(5000);
+             wait(10000);
              flyWheelController.closeDoor();
                          
             preMoveCompleteToThrowPreloadedBalls = true;
@@ -173,6 +175,53 @@ public class RED_Auto_Position2  extends OpMode{
         }
     }
 
+private void frontRedPosition2(){
+        if(!preMoveCompleteToThrowPreloadedBalls) {
+            robotController.goForward(moveSpeed,50,DistanceUnit.INCH); // 39.5 //stable set of parameters
+            wait(200);
+            robotController.turnLeft(turnSpeed,160);
+            wait(200);
+            flyWheelController.openDoor();
+             wait(6000); //stable set of parameters
+             flyWheelController.closeDoor();
+             robotController.goBackward(moveSpeed,8,DistanceUnit.INCH);
+             wait(200);
+             robotController.turnRight(turnSpeed,30);
+             wait(200);
+             robotController.goForward(moveSpeed*0.8,37,DistanceUnit.INCH);
+             wait(200);
+             robotController.goBackward(moveSpeed,33,DistanceUnit.INCH);
+             wait(200);
+             robotController.turnLeft(turnSpeed,30);
+             wait(200);
+             flyWheelController.openDoor();
+             wait(10000);
+             flyWheelController.closeDoor();
+                         
+            preMoveCompleteToThrowPreloadedBalls = true;
+        }else if(!preloadedBallsThrown) {
+       
+            preloadedBallsThrown = true;
+        }else if(!preMoveCompleteToCollect1stSetOfBalls) {
+            
+             
+            preMoveCompleteToCollect1stSetOfBalls = true;
+        }else if(!collectionComplete1stSetOfBalls) {
+            
+            collectionComplete1stSetOfBalls = true;
+        }else if(!goalTagFound) {
+            
+            goalTagFound = true;
+        }else if(!moveCompleteToThrow1stSetOfCollectedBalls) {
+            
+            moveCompleteToThrow1stSetOfCollectedBalls = true;
+        }else if(!thrown1stSetOfCollectedBalls) {
+            
+            thrown1stSetOfCollectedBalls = true;
+        }else{
+            stop();
+        }
+    }
     
     private void stableLoopREDPosition1(){
         if(!preMoveCompleteToThrowPreloadedBalls) {
