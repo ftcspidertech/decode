@@ -25,19 +25,19 @@ import org.firstinspires.ftc.teamcode.vision.GoalTagProcessor;
  */
 
 @Autonomous()
-public class BLUE_Auto_Position1 extends OpMode{  // BLUE_Auto_Position1 is your class that is extending the OpMode, a REV class that tells the robot to do a certain things
-    // Controller variables; These are objects -------------------------------
+public class BLUE_Auto_Position1 extends OpMode{
+    // Controller variables -------------------------------
     private RobotController robotController = null;
     private FlyWheelController flyWheelController = null;
     private IntakeController intakeController = null;
     //private GoalTagProcessor goalTagProcessor = null;
     
-    private int flyWheelVelocity = 1425; //chage this to shoot far or close; stable set of parameters
+    private int flyWheelVelocity = 1425; //stable set of parameters
     private ElapsedTime autoLauncherTimer = new ElapsedTime();
-    private double movePower = 0.75; // change this to make the robot move faster or slower
-    private double turnPower = 0.5; // change this to make the robot turn faster or slower
+    private double movePower = 0.65;
+    private double turnPower = 0.5;
     
-    // State variables; the booleans will help with the if-else if ------------------------------------
+    // State variables ------------------------------------
     // Task 1: Throw pre-loaded balls. 
     private boolean preMoveCompleteToThrowPreloadedBalls = false;
     private boolean preloadedBallsThrown = false;
@@ -58,7 +58,7 @@ public class BLUE_Auto_Position1 extends OpMode{  // BLUE_Auto_Position1 is your
     
     
     
-    @Override // this is overriding the init() in original OpMode Class of REV
+    @Override
     public void init() {
         // Initialize controllers
         initControllers();
@@ -67,7 +67,7 @@ public class BLUE_Auto_Position1 extends OpMode{  // BLUE_Auto_Position1 is your
     private void initControllers(){
         // Initialize controller variables.
         double leftCalib = 1.0;
-        double rightCalib = 1.0;
+        double rightCalib = 0.87;
         robotController = new  RobotController(hardwareMap,telemetry,leftCalib,rightCalib);
         flyWheelController = new FlyWheelController(hardwareMap,gamepad1,telemetry);
         intakeController = new IntakeController(hardwareMap,gamepad1,telemetry);
@@ -91,8 +91,8 @@ public class BLUE_Auto_Position1 extends OpMode{  // BLUE_Auto_Position1 is your
 
     
     @Override
-    public void loop() { // REV's OpMode class keep calling this function until the 30 seconds expires.
-        stableLoopDec14(); // hence this function will keep executing until the 30 seconds expires. 
+    public void loop() {
+        stableLoopDec14();
         
         //telemetry.addData("Running ", "test loop");
         //testLoop();
@@ -121,9 +121,9 @@ public class BLUE_Auto_Position1 extends OpMode{  // BLUE_Auto_Position1 is your
     
     private void stableLoopDec14(){
         if(!preMoveCompleteToThrowPreloadedBalls) {
-            robotController.goForward(movePower,48,DistanceUnit.INCH); // 70
-            wait(200); // without wait, it is often difficult for the controller to execeute two command back to back. 
-            robotController.turnLeft(turnPower,30); // 35
+            robotController.goForward(movePower,49,DistanceUnit.INCH); // 70  Move forward to shoot
+            wait(300);
+            robotController.turnLeft(turnPower,19); // 35  Turn to goal
             wait(200);
             //robotController.goForward(movePower,6,DistanceUnit.INCH); //6
 
@@ -131,19 +131,19 @@ public class BLUE_Auto_Position1 extends OpMode{  // BLUE_Auto_Position1 is your
         }else if(!preloadedBallsThrown) {
             //*
             flyWheelController.openDoor();
-            wait(6000); //stable set of parameters
+            wait(6500); //stable set of parameters
 
             //intakeController.stop();
             flyWheelController.closeDoor();
             //*/
             preloadedBallsThrown = true;
         }else if(!preMoveCompleteToCollect1stSetOfBalls) {
-            robotController.turnLeft(turnPower,40);//turn to get second set of balls
-             robotController.goForward(movePower,30,DistanceUnit.INCH);//move forward to aqquire balls
+            robotController.turnLeft(turnPower,45);//turn to get second set of balls
+             robotController.goForward(movePower*0.7,37,DistanceUnit.INCH);//move forward to aqquire balls
              wait(200);
-             robotController.goBackward(movePower,30,DistanceUnit.INCH);
+             robotController.goBackward(movePower*0.7,37,DistanceUnit.INCH);
              wait(200);
-             robotController.turnRight(turnPower,40);
+             robotController.turnRight(turnPower,45);
              flyWheelController.openDoor();
              wait(6000);
               flyWheelController.closeDoor();
