@@ -34,7 +34,7 @@ public class RED_Auto_Position1 extends OpMode{
     
     private int flyWheelVelocity = 1425; //stable set of parameters
     private ElapsedTime autoLauncherTimer = new ElapsedTime();
-    private double movePower = 0.75;
+    private double movePower = 0.65;
     private double turnPower = 0.5;
     
     // State variables ------------------------------------
@@ -67,7 +67,7 @@ public class RED_Auto_Position1 extends OpMode{
     private void initControllers(){
         // Initialize controller variables.
         double leftCalib = 1.0;
-        double rightCalib = 1.0;
+        double rightCalib = 0.87;
         robotController = new  RobotController(hardwareMap,telemetry,leftCalib,rightCalib);
         flyWheelController = new FlyWheelController(hardwareMap,gamepad1,telemetry);
         intakeController = new IntakeController(hardwareMap,gamepad1,telemetry);
@@ -122,7 +122,7 @@ public class RED_Auto_Position1 extends OpMode{
     private void stableLoopDec14(){
         if(!preMoveCompleteToThrowPreloadedBalls) {
             robotController.goForward(movePower,48,DistanceUnit.INCH); // 70
-            wait(200);
+            wait(300);
             robotController.turnRight(turnPower,30); // 35
             wait(200);
             //robotController.goForward(movePower,6,DistanceUnit.INCH); //6
@@ -139,9 +139,9 @@ public class RED_Auto_Position1 extends OpMode{
             preloadedBallsThrown = true;
         }else if(!preMoveCompleteToCollect1stSetOfBalls) {
             robotController.turnRight(turnPower,40);//turn to get second set of balls
-             robotController.goForward(movePower,30,DistanceUnit.INCH);//move forward to aqquire balls
+             robotController.goForward(movePower*0.8,33,DistanceUnit.INCH);//move forward to aqquire balls
              wait(200);
-             robotController.goBackward(movePower,30,DistanceUnit.INCH);
+             robotController.goBackward(movePower,33,DistanceUnit.INCH);
              wait(200);
              robotController.turnLeft(turnPower,40);
              flyWheelController.openDoor();
