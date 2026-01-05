@@ -1,3 +1,4 @@
+
 package org.firstinspires.ftc.teamcode.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -74,13 +75,13 @@ public class TestDecode  extends OpMode{
         goalTagProcessor = new GoalTagProcessor(hardwareMap,24); // ID 24 for Red Gate
         
         // Close exit door.
-        flyWheelController.closeDoor();
+        //flyWheelController.closeDoor();
         
         // Starting flywheel early.
-        flyWheelController.setVelocity(flyWheelVelocity);
+        //flyWheelController.setVelocity(flyWheelVelocity);
         
         // Start intake wheels
-        intakeController.start();
+        //intakeController.start();
         
         // Display status
         telemetry.addData("Status", "Robot controllers initialized");                
@@ -179,20 +180,21 @@ public class TestDecode  extends OpMode{
         if(!testComplete) {
             boolean useSpeedCorrection = true;
             telemetry.addLine("        Go forward with speed correction");
-            robotController.goForward(movePower,60,DistanceUnit.INCH,useSpeedCorrection);
-            //robotController.goForward(movePower,60,useSpeedCorrection);
+            robotController.goForward(movePower,45,DistanceUnit.INCH,useSpeedCorrection);
+            //robotController.goForward(movePower,45,useSpeedCorrection);
             wait(200);
             telemetry.addLine("        Go backward with speed correction");
-            robotController.goBackward(movePower,60,DistanceUnit.INCH,useSpeedCorrection);
-            //robotController.goBackward(movePower,60,useSpeedCorrection);
+            robotController.goBackward(movePower,45,DistanceUnit.INCH,useSpeedCorrection);
+            //robotController.goBackward(movePower,45,useSpeedCorrection);
             wait(200);
             telemetry.addLine("        Go forward without speed correction (default)");
-            robotController.goForward(movePower,60,DistanceUnit.INCH);
-            //robotController.goForward(movePower,60);
+            robotController.setCalibrationFactors(1.0,0.85);
+            robotController.goForward(movePower,45,DistanceUnit.INCH);
+            //robotController.goForward(movePower,45);
             wait(200);
             telemetry.addLine("        Go backward without speed correction (default)");
-            robotController.goBackward(movePower,60,DistanceUnit.INCH);
-            //robotController.goBackward(movePower,60);
+            robotController.goBackward(movePower,45,DistanceUnit.INCH);
+            //robotController.goBackward(movePower,45);
             wait(200);
             telemetry.addLine("        Turn right with IMU (default)");            
             robotController.turnRight(turnPower,45);
@@ -201,10 +203,11 @@ public class TestDecode  extends OpMode{
             robotController.turnLeft(turnPower,45);
             wait(200);
             telemetry.addLine("        Turn right with odometry");            
-            robotController.turnRight(turnPower,45,TurnMethod.ODOMETRY);
+            robotController.turnRight(turnPower,90,TurnMethod.ODOMETRY);
             wait(200);
             telemetry.addLine("        Turn left with odometry");            
-            robotController.turnLeft(turnPower,45,TurnMethod.ODOMETRY);
+            robotController.turnLeft(turnPower,90,TurnMethod.ODOMETRY);
+            
             
             telemetry.addData("        Task ", "done");        
             testComplete = true;
@@ -212,5 +215,7 @@ public class TestDecode  extends OpMode{
         }else{
             stop();
         }
+       telemetry.update();
+        wait(1000);
     }
 }
