@@ -151,12 +151,12 @@ public class RobotController {
     }
 
     public void goForward(double speed, double distanceInInch) {
-        goForward(speed, distanceInInch, DistanceUnit.INCH, NavigationType.GOFORWARD);
+        goForward(speed, distanceInInch, DistanceUnit.INCH);
     }
     
     public void goForward(double speed, double distance, DistanceUnit unit) {
-        //goToPosition(speed, Math.abs(distance),unit);
-        goToPosition(speed, distance, unit, NavigationType.GOFORWARD);
+        goToPosition(speed, Math.abs(distance),unit);
+        //goToPosition(speed, distance, unit, NavigationType.GOFORWARD);
     }
 
     public void goForward(double speed, double distanceInInch, boolean useSpeedCorrection) {
@@ -174,7 +174,8 @@ public class RobotController {
     private void goToPosition(double speed, double distance, DistanceUnit unit) {
         int targetPosition;
         long waitTime = 0; // milliseconds
-        int tolerance = 10;;
+        int tolerance = 10;
+        int leftDiff=tolerance+1,rightDiff=tolerance+1;
         
         // Reset motor encoders.
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
@@ -210,8 +211,7 @@ public class RobotController {
         speed = Math.abs(speed);
         try{            
             // Loop until within tolerance
-            while (Math.abs(leftMotor.getCurrentPosition()-targetPosition)>tolerance||
-                Math.abs(rightMotor.getCurrentPosition()-targetPosition)>tolerance) {
+            while (leftDiff>tolerance || rightDiff>tolerance) {
                 //telemetry.addData("Current left motor position: ",leftMotor.getCurrentPosition());
                 //telemetry.addData("    Current right motor position: ",rightMotor.getCurrentPosition());
                 if(distance>0){
@@ -220,6 +220,9 @@ public class RobotController {
                     goBackward(speed);
                 }
                 Thread.sleep(waitTime);
+                
+                leftDiff = Math.abs(Math.abs(leftMotor.getCurrentPosition())-Math.abs(targetPosition));
+                rightDiff = Math.abs(Math.abs(rightMotor.getCurrentPosition())-Math.abs(targetPosition));
             }                        
         } catch (Exception e) {
             telemetry.addData("Error: ", e.getMessage());
@@ -238,7 +241,8 @@ public class RobotController {
     private void goToPosition(double speed, double distance, DistanceUnit unit, NavigationType navType) {
         int targetPosition;
         long waitTime = 10; // milliseconds
-        int tolerance = 10;;
+        int tolerance = 10;
+        int leftDiff=tolerance+1,rightDiff=tolerance+1;
         
         // Reset motor encoders.
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
@@ -258,23 +262,29 @@ public class RobotController {
         //telemetry.addData("Ticks to move: ", targetPosition);
         
         // Set target positions
-        //telemetry.addData("Initial motor positions","left=%d, right=%d",leftMotor.getCurrentPosition(),rightMotor.getCurrentPosition());
+        telemetry.addData("Initial motor positions","left=%d, right=%d",leftMotor.getCurrentPosition(),rightMotor.getCurrentPosition());
         
         if(navType==NavigationType.GOFORWARD){
+            telemetry.addLine("Go forward");
             leftMotor.setTargetPosition(leftMotor.getCurrentPosition() + targetPosition);
             rightMotor.setTargetPosition(rightMotor.getCurrentPosition() + targetPosition);            
-        }else if(navType==NavigationType.BACKWARD){
+        }else if(navType==NavigationType.GOBACKWARD){
+            telemetry.addLine("Go backward");
             leftMotor.setTargetPosition(leftMotor.getCurrentPosition() - targetPosition);
             rightMotor.setTargetPosition(rightMotor.getCurrentPosition() - targetPosition);            
         }else if(navType==NavigationType.TURNLEFT){
-            leftMotor.setTargetPosition(leftMotor.getCurrentPosition() - targetPosition);
-            rightMotor.setTargetPosition(rightMotor.getCurrentPosition() + targetPosition);            
-        }else{//navType==NavigationType.TURNRIGHT
+            telemetry.addLine("Turn left");
             leftMotor.setTargetPosition(leftMotor.getCurrentPosition() + targetPosition);
             rightMotor.setTargetPosition(rightMotor.getCurrentPosition() - targetPosition);            
+        }else{//navType==NavigationType.TURNRIGHT
+            telemetry.addLine("Turn right");
+            leftMotor.setTargetPosition(leftMotor.getCurrentPosition() - targetPosition);
+            rightMotor.setTargetPosition(rightMotor.getCurrentPosition() + targetPosition);            
         }
         
-        //telemetry.addData("Target motor positions","left=%d, right=%d",leftMotor.getCurrentPosition(),rightMotor.getCurrentPosition());
+        telemetry.addData("Target motor positions","left=%d, right=%d",
+            leftMotor.getCurrentPosition(),rightMotor.getCurrentPosition());
+        //telemetry.update();
 
         // Set motor options
         leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -284,18 +294,25 @@ public class RobotController {
         speed = Math.abs(speed);
         try{            
             // Loop until within tolerance
-            while (Math.abs(leftMotor.getCurrentPosition()-targetPosition)>tolerance||
-                Math.abs(rightMotor.getCurrentPosition()-targetPosition)>tolerance) {
-                //telemetry.addData("Current motor positions","left=%d, right=%d",leftMotor.getCurrentPosition(),rightMotor.getCurrentPosition());
-                if(navType==NavigationType.BACKWARD){
+            while (leftDiff>tolerance || rightDiff>tolerance) {
+                telemetry.addData("Current motor positions","target=%d, left=%d, right=%d",
+                    targetPosition,leftMotor.getCurrentPosition(),rightMotor.getCurrentPosition());
+                telemetry.update();
+                if(navType==NavigationType.GOBACKWARD){
                     goBackward(speed);
                 }else{
                     goForward(speed);
                 }
                 Thread.sleep(waitTime);
+                
+                leftDiff = Math.abs(Math.abs(leftMotor.getCurrentPosition())-Math.abs(targetPosition));
+                rightDiff = Math.abs(Math.abs(rightMotor.getCurrentPosition())-Math.abs(targetPosition));
+                
+                telemetry.addData("Diffs","left=%d, right=%d",leftDiff,rightDiff);
             }                        
         } catch (Exception e) {
             telemetry.addData("Error: ", e.getMessage());
+            telemetry.update();
         }
         
         // Stop motors.
@@ -305,7 +322,8 @@ public class RobotController {
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        //telemetry.addLine("Movement Complete!");
+        telemetry.addLine("Movement Complete!");
+        telemetry.update();
     }
 
     public void goBackward(double speed, double distanceInInch){
@@ -313,8 +331,8 @@ public class RobotController {
     }
     
     public void goBackward(double speed, double distance, DistanceUnit unit){
-        //goToPosition(speed, -Math.abs(distance),unit);
-        goToPosition(speed,distance,unit,NavigationType.GOBACKWARD);        
+        goToPosition(speed, -Math.abs(distance),unit);
+        //goToPosition(speed,distance,unit,NavigationType.GOBACKWARD);        
     }
 
     public void goBackward(double speed, double distanceInInch, boolean useSpeedCorrection) {
@@ -334,7 +352,7 @@ public class RobotController {
             return;
         }
         int targetPosition, leftPose, rightPose, leftDist, rightDist;
-        long waitTime = 10; // milliseconds
+        long waitTime = 100; // milliseconds
         int tolerance = 10;
         double ratio, preLeftCalib, preRightCalib;
         
@@ -402,8 +420,8 @@ public class RobotController {
                 rightPose = rightMotor.getCurrentPosition();
                 rightPose = (rightPose==0)?1:rightPose;
                 ratio = Math.abs((double)leftPose/(double)rightPose);
-                leftDist = Math.abs(leftPose-targetPosition);
-                rightDist = Math.abs(rightPose-targetPosition);
+                leftDist = Math.abs(Math.abs(leftPose)-Math.abs(targetPosition));
+                rightDist = Math.abs(Math.abs(rightPose)-Math.abs(targetPosition));
     
                 /*
                 telemetry.addLine("Data: ")
@@ -436,7 +454,7 @@ public class RobotController {
         if(turnMethod==TurnMethod.IMU){
             turnLeft(speed, angle);            
         }else{//turnMethod==TurnMethod.ODOMETRY
-            double distance = angle*WHEEL_DIAMETER_INCH/360.0;
+            double distance = angle*(Math.PI*18.0)/360.0;
             goToPosition(speed, distance, DistanceUnit.INCH, NavigationType.TURNLEFT);
         }
     }
@@ -445,7 +463,8 @@ public class RobotController {
         if(turnMethod==TurnMethod.IMU){
             turnRight(speed, angle);            
         }else{//turnMethod==TurnMethod.ODOMETRY
-            double distance = angle*WHEEL_DIAMETER_INCH/360.0;
+            double distance = angle*(Math.PI*18.0)/360.0;
+            //telemetry.addData("Turn right","angle=%f distance=%f",angle,distance);
             goToPosition(speed, distance, DistanceUnit.INCH, NavigationType.TURNRIGHT);
         }
     }
