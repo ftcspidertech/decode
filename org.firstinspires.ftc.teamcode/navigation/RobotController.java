@@ -360,16 +360,8 @@ public class RobotController {
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
         rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
         
-        // Get target tick number
-        if(unit==DistanceUnit.INCH){
-            targetPosition = (int)(distance * ticksPerInch);
-        }else if(unit==DistanceUnit.MM){
-            targetPosition = (int)(distance * ticksPerMM);        
-        }else if(unit==DistanceUnit.CM){
-            targetPosition = (int)(distance * ticksPerMM * 10.0);        
-        }else{ //if(unit==DistanceUnit.M){
-            targetPosition = (int)(distance * ticksPerMM * 1000.0);        
-        }
+        // Calculate target tick number.
+        targetPosition = getTargetTickNumber(distance, unit);
         //telemetry.addData("Ticks to move: ", targetPosition);
         
         // Set target positions
@@ -430,7 +422,8 @@ public class RobotController {
                     .addData("Ratio",ratio);
                 */
                 //telemetry.addData("Motor positions","left=%d, right=%d",leftPose,rightPose);
-                //telemetry.addData("Remaining distance","left=%d, right=%d",leftDist,rightDist);                                
+                //telemetry.addData("Remaining distance","left=%d, right=%d",leftDist,rightDist);
+                telemetry.addData("Motor positions","left=%d, right=%d, ratio=%f",leftPose,rightPose,ratio);
             } // while loop ends
         } catch (Exception e) {
             telemetry.addData("Error", e.getMessage());
@@ -450,11 +443,25 @@ public class RobotController {
         telemetry.addLine("Movement Complete!");
     }
 
+    private int getTargetTickNumber(double distance, DistanceUnit unit){
+        int targetPosition;
+        if(unit==DistanceUnit.INCH){
+            targetPosition = (int)(distance * ticksPerInch);
+        }else if(unit==DistanceUnit.MM){
+            targetPosition = (int)(distance * ticksPerMM);        
+        }else if(unit==DistanceUnit.CM){
+            targetPosition = (int)(distance * ticksPerMM * 10.0);        
+        }else{ //if(unit==DistanceUnit.M){
+            targetPosition = (int)(distance * ticksPerMM * 1000.0);        
+        }
+        return targetPosition;
+    }
+    
     public void turnLeft(double speed, double angle, TurnMethod turnMethod){
         if(turnMethod==TurnMethod.IMU){
             turnLeft(speed, angle);            
         }else{//turnMethod==TurnMethod.ODOMETRY
-            double distance = angle*(Math.PI*16.25)/360.0;
+            double distance = angle*(Math.PI*15.75)/360.0;
             goToPosition(speed, distance, DistanceUnit.INCH, NavigationType.TURNLEFT);
         }
     }
@@ -463,7 +470,7 @@ public class RobotController {
         if(turnMethod==TurnMethod.IMU){
             turnRight(speed, angle);            
         }else{//turnMethod==TurnMethod.ODOMETRY
-            double distance = angle*(Math.PI*16.25)/360.0;
+            double distance = angle*(Math.PI*15.75)/360.0;
             //telemetry.addData("Turn right","angle=%f distance=%f",angle,distance);
             goToPosition(speed, distance, DistanceUnit.INCH, NavigationType.TURNRIGHT);
         }
