@@ -178,7 +178,9 @@ public class TestDecode  extends OpMode{
         telemetry.addLine("    Inside test loop:");
         telemetry.addData("        testComplete",testComplete);
         if(!testComplete) {
+            /*
             boolean useSpeedCorrection = true;
+            robotController.setCalibrationFactors(1.0,0.8);
             telemetry.addLine("        Go forward with speed correction");
             robotController.goForward(movePower,45,DistanceUnit.INCH,useSpeedCorrection);
             //robotController.goForward(movePower,45,useSpeedCorrection);
@@ -202,12 +204,12 @@ public class TestDecode  extends OpMode{
             telemetry.addLine("        Turn left with IMU (default)");            
             robotController.turnLeft(turnPower,45);
             wait(200);
+            */
             telemetry.addLine("        Turn right with odometry");            
             robotController.turnRight(turnPower,90,TurnMethod.ODOMETRY);
             wait(200);
             telemetry.addLine("        Turn left with odometry");            
             robotController.turnLeft(turnPower,90,TurnMethod.ODOMETRY);
-            
             
             telemetry.addData("        Task ", "done");        
             testComplete = true;
