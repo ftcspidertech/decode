@@ -55,6 +55,7 @@ public class RED_Auto_Position2  extends OpMode{
     private boolean testComplete = false;
     private double moveSpeed = 0.75;
     private double turnSpeed = 0.5;
+    private boolean useSpeedCorrection = true;
     
     
     
@@ -100,7 +101,6 @@ public class RED_Auto_Position2  extends OpMode{
 
     @Override
     public void loop() {
-        //stableLoopREDPosition2();
         frontRedPosition2();
         //telemetry.addData("Running ", "test loop");
         //testLoop();
@@ -126,71 +126,23 @@ public class RED_Auto_Position2  extends OpMode{
             telemetry.addData("Error: ",e.getMessage());
         }
     }
-    
-    
 
-    private void stableLoopREDPosition2(){
+    private void frontRedPosition2(){
         if(!preMoveCompleteToThrowPreloadedBalls) {
-            robotController.goBackward(moveSpeed,45,DistanceUnit.INCH); // 39.5 //stable set of parameters
-            wait(200);
-            robotController.turnRight(turnSpeed,3);
-            wait(200);
-            flyWheelController.openDoor();
-             wait(6000); //stable set of parameters
-             flyWheelController.closeDoor();
-             robotController.turnRight(turnSpeed,30);
-             wait(200);
-             robotController.goForward(moveSpeed,32,DistanceUnit.INCH);
-             wait(200);
-             robotController.goBackward(moveSpeed,28,DistanceUnit.INCH);
-             wait(200);
-             robotController.turnLeft(turnSpeed,40);
-             wait(200);
-             flyWheelController.openDoor();
-             wait(10000);
-             flyWheelController.closeDoor();
-                         
-            preMoveCompleteToThrowPreloadedBalls = true;
-        }else if(!preloadedBallsThrown) {
-       
-            preloadedBallsThrown = true;
-        }else if(!preMoveCompleteToCollect1stSetOfBalls) {
-            
-             
-            preMoveCompleteToCollect1stSetOfBalls = true;
-        }else if(!collectionComplete1stSetOfBalls) {
-            
-            collectionComplete1stSetOfBalls = true;
-        }else if(!goalTagFound) {
-            
-            goalTagFound = true;
-        }else if(!moveCompleteToThrow1stSetOfCollectedBalls) {
-            
-            moveCompleteToThrow1stSetOfCollectedBalls = true;
-        }else if(!thrown1stSetOfCollectedBalls) {
-            
-            thrown1stSetOfCollectedBalls = true;
-        }else{
-            stop();
-        }
-    }
-
-private void frontRedPosition2(){
-        if(!preMoveCompleteToThrowPreloadedBalls) {
-            robotController.goForward(moveSpeed,50,DistanceUnit.INCH); // 39.5 //stable set of parameters
+            robotController.goForward(moveSpeed,50,DistanceUnit.INCH,useSpeedCorrection); // 39.5 //stable set of parameters
             wait(200);
             robotController.turnLeft(turnSpeed,160);
             wait(200);
             flyWheelController.openDoor();
              wait(6000); //stable set of parameters
              flyWheelController.closeDoor();
-             robotController.goBackward(moveSpeed,8,DistanceUnit.INCH);
+             robotController.goBackward(moveSpeed,8,DistanceUnit.INCH,useSpeedCorrection);
              wait(200);
              robotController.turnRight(turnSpeed,30);
              wait(200);
-             robotController.goForward(moveSpeed*0.8,37,DistanceUnit.INCH);
+             robotController.goForward(moveSpeed*0.8,37,DistanceUnit.INCH,useSpeedCorrection);
              wait(200);
-             robotController.goBackward(moveSpeed,33,DistanceUnit.INCH);
+             robotController.goBackward(moveSpeed,33,DistanceUnit.INCH,useSpeedCorrection);
              wait(200);
              robotController.turnLeft(turnSpeed,30);
              wait(200);
@@ -205,55 +157,6 @@ private void frontRedPosition2(){
         }else if(!preMoveCompleteToCollect1stSetOfBalls) {
             
              
-            preMoveCompleteToCollect1stSetOfBalls = true;
-        }else if(!collectionComplete1stSetOfBalls) {
-            
-            collectionComplete1stSetOfBalls = true;
-        }else if(!goalTagFound) {
-            
-            goalTagFound = true;
-        }else if(!moveCompleteToThrow1stSetOfCollectedBalls) {
-            
-            moveCompleteToThrow1stSetOfCollectedBalls = true;
-        }else if(!thrown1stSetOfCollectedBalls) {
-            
-            thrown1stSetOfCollectedBalls = true;
-        }else{
-            stop();
-        }
-    }
-    
-    private void stableLoopREDPosition1(){
-        if(!preMoveCompleteToThrowPreloadedBalls) {
-            robotController.goForward(0.75,45,DistanceUnit.INCH); // 45 //stable set of parameters
-            wait(200);
-            robotController.turnRight(0.5,40);
-            wait(200);
-            robotController.goForward(0.75,6,DistanceUnit.INCH); //6
-
-            preMoveCompleteToThrowPreloadedBalls = true;
-        }else if(!preloadedBallsThrown) {
-            //*
-            flyWheelController.openDoor();
-            wait(5000); //stable set of parameters
-
-            //intakeController.stop();
-            flyWheelController.closeDoor();
-            //*/
-            preloadedBallsThrown = true;
-        }else if(!preMoveCompleteToCollect1stSetOfBalls) {
-            //*
-             robotController.turnLeft(0.5,130);
-             wait(200);
-             robotController.goForward(0.5,33,DistanceUnit.INCH);
-             wait(200);
-             robotController.goBackward(0.5,33,DistanceUnit.INCH);
-             wait(200);
-             robotController.turnRight(0.5,130);
-             flyWheelController.openDoor();
-            telemetry.addData("Door open","");
-            wait(2500);
-            //*/
             preMoveCompleteToCollect1stSetOfBalls = true;
         }else if(!collectionComplete1stSetOfBalls) {
             
