@@ -165,9 +165,9 @@ public class RobotController {
     
     public void goForward(double speed, double distance, DistanceUnit unit, boolean useSpeedCorrection) {
         if(useSpeedCorrection){
-            goForward(speed,distance,unit);
-        }else{
             goToPositionWithSpeedCorrection(speed, Math.abs(distance), unit);
+        }else{
+            goForward(speed,distance,unit);
         }
     }
 
@@ -181,16 +181,8 @@ public class RobotController {
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
         rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
         
-        // Get target tick number
-        if(unit==DistanceUnit.INCH){
-            targetPosition = (int)(distance * ticksPerInch);
-        }else if(unit==DistanceUnit.MM){
-            targetPosition = (int)(distance * ticksPerMM);        
-        }else if(unit==DistanceUnit.CM){
-            targetPosition = (int)(distance * ticksPerMM * 10.0);        
-        }else{ //if(unit==DistanceUnit.M){
-            targetPosition = (int)(distance * ticksPerMM * 1000.0);        
-        }
+        // Calculate target tick number.
+        targetPosition = getTargetTickNumber(distance, unit);
         //telemetry.addData("Ticks to move: ", targetPosition);
         
         // Set target positions
@@ -248,17 +240,8 @@ public class RobotController {
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
         rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
         
-        // Get target tick number
-        distance = Math.abs(distance);
-        if(unit==DistanceUnit.INCH){
-            targetPosition = (int)(distance * ticksPerInch);
-        }else if(unit==DistanceUnit.MM){
-            targetPosition = (int)(distance * ticksPerMM);        
-        }else if(unit==DistanceUnit.CM){
-            targetPosition = (int)(distance * ticksPerMM * 10.0);        
-        }else{ //if(unit==DistanceUnit.M){
-            targetPosition = (int)(distance * ticksPerMM * 1000.0);        
-        }
+        // Calculate target tick number.
+        targetPosition = getTargetTickNumber(distance, unit);
         //telemetry.addData("Ticks to move: ", targetPosition);
         
         // Set target positions
@@ -341,9 +324,9 @@ public class RobotController {
     
     public void goBackward(double speed, double distance, DistanceUnit unit, boolean useSpeedCorrection) {
         if(useSpeedCorrection){
-            goBackward(speed,distance,unit);
-        }else{
             goToPositionWithSpeedCorrection(speed, -Math.abs(distance), unit);
+        }else{
+            goBackward(speed,distance,unit);
         }
     }
 
@@ -352,9 +335,9 @@ public class RobotController {
             return;
         }
         int targetPosition, leftPose, rightPose, leftDist, rightDist;
-        long waitTime = 100; // milliseconds
+        long waitTime = 0; // milliseconds
         int tolerance = 10;
-        double ratio, preLeftCalib, preRightCalib;
+        double ratio, k=0.75, preLeftCalib, preRightCalib;
         
         // Reset motor encoders.
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
@@ -411,7 +394,10 @@ public class RobotController {
                 leftPose = (leftPose==0)?1:leftPose;
                 rightPose = rightMotor.getCurrentPosition();
                 rightPose = (rightPose==0)?1:rightPose;
-                ratio = Math.abs((double)leftPose/(double)rightPose);
+                ratio = Math.abs((double)Math.pow(leftPose,1)/(double)Math.pow(rightPose,1));
+                if(ratio<1){
+                    ratio = ratio*k;
+                }
                 leftDist = Math.abs(Math.abs(leftPose)-Math.abs(targetPosition));
                 rightDist = Math.abs(Math.abs(rightPose)-Math.abs(targetPosition));
     
@@ -424,6 +410,7 @@ public class RobotController {
                 //telemetry.addData("Motor positions","left=%d, right=%d",leftPose,rightPose);
                 //telemetry.addData("Remaining distance","left=%d, right=%d",leftDist,rightDist);
                 telemetry.addData("Motor positions","left=%d, right=%d, ratio=%f",leftPose,rightPose,ratio);
+                telemetry.update();
             } // while loop ends
         } catch (Exception e) {
             telemetry.addData("Error", e.getMessage());
@@ -441,6 +428,7 @@ public class RobotController {
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         telemetry.addLine("Movement Complete!");
+        telemetry.update();
     }
 
     private int getTargetTickNumber(double distance, DistanceUnit unit){
