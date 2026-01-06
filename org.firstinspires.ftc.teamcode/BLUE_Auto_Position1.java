@@ -55,6 +55,7 @@ public class BLUE_Auto_Position1 extends OpMode{
     
     // Test task
     private boolean testComplete = false;
+    private boolean useSpeedCorrection = true;
     
     
     
@@ -92,7 +93,7 @@ public class BLUE_Auto_Position1 extends OpMode{
     
     @Override
     public void loop() {
-        stableLoopDec14();
+        stableLoop();
         
         //telemetry.addData("Running ", "test loop");
         //testLoop();
@@ -119,9 +120,9 @@ public class BLUE_Auto_Position1 extends OpMode{
         }
     }
     
-    private void stableLoopDec14(){
+    private void stableLoop(){
         if(!preMoveCompleteToThrowPreloadedBalls) {
-            robotController.goForward(movePower,49,DistanceUnit.INCH); // 70  Move forward to shoot
+            robotController.goForward(movePower,49,DistanceUnit.INCH,useSpeedCorrection); // 70  Move forward to shoot
             wait(300);
             robotController.turnLeft(turnPower,19); // 35  Turn to goal
             wait(200);
@@ -139,9 +140,9 @@ public class BLUE_Auto_Position1 extends OpMode{
             preloadedBallsThrown = true;
         }else if(!preMoveCompleteToCollect1stSetOfBalls) {
             robotController.turnLeft(turnPower,45);//turn to get second set of balls
-             robotController.goForward(movePower*0.7,37,DistanceUnit.INCH);//move forward to aqquire balls
+             robotController.goForward(movePower*0.7,37,DistanceUnit.INCH,useSpeedCorrection);//move forward to aqquire balls
              wait(200);
-             robotController.goBackward(movePower*0.7,37,DistanceUnit.INCH);
+             robotController.goBackward(movePower*0.7,37,DistanceUnit.INCH,useSpeedCorrection);
              wait(200);
              robotController.turnRight(turnPower,45);
              flyWheelController.openDoor();
