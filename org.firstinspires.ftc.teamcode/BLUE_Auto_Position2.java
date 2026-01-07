@@ -23,7 +23,7 @@ public class BLUE_Auto_Position2  extends OpMode{
     
     private int flyWheelVelocity = 1350; //stable set of parameters
     private ElapsedTime autoLauncherTimer = new ElapsedTime();
-    private double movePower = 0.75;
+    private double movePower = 0.65;
     private double turnPower = 0.5;
     private boolean useSpeedCorrection = false;
     
@@ -86,9 +86,6 @@ public class BLUE_Auto_Position2  extends OpMode{
     }
     
     private void frontRedPosition2(){
-        if(useSpeedCorrection){
-            movePower = 0.8;
-        }
         if(!taskOneDone) {
             // Go forward and turn to the goal.
             robotController.goForward(movePower,50,DistanceUnit.INCH,useSpeedCorrection);
