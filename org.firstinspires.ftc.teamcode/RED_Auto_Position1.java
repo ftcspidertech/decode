@@ -12,17 +12,6 @@ import org.firstinspires.ftc.teamcode.decode.FlyWheelController;
 import org.firstinspires.ftc.teamcode.decode.IntakeController;
 import org.firstinspires.ftc.teamcode.vision.GoalTagProcessor;
 
-/*
- * Autonomous tasks:
- *   1. Throw the pre-loaded balls. The robot may need to move to a suitable location from its initial position for this task.
- *   2. Use odometry or camera to move to another location to collect more balls.
- *   3. Collect balls.
- *   4. Use camera to find the designated goal tag.
- *   5. Move closer to the gate.
- *   6. Throw the collected balls.
- *   7. If possible collect more balls. 
- *   
- */
 
 @Autonomous()
 public class RED_Auto_Position1 extends OpMode{
@@ -36,27 +25,13 @@ public class RED_Auto_Position1 extends OpMode{
     private ElapsedTime autoLauncherTimer = new ElapsedTime();
     private double movePower = 0.65;
     private double turnPower = 0.5;
+    private boolean useSpeedCorrection = false;
     
     // State variables ------------------------------------
     // Task 1: Throw pre-loaded balls. 
-    private boolean preMoveCompleteToThrowPreloadedBalls = false;
-    private boolean preloadedBallsThrown = false;
-    private boolean preloadedBall1Thrown = false;
-    private boolean preloadedBall2Thrown = false;
-    // Task 2: Collect 1st set of collected balls
-    private boolean preMoveCompleteToCollect1stSetOfBalls = false;
-    private boolean collectionComplete1stSetOfBalls = false;
-    // Task 3: Throw 1st set of collected balls
-    private boolean goalTagFound = false;
-    private boolean moveCompleteToThrow1stSetOfCollectedBalls = false;
-    private boolean thrown1stSetOfCollectedBalls = false;
-    // Task 4: Collect 2nd set of balls
-    
-    
-    // Test task
-    private boolean testComplete = false;
-    private boolean useSpeedCorrection = true;
-    
+    private boolean taskOneDone = false;
+    // Task 2: Collect and throw another set of balls.
+    private boolean taskTwoDone = false;
     
     
     @Override
@@ -94,9 +69,6 @@ public class RED_Auto_Position1 extends OpMode{
     @Override
     public void loop() {
         stableLoop();
-        
-        //telemetry.addData("Running ", "test loop");
-        //testLoop();
     }
     
     @Override
@@ -112,81 +84,47 @@ public class RED_Auto_Position1 extends OpMode{
         while(autoLauncherTimer.milliseconds()<ms);
     }
     
-    private void sleep(int ms){
-        try{
-            Thread.sleep(ms);
-        }catch(Exception e){
-            telemetry.addData("Error: ",e.getMessage());
-        }
-    }
-    
     private void stableLoop(){
-        if(!preMoveCompleteToThrowPreloadedBalls) {
-            robotController.goForward(movePower,48,DistanceUnit.INCH,useSpeedCorrection); // 70
+        if(useSpeedCorrection){
+            movePower = 0.8;
+        }
+        if(!taskOneDone) {
+            // Go forward and turn towards the goal.
+            robotController.goForward(movePower,48,DistanceUnit.INCH,useSpeedCorrection);
             wait(300);
-            robotController.turnRight(turnPower,30); // 35
+            robotController.turnRight(turnPower,30);
             wait(200);
-            //robotController.goForward(movePower,6,DistanceUnit.INCH); //6
 
-            preMoveCompleteToThrowPreloadedBalls = true;
-        }else if(!preloadedBallsThrown) {
-            //*
+            // Open the exit door. Keep it open for long enough to throw all the balls.
             flyWheelController.openDoor();
-            wait(6000); //stable set of parameters
-
-            //intakeController.stop();
+            wait(6000);
             flyWheelController.closeDoor();
-            //*/
-            preloadedBallsThrown = true;
-        }else if(!preMoveCompleteToCollect1stSetOfBalls) {
-            robotController.turnRight(turnPower,40);//turn to get second set of balls
-             robotController.goForward(movePower*0.8,33,DistanceUnit.INCH,useSpeedCorrection);//move forward to aqquire balls
-             wait(200);
-             robotController.goBackward(movePower,33,DistanceUnit.INCH,useSpeedCorrection);
-             wait(200);
-             robotController.turnLeft(turnPower,40);
-             flyWheelController.openDoor();
-             wait(6000);
-              flyWheelController.closeDoor();
             
-            preMoveCompleteToCollect1stSetOfBalls = true;
-        }else if(!collectionComplete1stSetOfBalls) {
+            // Task1 is done.
+            taskOneDone = true;
+        }else if(!taskTwoDone) {
+            // Turn to get second set of balls.
+            robotController.turnRight(turnPower,40);
             
-            collectionComplete1stSetOfBalls = true;
-        }else if(!goalTagFound) {
+            // Move forward to aqquire balls.
+            robotController.goForward(movePower*0.8,33,DistanceUnit.INCH,useSpeedCorrection);
+            wait(200);
             
-            goalTagFound = true;
-        }else if(!moveCompleteToThrow1stSetOfCollectedBalls) {
+            // Go back and turn to the scoring location.
+            robotController.goBackward(movePower,33,DistanceUnit.INCH,useSpeedCorrection);
+            wait(200);
+            robotController.turnLeft(turnPower,40);
             
-            moveCompleteToThrow1stSetOfCollectedBalls = true;
-        }else if(!thrown1stSetOfCollectedBalls) {
+            // Open the exit door. Keep it open for long enough to throw all the balls.
+            flyWheelController.openDoor();
+            wait(6000);
+            flyWheelController.closeDoor();
             
-            thrown1stSetOfCollectedBalls = true;
+            // Task2 is done.
+            taskTwoDone = true;
         }else{
             stop();
         }
     }
     
-    private void testLoop(){
-        telemetry.addData("    Inside ", "test loop");
-            telemetry.addData("        testComplete",testComplete);
-        if(!testComplete) {
-            telemetry.addData("        Go ", "forward");
-            robotController.goForward(movePower,45,DistanceUnit.INCH);
-            //try{
-            //    Thread.sleep(5000);
-            //}catch(Exception e){
-            //}
-            //wait(200);
-            telemetry.addData("        Turn ", "right");
-            
-            robotController.turnRight(turnPower,45);
-            telemetry.addData("        Task ", "done");
-        
-            testComplete = true;
-            telemetry.addData("        testComplete",testComplete);
-        }else{
-            stop();
-        }
-    }
 }
