@@ -12,17 +12,6 @@ import org.firstinspires.ftc.teamcode.decode.FlyWheelController;
 import org.firstinspires.ftc.teamcode.decode.IntakeController;
 import org.firstinspires.ftc.teamcode.vision.GoalTagProcessor;
 
-/*
- * Autonomous tasks:
- *   1. Step back x inches than throw the pre-loaded balls. The robot may need to move to a suitable location from its initial position for this task.
- *   2. Use odometry or camera to move to another location to collect more balls.
- *   3. Collect balls.
- *   4. Use camera to find the designated goal tag.
- *   5. Move closer to the gate.
- *   6. Throw the collected balls.
- *   7. If possible collect more balls. 
- *   
- */
 
 @Autonomous()
 public class BLUE_Auto_Position2  extends OpMode{
@@ -34,28 +23,15 @@ public class BLUE_Auto_Position2  extends OpMode{
     
     private int flyWheelVelocity = 1350; //stable set of parameters
     private ElapsedTime autoLauncherTimer = new ElapsedTime();
+    private double movePower = 0.75;
+    private double turnPower = 0.5;
+    private boolean useSpeedCorrection = false;
     
     // State variables ------------------------------------
     // Task 1: Throw pre-loaded balls. 
-    private boolean preMoveCompleteToThrowPreloadedBalls = false;
-    private boolean preloadedBallsThrown = false;
-    private boolean preloadedBall1Thrown = false;
-    private boolean preloadedBall2Thrown = false;
-    // Task 2: Collect 1st set of collected balls
-    private boolean preMoveCompleteToCollect1stSetOfBalls = false;
-    private boolean collectionComplete1stSetOfBalls = false;
-    // Task 3: Throw 1st set of collected balls
-    private boolean goalTagFound = false;
-    private boolean moveCompleteToThrow1stSetOfCollectedBalls = false;
-    private boolean thrown1stSetOfCollectedBalls = false;
-    // Task 4: Collect 2nd set of balls
-    
-    
-    // Test task
-    private boolean testComplete = false;
-    private double moveSpeed = 0.75;
-    private double turnSpeed = 0.5;
-    private boolean useSpeedCorrection = true;
+    private boolean taskOneDone = false;
+    // Task 2: Collect and throw another set of balls.
+    private boolean taskTwoDone = false;
     
     
     
@@ -92,18 +68,8 @@ public class BLUE_Auto_Position2  extends OpMode{
     }
 
     @Override
-    public void init_loop() {
-    }
-
-    @Override
-    public void start() {
-    }
-
-    @Override
     public void loop() {
         frontRedPosition2();
-        //telemetry.addData("Running ", "test loop");
-        //testLoop();
     }
     
     @Override
@@ -119,80 +85,48 @@ public class BLUE_Auto_Position2  extends OpMode{
         while(autoLauncherTimer.milliseconds()<ms);
     }
     
-    private void sleep(int ms){
-        try{
-            Thread.sleep(ms);
-        }catch(Exception e){
-            telemetry.addData("Error: ",e.getMessage());
-        }
-    }
-
     private void frontRedPosition2(){
-        if(!preMoveCompleteToThrowPreloadedBalls) {
-            robotController.goForward(moveSpeed,50,DistanceUnit.INCH,useSpeedCorrection); // 39.5 //stable set of parameters
-            wait(200);
-            robotController.turnLeft(turnSpeed,165);// turn ot shoot
-            wait(200);
-            flyWheelController.openDoor();
-             wait(6000); //stable set of parameters
-             flyWheelController.closeDoor();
-             robotController.goBackward(moveSpeed,8,DistanceUnit.INCH,useSpeedCorrection);// back to balls
-             wait(200);
-             robotController.turnLeft(turnSpeed,35);// turn to balls
-             wait(200);
-             robotController.goForward(moveSpeed*0.8,37,DistanceUnit.INCH,useSpeedCorrection);
-             wait(200);
-             robotController.goBackward(moveSpeed*0.8,37,DistanceUnit.INCH,useSpeedCorrection);
-             wait(200);
-             robotController.turnRight(turnSpeed,35);
-             wait(200);
-             flyWheelController.openDoor();
-             wait(10000);
-             flyWheelController.closeDoor();
-                         
-            preMoveCompleteToThrowPreloadedBalls = true;
-        }else if(!preloadedBallsThrown) {
-       
-            preloadedBallsThrown = true;
-        }else if(!preMoveCompleteToCollect1stSetOfBalls) {
-            
-             
-            preMoveCompleteToCollect1stSetOfBalls = true;
-        }else if(!collectionComplete1stSetOfBalls) {
-            
-            collectionComplete1stSetOfBalls = true;
-        }else if(!goalTagFound) {
-            
-            goalTagFound = true;
-        }else if(!moveCompleteToThrow1stSetOfCollectedBalls) {
-            
-            moveCompleteToThrow1stSetOfCollectedBalls = true;
-        }else if(!thrown1stSetOfCollectedBalls) {
-            
-            thrown1stSetOfCollectedBalls = true;
-        }else{
-            stop();
+        if(useSpeedCorrection){
+            movePower = 0.8;
         }
-    }
-
-    private void testLoop(){
-        telemetry.addData("    Inside ", "test loop");
-            telemetry.addData("        testComplete",testComplete);
-        if(!testComplete) {
-            telemetry.addData("        Go ", "forward");
-            robotController.goForward(0.5,6,DistanceUnit.INCH);
-            //try{
-            //    Thread.sleep(5000);
-            //}catch(Exception e){
-            //}
-            //wait(200);
-            telemetry.addData("        Turn ", "right");
+        if(!taskOneDone) {
+            // Go forward and turn to the goal.
+            robotController.goForward(movePower,50,DistanceUnit.INCH,useSpeedCorrection);
+            wait(200);
+            robotController.turnLeft(turnPower,165);
+            wait(200);
             
-            robotController.turnRight(0.5,45);
-            telemetry.addData("        Task ", "done");
-        
-            testComplete = true;
-            telemetry.addData("        testComplete",testComplete);
+            // Open the exit door. Keep it open for long enough to throw all the balls.
+            flyWheelController.openDoor();
+            wait(6000);
+            flyWheelController.closeDoor();
+             
+            // Task1 done             
+            taskOneDone = true;
+        }else if(!taskTwoDone) {
+            // Go back and turn to the 2nd set of balls.
+            robotController.goBackward(movePower,8,DistanceUnit.INCH,useSpeedCorrection);
+            wait(200);
+            robotController.turnLeft(turnPower,35);// turn to balls
+            wait(200);
+            
+            // Go and collect the balls. Go slowly to grab the balls.
+            robotController.goForward(movePower*0.8,37,DistanceUnit.INCH,useSpeedCorrection);
+            wait(200);
+            
+            // Go back and turn to the goal.
+            robotController.goBackward(movePower*0.8,37,DistanceUnit.INCH,useSpeedCorrection);
+            wait(200);
+            robotController.turnRight(turnPower,35);
+            wait(200);
+            
+            // Open the exit door. Keep it open for long enough to throw all the balls.
+            flyWheelController.openDoor();
+            wait(10000);
+            flyWheelController.closeDoor();
+       
+            // Task2 done.
+            taskTwoDone = true;
         }else{
             stop();
         }
