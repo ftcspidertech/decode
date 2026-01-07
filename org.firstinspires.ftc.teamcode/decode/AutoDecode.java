@@ -20,8 +20,8 @@ public class AutoDecode extends OpMode{
     
     protected int flyWheelVelocity = 1425;
     private ElapsedTime waitTimer = new ElapsedTime();
-    protected double leftCalib = 1.0;
-    protected double rightCalib = 0.87;
+    private double leftCalib = 1.0;
+    private double rightCalib = 0.87;
     
     @Override
     public void init() {
@@ -72,5 +72,9 @@ public class AutoDecode extends OpMode{
     protected void wait(int ms){
         waitTimer.reset();
         while(waitTimer.milliseconds()<ms);
-    }      
+    }
+    
+    protected void setCalibrationFactors(double left, double right){
+        robotController.setCalibrationFactors(left, right);
+    }    
 }
