@@ -4,7 +4,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.decode.AutoDecode;
 
 
-@Autonomous()
 public class RED_Auto_Position1 extends AutoDecode{
     // Navigation variables   
     private double movePower = 0.65;
@@ -19,6 +18,9 @@ public class RED_Auto_Position1 extends AutoDecode{
         
     @Override   
     protected void autoTask() {
+        //double left=1.0;
+        //double right=0.87;
+        //setCalibrationFactors(left,right);
         if(!taskOneDone) {
             // Go forward and turn towards the goal.
             robotController.goForward(movePower,48,DistanceUnit.INCH,useSpeedCorrection);
