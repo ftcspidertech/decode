@@ -85,9 +85,6 @@ public class BLUE_Auto_Position1 extends OpMode{
     }
     
     private void stableLoop(){
-        if(useSpeedCorrection){
-            movePower = 0.8;
-        }
         if(!taskOneDone) {
             // Go forward and turn towards the goal.
             robotController.goForward(movePower,49,DistanceUnit.INCH,useSpeedCorrection);
