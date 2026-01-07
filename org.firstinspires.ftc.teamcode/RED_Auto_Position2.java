@@ -85,9 +85,6 @@ public class RED_Auto_Position2  extends OpMode{
     }
     
     private void frontRedPosition2(){
-        if(useSpeedCorrection){
-            movePower = 0.8;
-        }
         if(!taskOneDone) {
             // Go forward and turn to the goal.
             robotController.goForward(movePower,50,DistanceUnit.INCH,useSpeedCorrection);
