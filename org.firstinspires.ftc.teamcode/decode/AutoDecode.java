@@ -10,8 +10,7 @@ import org.firstinspires.ftc.teamcode.decode.IntakeController;
 import org.firstinspires.ftc.teamcode.vision.GoalTagProcessor;
 
 
-@Autonomous()
-public class AutoDecode extends OpMode{
+public abstract class AutoDecode extends OpMode{
     // Controller variables -------------------------------
     protected RobotController robotController = null;
     protected FlyWheelController flyWheelController = null;
@@ -52,15 +51,6 @@ public class AutoDecode extends OpMode{
         telemetry.addData("Status", "Robot controllers initialized");                
     }
 
-    
-    @Override
-    public void loop() {
-        autoTask();
-    }
-
-    protected void autoTask(){      
-    }
-  
     @Override
     public void stop() {
         robotController.stop();
