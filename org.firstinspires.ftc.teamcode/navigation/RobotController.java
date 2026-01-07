@@ -95,13 +95,6 @@ public class RobotController {
         double leftSpeed = Math.max(Math.min(speed*leftCalibrationFactor,1),-1);
         double rightSpeed = Math.max(Math.min(speed*rightCalibrationFactor,1),-1);
         
-        /*
-        if (leftSpeed>1.0){
-            leftSpeed = 1.0;
-        }else if(leftSpeed<-1){
-            leftSpeed = -1;
-        }
-        */
         //telemetry.addData("Right motor speed",rightSpeed);
         //telemetry.addData("Left motor speed",leftSpeed);
         leftMotor.setPower(leftSpeed);
@@ -278,8 +271,8 @@ public class RobotController {
         try{            
             // Loop until within tolerance
             while (leftDiff>tolerance || rightDiff>tolerance) {
-                telemetry.addData("Current motor positions","target=%d, left=%d, right=%d",
-                    targetPosition,leftMotor.getCurrentPosition(),rightMotor.getCurrentPosition());
+                //telemetry.addData("Current motor positions","target=%d, left=%d, right=%d",
+                //    targetPosition,leftMotor.getCurrentPosition(),rightMotor.getCurrentPosition());
                 telemetry.update();
                 if(navType==NavigationType.GOBACKWARD){
                     goBackward(speed);
@@ -291,7 +284,7 @@ public class RobotController {
                 leftDiff = Math.abs(Math.abs(leftMotor.getCurrentPosition())-Math.abs(targetPosition));
                 rightDiff = Math.abs(Math.abs(rightMotor.getCurrentPosition())-Math.abs(targetPosition));
                 
-                telemetry.addData("Diffs","left=%d, right=%d",leftDiff,rightDiff);
+                //telemetry.addData("Diffs","left=%d, right=%d",leftDiff,rightDiff);
             }                        
         } catch (Exception e) {
             telemetry.addData("Error: ", e.getMessage());
@@ -305,8 +298,8 @@ public class RobotController {
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        telemetry.addLine("Movement Complete!");
-        telemetry.update();
+        //telemetry.addLine("Movement Complete!");
+        //telemetry.update();
     }
 
     public void goBackward(double speed, double distanceInInch){
@@ -407,13 +400,12 @@ public class RobotController {
                     .addData("Right position",rightPose)
                     .addData("Ratio",ratio);
                 */
-                //telemetry.addData("Motor positions","left=%d, right=%d",leftPose,rightPose);
-                //telemetry.addData("Remaining distance","left=%d, right=%d",leftDist,rightDist);
-                telemetry.addData("Motor positions","left=%d, right=%d, ratio=%f",leftPose,rightPose,ratio);
-                telemetry.update();
+                //telemetry.addData("Motor positions","left=%d, right=%d, ratio=%f",leftPose,rightPose,ratio);
+                //telemetry.update();
             } // while loop ends
         } catch (Exception e) {
             telemetry.addData("Error", e.getMessage());
+            telemetry.update();
         }
 
         // Stop motors.
@@ -427,8 +419,8 @@ public class RobotController {
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        telemetry.addLine("Movement Complete!");
-        telemetry.update();
+        //telemetry.addLine("Movement Complete!");
+        //telemetry.update();
     }
 
     private int getTargetTickNumber(double distance, DistanceUnit unit){
@@ -449,7 +441,7 @@ public class RobotController {
         if(turnMethod==TurnMethod.IMU){
             turnLeft(speed, angle);            
         }else{//turnMethod==TurnMethod.ODOMETRY
-            double distance = angle*(Math.PI*13.0)/360.0;
+            double distance = angle*(Math.PI*13.25)/360.0;
             goToPosition(speed, distance, DistanceUnit.INCH, NavigationType.TURNLEFT);
         }
     }
@@ -458,7 +450,7 @@ public class RobotController {
         if(turnMethod==TurnMethod.IMU){
             turnRight(speed, angle);            
         }else{//turnMethod==TurnMethod.ODOMETRY
-            double distance = angle*(Math.PI*13.0)/360.0;
+            double distance = angle*(Math.PI*13.25)/360.0;
             //telemetry.addData("Turn right","angle=%f distance=%f",angle,distance);
             goToPosition(speed, distance, DistanceUnit.INCH, NavigationType.TURNRIGHT);
         }
