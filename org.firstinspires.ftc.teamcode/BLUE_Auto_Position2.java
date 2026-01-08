@@ -6,7 +6,14 @@ import org.firstinspires.ftc.teamcode.decode.AutoDecode;
 
 @Autonomous()
 public class BLUE_Auto_Position2  extends AutoDecode{
-// Navigation variables   
+    /*
+    *  Controller variables from the superclass:
+    *      - robotController
+    *      - flyWheelController
+    *      - IntakeController
+    */
+    
+    // Navigation variables   
     private double movePower = 0.65;
     private double turnPower = 0.5;
     private boolean useSpeedCorrection = false;
