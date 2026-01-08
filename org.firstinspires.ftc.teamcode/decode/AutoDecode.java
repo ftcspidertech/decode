@@ -16,10 +16,8 @@ public abstract class AutoDecode extends OpMode{
     protected IntakeController intakeController = null;
     //protected GoalTagProcessor goalTagProcessor = null;
     
-    protected int flyWheelVelocity = 1425;
+    private int flyWheelVelocity = 1425;
     private ElapsedTime waitTimer = new ElapsedTime();
-    private double leftCalib = 1.0;
-    private double rightCalib = 0.87;
     
     @Override
     public void init() {
@@ -29,6 +27,8 @@ public abstract class AutoDecode extends OpMode{
 
     private void initControllers(){
         // Initialize controller variables.
+        double leftCalib = 1.0;
+        double rightCalib = 0.87;
         robotController = new  RobotController(hardwareMap,telemetry,leftCalib,rightCalib);
         flyWheelController = new FlyWheelController(hardwareMap,gamepad1,telemetry);
         intakeController = new IntakeController(hardwareMap,gamepad1,telemetry);
