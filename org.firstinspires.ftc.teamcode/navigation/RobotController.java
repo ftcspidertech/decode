@@ -331,6 +331,7 @@ public class RobotController {
         long waitTime = 0; // milliseconds
         int tolerance = 10;
         double ratio, k=0.75, preLeftCalib, preRightCalib;
+        int tickTh = 100;
         
         // Reset motor encoders.
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
@@ -389,7 +390,11 @@ public class RobotController {
                 rightPose = (rightPose==0)?1:rightPose;
                 ratio = Math.abs((double)Math.pow(leftPose,1)/(double)Math.pow(rightPose,1));
                 if(ratio<1){
-                    ratio = ratio*k;
+                    if(Math.abs(leftPose)>tickTh || Math.abs(rightPose)>tickTh){
+                        ratio = ratio*k;
+                    }else{
+                        ratio = 1.0;
+                    }
                 }
                 leftDist = Math.abs(Math.abs(leftPose)-Math.abs(targetPosition));
                 rightDist = Math.abs(Math.abs(rightPose)-Math.abs(targetPosition));
