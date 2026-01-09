@@ -31,12 +31,14 @@ public class RED_Auto_Position1 extends AutoDecode{
         //setCalibrationFactors(left,right);
         if(!taskOneDone) {
             // Go forward and turn towards the goal.
-            robotController.goForward(movePower,48,DistanceUnit.INCH,useSpeedCorrection);
+            robotController.goForward(movePower,48,
+                DistanceUnit.INCH,useSpeedCorrection);
             wait(300);
             robotController.turnRight(turnPower,30);
             wait(200);
 
-            // Open the exit door. Keep it open for long enough to throw all the balls.
+            // Open the exit door. Keep it open for 
+            // long enough to throw all the balls.
             flyWheelController.openDoor();
             wait(6000);
             flyWheelController.closeDoor();
@@ -48,15 +50,18 @@ public class RED_Auto_Position1 extends AutoDecode{
             robotController.turnRight(turnPower,40);
             
             // Move forward to aqquire balls.
-            robotController.goForward(movePower*0.8,33,DistanceUnit.INCH,useSpeedCorrection);
+            robotController.goForward(movePower*0.8,33,
+                DistanceUnit.INCH,useSpeedCorrection);
             wait(200);
             
             // Go back and turn to the scoring location.
-            robotController.goBackward(movePower,33,DistanceUnit.INCH,useSpeedCorrection);
+            robotController.goBackward(movePower,33,
+                DistanceUnit.INCH,useSpeedCorrection);
             wait(200);
             robotController.turnLeft(turnPower,40);
             
-            // Open the exit door. Keep it open for long enough to throw all the balls.
+            // Open the exit door. Keep it open for 
+            // long enough to throw all the balls.
             flyWheelController.openDoor();
             wait(6000);
             flyWheelController.closeDoor();
