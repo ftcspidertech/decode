@@ -6,7 +6,7 @@ import org.firstinspires.ftc.teamcode.decode.AutoDecode;
 import org.firstinspires.ftc.teamcode.navigation.TurnMethod;
 
 @Autonomous()
-public class RED_Auto_Position1 extends AutoDecode{
+public class BLUE_Auto_Position1 extends AutoDecode{
     /*
     *  Controller variables from the superclass:
     *      - robotController
