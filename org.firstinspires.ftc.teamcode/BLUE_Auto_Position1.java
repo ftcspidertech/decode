@@ -34,8 +34,8 @@ public class BLUE_Auto_Position1 extends AutoDecode{
             // Go forward and turn towards the goal.
             robotController.goForward(movePower,48,DistanceUnit.INCH,useSpeedCorrection);
             wait(300);
-            robotController.turnLeft(turnPower,28,TurnMethod.IMU);
-            wait(200);
+            robotController.turnLeft(turnPower,20,TurnMethod.IMU);
+            wait(2000);
 
             // Open the exit door. Keep it open for long enough to throw all the balls.
             flyWheelController.openDoor();
@@ -46,7 +46,7 @@ public class BLUE_Auto_Position1 extends AutoDecode{
             taskOneDone = true;
         }else if(!taskTwoDone) {
             // Turn to get second set of balls.
-            robotController.turnLeft(turnPower,44,TurnMethod.IMU);
+            robotController.turnLeft(turnPower,52,TurnMethod.IMU);
             
             // Move forward to aqquire balls.
             robotController.goForward(movePower*0.8,35,DistanceUnit.INCH,useSpeedCorrection);
@@ -55,7 +55,7 @@ public class BLUE_Auto_Position1 extends AutoDecode{
             // Go back and turn to the scoring location.
             robotController.goBackward(movePower*0.8,35,DistanceUnit.INCH,useSpeedCorrection);
             wait(300);
-            robotController.turnRight(turnPower,44,TurnMethod.IMU);
+            robotController.turnRight(turnPower,52,TurnMethod.IMU);
             
             // Open the exit door. Keep it open for long enough to throw all the balls.
             flyWheelController.openDoor();
