@@ -25,10 +25,16 @@ public class RED_Auto_Position2  extends AutoDecode{
     private boolean taskTwoDone = false;
     
     @Override
+    public void init_loop(){
+        flyWheelController.setVelocity(1350);
+    }
+    
+    @Override
     public void loop() {
         //double left=1.0;
         //double right=0.87;
         //setCalibrationFactors(left,right);
+        
         if(!taskOneDone) {
             // Go forward and turn to the goal.
             robotController.goForward(movePower,50,DistanceUnit.INCH,useSpeedCorrection);
@@ -51,11 +57,11 @@ public class RED_Auto_Position2  extends AutoDecode{
             wait(200);
             
             // Go and collect the balls. Go slowly to grab the balls.
-            robotController.goForward(movePower*0.8,37,DistanceUnit.INCH,useSpeedCorrection);
+            robotController.goForward(movePower*0.7,31,DistanceUnit.INCH,useSpeedCorrection);
             wait(200);
             
             // Go back and turn to the goal.
-            robotController.goBackward(movePower,33,DistanceUnit.INCH,useSpeedCorrection);
+            robotController.goBackward(movePower,27,DistanceUnit.INCH,useSpeedCorrection);
             wait(200);
             robotController.turnLeft(turnPower,30);
             wait(200);
