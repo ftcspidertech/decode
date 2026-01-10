@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.decode.AutoDecode;
 
 @Autonomous()
-public class RED_Auto_Position2  extends AutoDecode{
+public class BLUE_Auto_Position2  extends AutoDecode{
     /*
     *  Controller variables from the superclass:
     *      - robotController
