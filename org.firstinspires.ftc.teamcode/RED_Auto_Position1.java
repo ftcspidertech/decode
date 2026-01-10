@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.decode.AutoDecode;
+import org.firstinspires.ftc.teamcode.navigation.TurnMethod;
 
 @Autonomous()
 public class RED_Auto_Position1 extends AutoDecode{
@@ -31,14 +32,12 @@ public class RED_Auto_Position1 extends AutoDecode{
         //setCalibrationFactors(left,right);
         if(!taskOneDone) {
             // Go forward and turn towards the goal.
-            robotController.goForward(movePower,48,
-                DistanceUnit.INCH,useSpeedCorrection);
+            robotController.goForward(movePower,48,DistanceUnit.INCH,useSpeedCorrection);
             wait(300);
-            robotController.turnRight(turnPower,30);
+            robotController.turnRight(turnPower,28,TurnMethod.IMU);
             wait(200);
 
-            // Open the exit door. Keep it open for 
-            // long enough to throw all the balls.
+            // Open the exit door. Keep it open for long enough to throw all the balls.
             flyWheelController.openDoor();
             wait(6000);
             flyWheelController.closeDoor();
@@ -47,21 +46,18 @@ public class RED_Auto_Position1 extends AutoDecode{
             taskOneDone = true;
         }else if(!taskTwoDone) {
             // Turn to get second set of balls.
-            robotController.turnRight(turnPower,40);
+            robotController.turnRight(turnPower,44,TurnMethod.IMU);
             
             // Move forward to aqquire balls.
-            robotController.goForward(movePower*0.8,33,
-                DistanceUnit.INCH,useSpeedCorrection);
+            robotController.goForward(movePower*0.8,35,DistanceUnit.INCH,useSpeedCorrection);
             wait(200);
             
             // Go back and turn to the scoring location.
-            robotController.goBackward(movePower,33,
-                DistanceUnit.INCH,useSpeedCorrection);
-            wait(200);
-            robotController.turnLeft(turnPower,40);
+            robotController.goBackward(movePower*0.8,35,DistanceUnit.INCH,useSpeedCorrection);
+            wait(300);
+            robotController.turnLeft(turnPower,44,TurnMethod.IMU);
             
-            // Open the exit door. Keep it open for 
-            // long enough to throw all the balls.
+            // Open the exit door. Keep it open for long enough to throw all the balls.
             flyWheelController.openDoor();
             wait(6000);
             flyWheelController.closeDoor();
