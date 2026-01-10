@@ -39,7 +39,7 @@ public class BLUE_Auto_Position2  extends AutoDecode{
             // Go forward and turn to the goal.
             robotController.goForward(movePower,50,DistanceUnit.INCH,useSpeedCorrection);
             wait(200);
-            robotController.turnRight(turnPower,160);
+            robotController.turnLeft(turnPower,160);
             wait(200);
             
             // Open the exit door. Keep it open for long enough to throw all the balls.
@@ -53,7 +53,7 @@ public class BLUE_Auto_Position2  extends AutoDecode{
             // Go back and turn to the 2nd set of balls.
             robotController.goBackward(movePower,8,DistanceUnit.INCH,useSpeedCorrection);
             wait(200);
-            robotController.turnLeft(turnPower,30);
+            robotController.turnLeft(turnPower,35);
             wait(200);
             
             // Go and collect the balls. Go slowly to grab the balls.
@@ -63,7 +63,7 @@ public class BLUE_Auto_Position2  extends AutoDecode{
             // Go back and turn to the goal.
             robotController.goBackward(movePower,27,DistanceUnit.INCH,useSpeedCorrection);
             wait(200);
-            robotController.turnRight(turnPower,30);
+            robotController.turnRight(turnPower,35);
             wait(200);
             
             // Open the exit door. Keep it open for long enough to throw all the balls.
