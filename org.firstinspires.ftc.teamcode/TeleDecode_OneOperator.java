@@ -3,14 +3,14 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import org.firstinspires.ftc.teamcode.navigation.TeleRobotController;
+import org.firstinspires.ftc.teamcode.navigation.TeleMecanumRobotController;
 import org.firstinspires.ftc.teamcode.decode.FlyWheelController;
 import org.firstinspires.ftc.teamcode.decode.IntakeController;
 
 @TeleOp()
 public class TeleDecode_OneOperator extends OpMode {
     //variables
-    private TeleRobotController teleRobotController;
+    private TeleMecanumRobotController teleRobotController;
     private FlyWheelController flyWheelController;
     private IntakeController intakeController;
     private ElapsedTime runTimer = new ElapsedTime();
@@ -18,12 +18,12 @@ public class TeleDecode_OneOperator extends OpMode {
     @Override
     public void init() {
         // Controllers
-        teleRobotController = new TeleRobotController(hardwareMap,gamepad1,telemetry);
+        teleRobotController = new TeleMecanumRobotController(hardwareMap,gamepad1,telemetry);
         flyWheelController = new FlyWheelController(hardwareMap,gamepad1,telemetry);
         intakeController = new IntakeController(hardwareMap,gamepad1,telemetry);
 
         // Display status
-        telemetry.addData("Status", "Robot controllers initialized");
+        telemetry.addData("Status", "Alhamdulillah, Robot controllers initialized");
     }
 
     @Override
