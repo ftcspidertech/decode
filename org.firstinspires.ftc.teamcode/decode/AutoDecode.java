@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.decode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.navigation.RobotController;
+import org.firstinspires.ftc.teamcode.navigation.MecanumRobotController;
 import org.firstinspires.ftc.teamcode.decode.FlyWheelController;
 import org.firstinspires.ftc.teamcode.decode.IntakeController;
 import org.firstinspires.ftc.teamcode.vision.GoalTagProcessor;
@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.vision.GoalTagProcessor;
 
 public abstract class AutoDecode extends OpMode{
     // Controller variables -------------------------------
-    protected RobotController robotController = null;
+    protected MecanumRobotController robotController = null;
     protected FlyWheelController flyWheelController = null;
     protected IntakeController intakeController = null;
     //protected GoalTagProcessor goalTagProcessor = null;
@@ -28,8 +28,8 @@ public abstract class AutoDecode extends OpMode{
     private void initControllers(){
         // Initialize controller variables.
         double leftCalib = 1.0;
-        double rightCalib = 0.87;
-        robotController = new  RobotController(hardwareMap,telemetry,leftCalib,rightCalib);
+        double rightCalib = 1.0; // 0.87
+        robotController = new  MecanumRobotController(hardwareMap,telemetry,leftCalib,rightCalib);
         flyWheelController = new FlyWheelController(hardwareMap,gamepad1,telemetry);
         intakeController = new IntakeController(hardwareMap,gamepad1,telemetry);
         //goalTagProcessor = new GoalTagProcessor(hardwareMap,24); // ID 24 for Red Gate
@@ -38,16 +38,26 @@ public abstract class AutoDecode extends OpMode{
         //goalTagProcessor.stopStreaming();
         
         // Close exit door.
-        flyWheelController.closeDoor();
+        //flyWheelController.closeDoor();
         
         // Starting flywheel early.
-        flyWheelController.setVelocity(flyWheelVelocity);
-        
+        //flyWheelController.setVelocity(flyWheelVelocity);
+    
         // Start intake wheels
-        intakeController.start();
+        //intakeController.start();
         
         // Display status
         telemetry.addData("Status", "Robot controllers initialized");                
+    }
+    
+    @Override
+    public void start() {
+        // Close exit door.
+        flyWheelController.closeDoor();
+         // Starting flywheel early.
+        flyWheelController.setVelocity(1350);
+           // Start intake wheels
+        intakeController.start();
     }
 
     @Override
