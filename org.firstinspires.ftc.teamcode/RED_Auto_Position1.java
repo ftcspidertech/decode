@@ -1,72 +1,67 @@
 package org.firstinspires.ftc.teamcode;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import org.firstinspires.ftc.teamcode.decode.AutoDecode;
-import org.firstinspires.ftc.teamcode.navigation.TurnMethod;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import org.firstinspires.ftc.teamcode.navigation.TeleMecanumRobotController;
+import org.firstinspires.ftc.teamcode.decode.FlyWheelController;
+import org.firstinspires.ftc.teamcode.decode.IntakeController;
 
-@Autonomous()
-public class RED_Auto_Position1 extends AutoDecode{
-    /*
-    *  Controller variables from the superclass:
-    *      - robotController
-    *      - flyWheelController
-    *      - IntakeController
-    */
-    
-    // Navigation variables   
-    private double movePower = 0.65;
-    private double turnPower = 0.5;
-    private boolean useSpeedCorrection = false;
-    
-    // Task variables
-    // Task 1: Throw pre-loaded balls. 
-    private boolean taskOneDone = false;
-    // Task 2: Collect and throw another set of balls.
-    private boolean taskTwoDone = false;
+@TeleOp()
+public class TeleDecode_OneOperator extends OpMode {
+    //variables
+    private TeleMecanumRobotController teleRobotController;
+    private FlyWheelController flyWheelController;
+    private IntakeController intakeController;
+    private ElapsedTime runTimer = new ElapsedTime();
+
+    @Override
+    public void init() {
+        // Controllers
+        teleRobotController = new TeleMecanumRobotController(hardwareMap,gamepad1,telemetry);
+        flyWheelController = new FlyWheelController(hardwareMap,gamepad1,telemetry);
+        intakeController = new IntakeController(hardwareMap,gamepad1,telemetry);
+
+        // Display status
+        telemetry.addData("Status", "Alhamdulillah, Robot controllers initialized");
+    }
+
+    @Override
+    public void start(){
+        telemetry.addData("Status","Bismillah, starting now.");
         
+        // Start the flywheel at the beginning. The operator can only change its speed. 
+        // NOTE: The operator can't stop the flywheel anymore.
+        flyWheelController.startWithDefaultVelocity();
+
+        // Start the intake controller at the beginning. The operator, however, can start/stop and
+        // change its direction.
+        intakeController.start();
+        
+        runTimer.reset();
+    }
+    
     @Override
     public void loop() {
-        //double left=1.0;
-        //double right=0.87;
-        //setCalibrationFactors(left,right);
-        if(!taskOneDone) {
-            // Go forward and turn towards the goal.
-            robotController.goForward(movePower,48,DistanceUnit.INCH,useSpeedCorrection);
-            wait(300);
-            robotController.turnRight(turnPower,28,TurnMethod.IMU);
-            wait(200);
+        double runtime = runTimer.seconds();//getRuntime();
+        telemetry.addData("Remaining time",(120.0-runtime));            
+        //*
+        if(runtime>=120.0){
+            telemetry.addData("Status","Alhamdulillah, done!");            
+            requestOpModeStop();
+        }//*/
+            
+        teleRobotController.run();
+        flyWheelController.run();
+        intakeController.run();
+    }
 
-            // Open the exit door. Keep it open for long enough to throw all the balls.
-            flyWheelController.openDoor();
-            wait(6000);
-            flyWheelController.closeDoor();
-            
-            // Task1 is done.
-            taskOneDone = true;
-        }else if(!taskTwoDone) {
-            // Turn to get second set of balls.
-            robotController.turnRight(turnPower,44,TurnMethod.IMU);
-            
-            // Move forward to aqquire balls.
-            robotController.goForward(movePower*0.8,35,DistanceUnit.INCH,useSpeedCorrection);
-            wait(200);
-            
-            // Go back and turn to the scoring location.
-            robotController.goBackward(movePower*0.8,35,DistanceUnit.INCH,useSpeedCorrection);
-            wait(300);
-            robotController.turnLeft(turnPower,44,TurnMethod.IMU);
-            
-            // Open the exit door. Keep it open for long enough to throw all the balls.
-            flyWheelController.openDoor();
-            wait(6000);
-            flyWheelController.closeDoor();
-            
-            // Task2 is done.
-            taskTwoDone = true;
-        }else{
-            stop();
-        }
+    @Override
+    public void stop(){
+        teleRobotController.stop();
+        flyWheelController.stop();
+        intakeController.stop();
+        telemetry.addData("Status ","Robot controllers stopped."); 
     }
     
 }
