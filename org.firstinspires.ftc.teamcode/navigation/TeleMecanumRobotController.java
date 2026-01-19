@@ -46,17 +46,17 @@ public class TeleMecanumRobotController {
         
         // Control robot with arrow keys.
         if(gamepad.dpad_left){
-            robot.strafLeft(moveSpeed);
+            robot.slideLeft(moveSpeed);
         }else if(gamepad.dpad_right){
-            robot.strafRight(moveSpeed);
+            robot.slideRight(moveSpeed);
         }else if(gamepad.dpad_up){
             robot.goForward(moveSpeed);
         }else if(gamepad.dpad_down){
             robot.goBackward(moveSpeed);
         }else if(gamepad.b){
-            robot.strafTopRight(moveSpeed);
+            robot.slideTopRight(moveSpeed);
         }else if(gamepad.a){
-            robot.strafBottomLeft(moveSpeed);
+            robot.slideBottomLeft(moveSpeed);
         }else{
             robot.stop();
         }
