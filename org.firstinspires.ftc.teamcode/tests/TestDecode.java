@@ -86,22 +86,24 @@ public class TestDecode  extends OpMode{
         telemetry.addData("        testComplete",testComplete);
         if(!testComplete) {
             //*
-            boolean useSpeedCorrection = false;
+            boolean useSpeedCorrection = true;
             robotController.setCalibrationFactors(1.0,1.0);
             telemetry.addLine("        Go forward with speed correction");
-            robotController.goForward(movePower,1,TimeUnit.SECONDS);
-            //robotController.goForward(movePower,48,DistanceUnit.INCH,useSpeedCorrection);
+            //robotController.goForward(movePower,1000,TimeUnit.MILLISECONDS);
+            robotController.goForward(movePower,48,DistanceUnit.INCH,useSpeedCorrection);
             //robotController.goForward(movePower,45,useSpeedCorrection);
-            //wait(200);
+            wait(200);
             telemetry.addLine("        Go backward with speed correction");
-            robotController.goBackward(movePower,1,TimeUnit.SECONDS);
-            //robotController.goBackward(movePower,45,useSpeedCorrection);
-            //wait(200);
+            //robotController.goBackward(movePower,1000,TimeUnit.MILLISECONDS);
+            robotController.goBackward(movePower,48,useSpeedCorrection);
+            wait(200);
             telemetry.addLine("        Turn right with IMU (default)");            
-            robotController.turnRight(turnPower,1,TimeUnit.SECONDS);
-            //wait(200);
+            robotController.turnRight(turnPower,90);
+            //robotController.turnRight(turnPower,1,TimeUnit.SECONDS);
+            wait(200);
             telemetry.addLine("        Turn left with IMU (default)");            
-            robotController.turnLeft(turnPower,1,TimeUnit.SECONDS);
+            robotController.turnLeft(turnPower,90);
+            //robotController.turnLeft(turnPower,1,TimeUnit.SECONDS);
             /*
             wait(200);
             telemetry.addLine("        Go forward without speed correction (default)");
