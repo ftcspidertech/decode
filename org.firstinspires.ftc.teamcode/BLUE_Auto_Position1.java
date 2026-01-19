@@ -17,51 +17,58 @@ public class BLUE_Auto_Position1 extends AutoDecode{
     // Navigation variables   
     private double movePower = 0.65;
     private double turnPower = 0.5;
-    private boolean useSpeedCorrection = false;
+    private boolean useSpeedCorrection = true;
     
     // Task variables
     // Task 1: Throw pre-loaded balls. 
     private boolean taskOneDone = false;
     // Task 2: Collect and throw another set of balls.
     private boolean taskTwoDone = false;
-        
+
+    
+    
     @Override
     public void loop() {
+       
+       
         //double left=1.0;
         //double right=0.87;
         //setCalibrationFactors(left,right);
         if(!taskOneDone) {
             // Go forward and turn towards the goal.
-            robotController.goForward(movePower,48,DistanceUnit.INCH,useSpeedCorrection);
+            robotController.goForward(movePower,72,DistanceUnit.INCH,useSpeedCorrection);
             wait(300);
-            robotController.turnLeft(turnPower,20,TurnMethod.IMU);
+            robotController.turnLeft(turnPower,27,TurnMethod.IMU);
             wait(2000);
 
             // Open the exit door. Keep it open for long enough to throw all the balls.
             flyWheelController.openDoor();
-            wait(6000);
+            wait(6500);
             flyWheelController.closeDoor();
             
             // Task1 is done.
             taskOneDone = true;
         }else if(!taskTwoDone) {
             // Turn to get second set of balls.
-            robotController.turnLeft(turnPower,52,TurnMethod.IMU);
+           
+           //wait(200)
+            robotController.turnLeft(turnPower,42,TurnMethod.IMU);
             
             // Move forward to aqquire balls.
-            robotController.goForward(movePower*0.8,35,DistanceUnit.INCH,useSpeedCorrection);
+            robotController.goForward(movePower*0.8,29,DistanceUnit.INCH,useSpeedCorrection);
             wait(200);
             
             // Go back and turn to the scoring location.
-            robotController.goBackward(movePower*0.8,35,DistanceUnit.INCH,useSpeedCorrection);
+            robotController.goBackward(movePower*0.8,29,DistanceUnit.INCH,useSpeedCorrection);
             wait(300);
-            robotController.turnRight(turnPower,52,TurnMethod.IMU);
+            robotController.turnRight(turnPower,37,TurnMethod.IMU);
             
             // Open the exit door. Keep it open for long enough to throw all the balls.
             flyWheelController.openDoor();
-            wait(6000);
+            wait(6500);
             flyWheelController.closeDoor();
-            
+             robotController.turnRight(1,30,TurnMethod.IMU);
+              robotController.goBackward(1.0,21,DistanceUnit.INCH,useSpeedCorrection);
             // Task2 is done.
             taskTwoDone = true;
         }else{
