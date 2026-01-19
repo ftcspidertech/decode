@@ -131,6 +131,8 @@ public class MecanumRobotController {
         backLeftMotor.setPower(backLeftPower);
         frontRightMotor.setPower(frontRightPower);
         backRightMotor.setPower(backRightPower);
+
+        robotMoving = true;
     }
 
     public void setPower(double drive, double strafe, double turn){
@@ -145,6 +147,8 @@ public class MecanumRobotController {
 
         setPower(frontLeftPower/denominator, backLeftPower/denominator, 
                 frontRightPower/denominator, backRightPower/denominator);
+
+        robotMoving = true;
     }
     
     
@@ -372,7 +376,8 @@ public class MecanumRobotController {
         speed = Math.abs(speed);
         try{            
             // Loop until within tolerance
-            while(isBusy()){
+            while(notWithinTolerance(targetPosition,tolerance)){
+            //while(isMotorBusy()){
             //while (leftDiff>tolerance || rightDiff>tolerance) {
                 if(distance>0){
                     goForward(speed);
@@ -448,7 +453,8 @@ public class MecanumRobotController {
         speed = Math.abs(speed);
         try{            
             // Loop until within tolerance
-            while(isBusy()){
+            while(notWithinTolerance(targetPosition,tolerance)){
+            //while(isMotorBusy()){
             //while (leftDiff>tolerance || rightDiff>tolerance) {
                 if(navType==NavigationType.GOBACKWARD){
                     goBackward(speed);
@@ -541,7 +547,8 @@ public class MecanumRobotController {
             leftDist = tolerance + 1;
             rightDist = leftDist;
             ratio = 1.0;
-            while(isBusy()){
+            while(notWithinTolerance(targetPosition,tolerance)){
+            //while(isMotorBusy()){
             //while (leftDist>tolerance || rightDist>tolerance) {
                 if(ratio>1){
                     leftCalibrationFactor = 1.0/ratio;
@@ -636,6 +643,7 @@ public class MecanumRobotController {
         int id;
         long waitTime = 0; // 10 milliseconds
         double divisor = 360.0;
+        double noiseThreshold = 1.0; //degree
         
         // With Yaw reset, current heading is always close to 0.
         imu.resetYaw();
@@ -655,7 +663,7 @@ public class MecanumRobotController {
                 telemetry.addData("Error: ", e.getMessage());
             }
             currentHeading = getHeading(AngleUnit.DEGREES);
-            if(currentHeading<-0.1 && currentHeading<initialHeading){
+            if(currentHeading<-noiseThreshold && currentHeading<initialHeading){
                 currentHeading = divisor + currentHeading;
             }
         }
@@ -674,6 +682,7 @@ public class MecanumRobotController {
         int id;
         long waitTime = 0; // milliseconds
         double divisor = 360.0;
+        double noiseThreshold = 1.0; // degree
         
         // With Yaw reset, current heading is always close to 0.
         imu.resetYaw();
@@ -692,7 +701,7 @@ public class MecanumRobotController {
                 telemetry.addData("Error: ",e.getMessage());
             }
             currentHeading = getHeading(AngleUnit.DEGREES);
-            if(currentHeading>0.1 && currentHeading>initialHeading){
+            if(currentHeading>noiseThreshold && currentHeading>initialHeading){
                 currentHeading = currentHeading - divisor;
             }
         }
@@ -713,9 +722,26 @@ public class MecanumRobotController {
         return robotMoving;
     }
 
-    public boolean isBusy() {
+    public boolean isMotorBusy() {
         return frontLeftMotor.isBusy() || backLeftMotor.isBusy() || 
                frontRightMotor.isBusy() || backRightMotor.isBusy();
+    }
+
+    public boolean notWithinTolerance(int targetPosition, double tolerance){
+        int frontLeftPose, backLeftPose, frontRightPose, backRightPose;
+        
+        targetPosition = Math.abs(targetPosition);
+        tolerance = Math.abs(tolerance);
+        
+        frontLeftPose = Math.abs(frontLeftMotor.getCurrentPosition());
+        backLeftPose = Math.abs(backLeftMotor.getCurrentPosition());
+        frontRightPose = Math.abs(frontRightMotor.getCurrentPosition());
+        backRightPose = Math.abs(backRightMotor.getCurrentPosition());
+
+        return Math.abs(frontLeftPose-targetPosition)>tolerance ||
+               Math.abs(backLeftPose-targetPosition)>tolerance ||
+               Math.abs(frontRightLeftPose-targetPosition)>tolerance ||
+               Math.abs(backRightLeftPose-targetPosition)>tolerance;
     }
     
     public void setCalibrationFactors(double left, double right){
