@@ -158,7 +158,7 @@ public class MecanumRobotController {
 
     public void slideLeft(double speed, double runTime, TimeUnit unit){
         timer.reset();
-        slideLeft(-speed, speed, speed, -speed);
+        slideLeft(speed);
         if(unit==TimeUnit.MILLISECONDS){
             runTime = runTime/1000.0;
         }
@@ -209,10 +209,11 @@ public class MecanumRobotController {
     }
 
 
-    public void sliseBottomLeft(double speed){
+    public void slideBottomLeft(double speed){
         setPower(-speed, 0, 0, -speed);
     }
 
+    //*
     public void slideBottomLeft(double speed, double runTime, TimeUnit unit){
         timer.reset();
         slideBottomLeft(speed);
@@ -221,13 +222,13 @@ public class MecanumRobotController {
         }
         while(timer.seconds()<runTime);
         stop();
-    }
+    }//*/
 
     public void slideBottomRight(double speed){
         setPower(0, -speed, -speed, 0);
     }
 
-    public void slideBottomLeft(double speed, double runTime, TimeUnit unit){
+    public void slideBottomRight(double speed, double runTime, TimeUnit unit){
         timer.reset();
         slideBottomRight(speed);
         if(unit==TimeUnit.MILLISECONDS){
@@ -376,8 +377,8 @@ public class MecanumRobotController {
         speed = Math.abs(speed);
         try{            
             // Loop until within tolerance
-            while(notWithinTolerance(targetPosition,tolerance)){
-            //while(isMotorBusy()){
+            //while(notWithinTolerance(targetPosition,tolerance)){
+            while(isMotorBusy()){
             //while (leftDiff>tolerance || rightDiff>tolerance) {
                 if(distance>0){
                     goForward(speed);
@@ -453,8 +454,8 @@ public class MecanumRobotController {
         speed = Math.abs(speed);
         try{            
             // Loop until within tolerance
-            while(notWithinTolerance(targetPosition,tolerance)){
-            //while(isMotorBusy()){
+            //while(notWithinTolerance(targetPosition,tolerance)){
+            while(isMotorBusy()){
             //while (leftDiff>tolerance || rightDiff>tolerance) {
                 if(navType==NavigationType.GOBACKWARD){
                     goBackward(speed);
@@ -547,8 +548,8 @@ public class MecanumRobotController {
             leftDist = tolerance + 1;
             rightDist = leftDist;
             ratio = 1.0;
-            while(notWithinTolerance(targetPosition,tolerance)){
-            //while(isMotorBusy()){
+            //while(notWithinTolerance(targetPosition,tolerance)){
+            while(isMotorBusy()){
             //while (leftDist>tolerance || rightDist>tolerance) {
                 if(ratio>1){
                     leftCalibrationFactor = 1.0/ratio;
@@ -740,8 +741,8 @@ public class MecanumRobotController {
 
         return Math.abs(frontLeftPose-targetPosition)>tolerance ||
                Math.abs(backLeftPose-targetPosition)>tolerance ||
-               Math.abs(frontRightLeftPose-targetPosition)>tolerance ||
-               Math.abs(backRightLeftPose-targetPosition)>tolerance;
+               Math.abs(frontRightPose-targetPosition)>tolerance ||
+               Math.abs(backRightPose-targetPosition)>tolerance;
     }
     
     public void setCalibrationFactors(double left, double right){
