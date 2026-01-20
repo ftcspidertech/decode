@@ -46,6 +46,7 @@ public class MecanumRobotController {
     private double rightCalibrationFactor = 1.0;
     
     private ElapsedTime timer = null;
+    private boolean useSingleWheelRef = false;
 
     public MecanumRobotController(HardwareMap hardwareMap, Telemetry tmetry) {
         initRobotController(hardwareMap,tmetry);
@@ -354,24 +355,30 @@ public class MecanumRobotController {
         
         // Reset motor encoders.
         frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
-        backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
+if(!useSingleWheelRef){
+backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
         frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
-        backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
-        
+        backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);          
+}        
         // Calculate target tick number.
         targetPosition = getTargetTickNumber(distance, unit);
 
         // Set target positions
         frontLeftMotor.setTargetPosition(frontLeftMotor.getCurrentPosition() + targetPosition);
-        backLeftMotor.setTargetPosition(backLeftMotor.getCurrentPosition() + targetPosition);
+
+if(!useSingleWheelRef){
+backLeftMotor.setTargetPosition(backLeftMotor.getCurrentPosition() + targetPosition);
         frontRightMotor.setTargetPosition(frontRightMotor.getCurrentPosition() + targetPosition);
         backRightMotor.setTargetPosition(backRightMotor.getCurrentPosition() + targetPosition);
+}
 
         // Set motor options
         frontLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+if(!useSingleWheelRef){
+backLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         frontRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+}
         
         // Set power and move the robot. Wait until it's done.
         speed = Math.abs(speed);
@@ -401,9 +408,11 @@ public class MecanumRobotController {
         
         // Switch back to normal mode
         frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+if(!useSingleWheelRef){
+backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+}
     }
 
     private void goToPosition(double speed, double distance, DistanceUnit unit, NavigationType navType) {
