@@ -9,7 +9,7 @@ public class IntakeController {
 
     private DcMotor coreHex;
     private Gamepad gamepad;
-    private double currentPower;
+    private double currentPower = -0.9;
     private Telemetry telemetry;
     private boolean isRunning=false;
 
@@ -24,12 +24,12 @@ public class IntakeController {
     public void run(){
         if (gamepad.startWasPressed()) {
             if(!isRunning){
-                coreHex.setPower(1.0);
+                coreHex.setPower(currentPower);
                 isRunning = true;
             }else{
                 if (coreHex.getPower()<0){
                     coreHex.setPower(0.0);
-                    coreHex.setPower(1.0);
+                    coreHex.setPower(currentPower);
                 }else{
                     coreHex.setPower(0.0);
                     isRunning = false;
@@ -37,12 +37,12 @@ public class IntakeController {
             }
         }else if(gamepad.backWasPressed()){
             if(!isRunning){
-                coreHex.setPower(-1.0);
+                coreHex.setPower(-currentPower);
                 isRunning = true;
             }else{
                 if (coreHex.getPower()>0){
                     coreHex.setPower(0.0);
-                    coreHex.setPower(-1.0);
+                    coreHex.setPower(-currentPower);
                 }else{
                     coreHex.setPower(0.0);
                     isRunning = false;
@@ -52,7 +52,7 @@ public class IntakeController {
     }
 
     public void start(){
-        coreHex.setPower(1.0);
+        coreHex.setPower(currentPower);
     } 
     
     public void stop(){
