@@ -355,30 +355,29 @@ public class MecanumRobotController {
         
         // Reset motor encoders.
         frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
-if(!useSingleWheelRef){
-backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
-        frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
-        backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);          
-}        
+        if(!useSingleWheelRef){
+            backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
+            frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
+            backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);          
+        }        
         // Calculate target tick number.
         targetPosition = getTargetTickNumber(distance, unit);
 
         // Set target positions
         frontLeftMotor.setTargetPosition(frontLeftMotor.getCurrentPosition() + targetPosition);
-
-if(!useSingleWheelRef){
-backLeftMotor.setTargetPosition(backLeftMotor.getCurrentPosition() + targetPosition);
-        frontRightMotor.setTargetPosition(frontRightMotor.getCurrentPosition() + targetPosition);
-        backRightMotor.setTargetPosition(backRightMotor.getCurrentPosition() + targetPosition);
-}
+        if(!useSingleWheelRef){
+            backLeftMotor.setTargetPosition(backLeftMotor.getCurrentPosition() + targetPosition);
+            frontRightMotor.setTargetPosition(frontRightMotor.getCurrentPosition() + targetPosition);
+            backRightMotor.setTargetPosition(backRightMotor.getCurrentPosition() + targetPosition);
+        }
 
         // Set motor options
         frontLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-if(!useSingleWheelRef){
-backLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        frontRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-}
+        if(!useSingleWheelRef){
+            backLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            frontRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            backRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        }
         
         // Set power and move the robot. Wait until it's done.
         speed = Math.abs(speed);
@@ -394,10 +393,15 @@ backLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 }
                 Thread.sleep(waitTime);
                 
-                leftDiff = (Math.abs(Math.abs(frontLeftMotor.getCurrentPosition())-Math.abs(targetPosition)) + 
-                           Math.abs(Math.abs(backLeftMotor.getCurrentPosition())-Math.abs(targetPosition)))/2;
-                rightDiff = (Math.abs(Math.abs(frontRightMotor.getCurrentPosition())-Math.abs(targetPosition)) + 
-                           Math.abs(Math.abs(backRightMotor.getCurrentPosition())-Math.abs(targetPosition)))/2;
+                if(useSingleWheelRef){
+                    leftDiff = Math.abs(Math.abs(frontLeftMotor.getCurrentPosition())-Math.abs(targetPosition));
+                    rightDiff = 0;
+                }else{
+                    leftDiff = (Math.abs(Math.abs(frontLeftMotor.getCurrentPosition())-Math.abs(targetPosition)) + 
+                               Math.abs(Math.abs(backLeftMotor.getCurrentPosition())-Math.abs(targetPosition)))/2;
+                    rightDiff = (Math.abs(Math.abs(frontRightMotor.getCurrentPosition())-Math.abs(targetPosition)) + 
+                               Math.abs(Math.abs(backRightMotor.getCurrentPosition())-Math.abs(targetPosition)))/2;
+                }
             }                        
         } catch (Exception e) {
             telemetry.addData("Error: ", e.getMessage());
@@ -408,11 +412,11 @@ backLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         
         // Switch back to normal mode
         frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-if(!useSingleWheelRef){
-backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-}
+        if(!useSingleWheelRef){
+            backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
     }
 
     private void goToPosition(double speed, double distance, DistanceUnit unit, NavigationType navType) {
@@ -422,10 +426,12 @@ backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         int leftDiff=tolerance+1,rightDiff=tolerance+1;
         
         // Reset motor encoders.
-        frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
-        backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
-        frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
-        backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
+        frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        if(!useSingleWheelRef){        
+            backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
+            frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
+            backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
         
         // Calculate target tick number.
         targetPosition = getTargetTickNumber(distance, unit);
@@ -433,31 +439,41 @@ backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // Set target positions
         if(navType==NavigationType.GOFORWARD){
             frontLeftMotor.setTargetPosition(frontLeftMotor.getCurrentPosition() + targetPosition);
-            backLeftMotor.setTargetPosition(backLeftMotor.getCurrentPosition() + targetPosition);
-            frontRightMotor.setTargetPosition(frontRightMotor.getCurrentPosition() + targetPosition);
-            backRightMotor.setTargetPosition(backRightMotor.getCurrentPosition() + targetPosition);
+            if(!useSingleWheelRef){
+                backLeftMotor.setTargetPosition(backLeftMotor.getCurrentPosition() + targetPosition);
+                frontRightMotor.setTargetPosition(frontRightMotor.getCurrentPosition() + targetPosition);
+                backRightMotor.setTargetPosition(backRightMotor.getCurrentPosition() + targetPosition);
+            }
         }else if(navType==NavigationType.GOBACKWARD){
             frontLeftMotor.setTargetPosition(frontLeftMotor.getCurrentPosition() - targetPosition);
-            backLeftMotor.setTargetPosition(backLeftMotor.getCurrentPosition() - targetPosition);
-            frontRightMotor.setTargetPosition(frontRightMotor.getCurrentPosition() - targetPosition);
-            backRightMotor.setTargetPosition(backRightMotor.getCurrentPosition() - targetPosition);
+            if(!useSingleWheelRef){
+                backLeftMotor.setTargetPosition(backLeftMotor.getCurrentPosition() - targetPosition);
+                frontRightMotor.setTargetPosition(frontRightMotor.getCurrentPosition() - targetPosition);
+                backRightMotor.setTargetPosition(backRightMotor.getCurrentPosition() - targetPosition);
+            }
         }else if(navType==NavigationType.TURNLEFT){
             frontLeftMotor.setTargetPosition(frontLeftMotor.getCurrentPosition() - targetPosition);
-            backLeftMotor.setTargetPosition(backLeftMotor.getCurrentPosition() - targetPosition);
-            frontRightMotor.setTargetPosition(frontRightMotor.getCurrentPosition() + targetPosition);
-            backRightMotor.setTargetPosition(backRightMotor.getCurrentPosition() + targetPosition);
+            if(!useSingleWheelRef){
+                backLeftMotor.setTargetPosition(backLeftMotor.getCurrentPosition() - targetPosition);
+                frontRightMotor.setTargetPosition(frontRightMotor.getCurrentPosition() + targetPosition);
+                backRightMotor.setTargetPosition(backRightMotor.getCurrentPosition() + targetPosition);
+            }
         }else{//navType==NavigationType.TURNRIGHT
             frontLeftMotor.setTargetPosition(frontLeftMotor.getCurrentPosition() + targetPosition);
-            backLeftMotor.setTargetPosition(backLeftMotor.getCurrentPosition() + targetPosition);
-            frontRightMotor.setTargetPosition(frontRightMotor.getCurrentPosition() - targetPosition);
-            backRightMotor.setTargetPosition(backRightMotor.getCurrentPosition() - targetPosition);
+            if(!useSingleWheelRef){
+                backLeftMotor.setTargetPosition(backLeftMotor.getCurrentPosition() + targetPosition);
+                frontRightMotor.setTargetPosition(frontRightMotor.getCurrentPosition() - targetPosition);
+                backRightMotor.setTargetPosition(backRightMotor.getCurrentPosition() - targetPosition);
+            }
         }
         
         // Set motor options
         frontLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        frontRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+       if(!useSingleWheelRef){
+            backLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            frontRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            backRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+       }
         
         // Set power and move the robot. Wait until it's done.
         speed = Math.abs(speed);
@@ -472,11 +488,16 @@ backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     goForward(speed);
                 }
                 Thread.sleep(waitTime);
-                
-                leftDiff = (Math.abs(Math.abs(frontLeftMotor.getCurrentPosition())-Math.abs(targetPosition)) + 
-                           Math.abs(Math.abs(backLeftMotor.getCurrentPosition())-Math.abs(targetPosition)))/2;
-                rightDiff = (Math.abs(Math.abs(frontRightMotor.getCurrentPosition())-Math.abs(targetPosition)) + 
-                           Math.abs(Math.abs(backRightMotor.getCurrentPosition())-Math.abs(targetPosition)))/2;
+
+                if(useSingleWheelRef){
+                    leftDiff = Math.abs(Math.abs(frontLeftMotor.getCurrentPosition())-Math.abs(targetPosition));
+                    rightDiff = 0;
+                }else{
+                    leftDiff = (Math.abs(Math.abs(frontLeftMotor.getCurrentPosition())-Math.abs(targetPosition)) + 
+                               Math.abs(Math.abs(backLeftMotor.getCurrentPosition())-Math.abs(targetPosition)))/2;
+                    rightDiff = (Math.abs(Math.abs(frontRightMotor.getCurrentPosition())-Math.abs(targetPosition)) + 
+                               Math.abs(Math.abs(backRightMotor.getCurrentPosition())-Math.abs(targetPosition)))/2;
+                }
             }                        
         } catch (Exception e) {
             telemetry.addData("Error: ", e.getMessage());
@@ -488,9 +509,11 @@ backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Switch back to normal mode
         frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        if(!useSingleWheelRef){
+            backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
     }
 
     public void goBackward(double speed, double distanceInInch){
@@ -524,25 +547,31 @@ backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         int tickTh = 100;
         
         // Reset motor encoders.
-        frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
-        backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
-        frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
-        backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
+        frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        if(!useSingleWheelRef){
+            backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
+            frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
+            backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
+        }
         
         // Calculate target tick number.
         targetPosition = getTargetTickNumber(distance, unit);
 
         // Set target positions
         frontLeftMotor.setTargetPosition(frontLeftMotor.getCurrentPosition() + targetPosition);
-        backLeftMotor.setTargetPosition(backLeftMotor.getCurrentPosition() + targetPosition);
-        frontRightMotor.setTargetPosition(frontRightMotor.getCurrentPosition() + targetPosition);
-        backRightMotor.setTargetPosition(backRightMotor.getCurrentPosition() + targetPosition);
+        if(!useSingleWheelRef){
+            backLeftMotor.setTargetPosition(backLeftMotor.getCurrentPosition() + targetPosition);
+            frontRightMotor.setTargetPosition(frontRightMotor.getCurrentPosition() + targetPosition);
+            backRightMotor.setTargetPosition(backRightMotor.getCurrentPosition() + targetPosition);
+        }
 
         // Set motor options
         frontLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        frontRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        if(!useSingleWheelRef){
+            backLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            frontRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            backRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        }
         
         // Set power and move the robot. Wait until it's done.
         speed = Math.abs(speed);
@@ -577,20 +606,26 @@ backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 }
                 Thread.sleep(waitTime);
 
-                leftPose = (frontLeftMotor.getCurrentPosition() + backLeftMotor.getCurrentPosition())/2;
-                leftPose = (leftPose==0)?1:leftPose;
-                rightPose = (frontRightMotor.getCurrentPosition() + backRightMotor.getCurrentPosition())/2;
-                rightPose = (rightPose==0)?1:rightPose;
-                ratio = Math.abs((double)Math.pow(leftPose,1)/(double)Math.pow(rightPose,1));
-                if(ratio<1){
-                    if(Math.abs(leftPose)>tickTh || Math.abs(rightPose)>tickTh){
-                        ratio = ratio*k;
-                    }else{
-                        ratio = 1.0;
+                if(useSingleWheelRef){
+                    leftDist = Math.abs(Math.abs(frontLeftMotor.getCurrentPosition())-Math.abs(targetPosition));
+                    rightDist = 0;
+                    ratio = 1.0;
+                }else{
+                    leftPose = (frontLeftMotor.getCurrentPosition() + backLeftMotor.getCurrentPosition())/2;
+                    leftPose = (leftPose==0)?1:leftPose;
+                    rightPose = (frontRightMotor.getCurrentPosition() + backRightMotor.getCurrentPosition())/2;
+                    rightPose = (rightPose==0)?1:rightPose;
+                    ratio = Math.abs((double)Math.pow(leftPose,1)/(double)Math.pow(rightPose,1));
+                    if(ratio<1){
+                        if(Math.abs(leftPose)>tickTh || Math.abs(rightPose)>tickTh){
+                            ratio = ratio*k;
+                        }else{
+                            ratio = 1.0;
+                        }
                     }
+                    leftDist = Math.abs(Math.abs(leftPose)-Math.abs(targetPosition));
+                    rightDist = Math.abs(Math.abs(rightPose)-Math.abs(targetPosition));
                 }
-                leftDist = Math.abs(Math.abs(leftPose)-Math.abs(targetPosition));
-                rightDist = Math.abs(Math.abs(rightPose)-Math.abs(targetPosition));
             } // while loop ends
         } catch (Exception e) {
             telemetry.addData("Error", e.getMessage());
@@ -606,9 +641,11 @@ backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         
         // Switch back to normal mode
         frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        if(!useSingleWheelRef){
+            backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
     }
 
     private int getTargetTickNumber(double distance, DistanceUnit unit){
@@ -733,25 +770,35 @@ backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     public boolean isMotorBusy() {
-        return frontLeftMotor.isBusy() || backLeftMotor.isBusy() || 
-               frontRightMotor.isBusy() || backRightMotor.isBusy();
+        boolean result = frontLeftMotor.isBusy();
+        if(useSingleWheelRef){
+            return result;
+        }
+        result = result || backLeftMotor.isBusy() || 
+                 frontRightMotor.isBusy() || backRightMotor.isBusy();
+        return result;
     }
 
     public boolean notWithinTolerance(int targetPosition, double tolerance){
-        int frontLeftPose, backLeftPose, frontRightPose, backRightPose;
-        
+        int frontLeftPose;
+        boolean result;
+                
         targetPosition = Math.abs(targetPosition);
         tolerance = Math.abs(tolerance);
-        
         frontLeftPose = Math.abs(frontLeftMotor.getCurrentPosition());
+        result = Math.abs(frontLeftPose-targetPosition)>tolerance;
+        if(useSingleWheelRef){
+            return result;
+        }
+        
+        int backLeftPose, frontRightPose, backRightPose;        
         backLeftPose = Math.abs(backLeftMotor.getCurrentPosition());
         frontRightPose = Math.abs(frontRightMotor.getCurrentPosition());
         backRightPose = Math.abs(backRightMotor.getCurrentPosition());
-
-        return Math.abs(frontLeftPose-targetPosition)>tolerance ||
-               Math.abs(backLeftPose-targetPosition)>tolerance ||
-               Math.abs(frontRightPose-targetPosition)>tolerance ||
-               Math.abs(backRightPose-targetPosition)>tolerance;
+        result = result || Math.abs(backLeftPose-targetPosition)>tolerance ||
+                 Math.abs(frontRightPose-targetPosition)>tolerance ||
+                 Math.abs(backRightPose-targetPosition)>tolerance;
+        return result;
     }
     
     public void setCalibrationFactors(double left, double right){
