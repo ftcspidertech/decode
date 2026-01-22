@@ -12,8 +12,8 @@ public class IntakeController {
     private Gamepad gamepad;
     private double currentPower = 0.75;
     private Telemetry telemetry;
-    private boolean isRunning=false;
-    private boolean isIntakeMode;
+    private boolean isRunning = false;
+    private boolean isIntakeMode = true;
 
     public IntakeController(HardwareMap hardwareMap, Gamepad pad, Telemetry tmetry){
         intakeMotor = hardwareMap.get(DcMotorEx.class, "coreHex");
