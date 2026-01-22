@@ -26,55 +26,57 @@ public class IntakeController {
     public void run(){
         if (gamepad.startWasPressed()) {
             if(!isRunning){
-                intakeMotor.setPower(currentPower);
-                isRunning = true;
+                setPower(currentPower);
             }else{
-                if (intakeMotor.getPower()<0){
-                    intakeMotor.setPower(0.0);
-                    intakeMotor.setPower(currentPower);
+                if(isIntakeMode){ // intakeMotor.getPower()<0
+                    stop();
                 }else{
-                    intakeMotor.setPower(0.0);
-                    isRunning = false;
+                    stop();
+                    setPower(currentPower);
                 }
             }
             isIntakeMode = true;
         }else if(gamepad.backWasPressed()){
             if(!isRunning){
-                intakeMotor.setPower(-currentPower);
-                isRunning = true;
+                setPower(-currentPower);
             }else{
-                if (intakeMotor.getPower()>0){
-                    intakeMotor.setPower(0.0);
-                    intakeMotor.setPower(-currentPower);
+                if(isIntakeMode){ // intakeMotor.getPower()>0
+                    stop();
+                    setPower(-currentPower);
                 }else{
-                    intakeMotor.setPower(0.0);
-                    isRunning = false;
+                    stop();
                 }
             }
             isIntakeMode = false;
         }
 
+        // Start the motor for shoorting (if stalled before).
         if(gamepad.y && intakeMotor.getPower()==0){
-            if(isIntakeMode){
-                intakeMotor.setPower(currentPower);
-            }else{
-                intakeMotor.setPower(-currentPower);
-            }
+            start();
         }
         
-        // Check if the motor stalled.
+        // Check if the motor stalled for multiple balls.
         if(intakeMotor.getPower()!=0 && Math.abs(intakeMotor.getVelocity())<10){
             telemetry.addLine("Motor stalled!");
             stop();
         }
     }
 
-    public void start(){
-        intakeMotor.setPower(currentPower);
-        isIntakeMode = true;
-    } 
+    private void setPower(double power){
+        intakeMotor.setPower(power);
+        isRunning = true;
+    }
     
+    public void start(){
+        if(isIntakeMode){
+            setPower(currentPower);
+        }else{
+            setPower(-currentPower);
+        }        
+    } 
+
     public void stop(){
         intakeMotor.setPower(0.0);
+        isRunning = false;
     }    
 }
