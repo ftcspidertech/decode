@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.decode.AutoDecode;
 import org.firstinspires.ftc.teamcode.navigation.TurnMethod;
 
 @Autonomous()
-public class RED_Auto_Position2  extends AutoDecode{
+public class RED_Auto_Position1 extends AutoDecode{
     /*
     *  Controller variables from the superclass:
     *      - robotController
@@ -16,8 +16,8 @@ public class RED_Auto_Position2  extends AutoDecode{
     */
     
     // Navigation variables   
-    private double movePower = .95;
-    private double turnPower = 0.6;
+    private double movePower = 0.9;
+    private double turnPower = 0.5;
     private boolean useSpeedCorrection = true;
     
     // Task variables
@@ -25,102 +25,62 @@ public class RED_Auto_Position2  extends AutoDecode{
     private boolean taskOneDone = false;
     // Task 2: Collect and throw another set of balls.
     private boolean taskTwoDone = false;
-    private int regularFlywheelSpeed=1425;
-    private int lowerFlywheelSpeed=1300;
     
-     
+
     
     @Override
     public void loop() {
-        //double left=1.0;
-        //double right=0.87;
-        //setCalibrationFactors(left,right);
-        
+        intakeController.stopIfStalled();
         if(!taskOneDone) {
-            // Go forward and turn to the goal.
-            flyWheelController.setVelocity(regularFlywheelSpeed);
-            robotController.goBackward(movePower*.9,50,DistanceUnit.INCH,useSpeedCorrection);
-            //wait(1500);
-            /*robotController.turnLeft(turnPower,173);
-            wait(200); */
-            
-            // Open the exit door. Keep it open for long enough to throw all the balls.
-            flyWheelController.openDoor();
-            wait(2000);
-            flyWheelController.setVelocity(lowerFlywheelSpeed);
-            wait(1000);
+            // Go forward and turn towards the goal.
+            flyWheelController.setVelocity(1650);
+            robotController.goForward(movePower,5,DistanceUnit.INCH,useSpeedCorrection);
+            wait(200);
+            robotController.turnRight(turnPower,25,TurnMethod.IMU);// turn to shoot balls
+            wait(1500);
+            openDoor();
+            wait(3000);
             flyWheelController.closeDoor();
             wait(100);
-            flyWheelController.setVelocity(regularFlywheelSpeed);
-            
-            // Task1 done             
-            taskOneDone = true;
-        }else if(!taskTwoDone){
-            // Go back and turn to the 2nd set of balls.
-            robotController.goBackward(movePower,4,DistanceUnit.INCH,useSpeedCorrection);
+            robotController.goForward(movePower,22,DistanceUnit.INCH,useSpeedCorrection);//move forward to aqquire second row of balls
+            wait(200);
+            robotController.turnRight(turnPower,58,TurnMethod.IMU); //turn to get balls
+            wait(200);
+            robotController.goForward(movePower,35,DistanceUnit.INCH,useSpeedCorrection);//move forward
+            wait(400);
+            robotController.goBackward(movePower,35,DistanceUnit.INCH,useSpeedCorrection);// move back with balls
+            wait(200);
+            robotController.turnLeft(turnPower,61,TurnMethod.IMU);
+            wait(200);
+            robotController.goBackward(movePower,20,DistanceUnit.INCH,useSpeedCorrection);// move back to home to shoot
             wait(100);
-            robotController.turnRight(turnPower,33);
-            wait(100);
-            
-            // Go and collect the balls. Go slowly to grab the balls.
-            robotController.goForward(movePower,40,DistanceUnit.INCH,useSpeedCorrection);
-            wait(100);
-            
-            // Go back and turn to the goal.
-            robotController.goBackward(movePower,38,DistanceUnit.INCH,useSpeedCorrection);
-            wait(100);
-            robotController.turnLeft(turnPower,31);
-            wait(100);
-            
-            // Open the exit door. Keep it open for long enough to throw all the balls.
-            flyWheelController.openDoor();
-            wait(2000);
-            flyWheelController.setVelocity(lowerFlywheelSpeed);
-            wait(1000);
+            openDoor();//shoot second line of balls
+            wait(3000);
             flyWheelController.closeDoor();
-            wait(100);
-            flyWheelController.setVelocity(regularFlywheelSpeed);
-            robotController.turnLeft(movePower,37); //move away from starting triangle 
-            wait(100);
-            robotController.goBackward(movePower,23,DistanceUnit.INCH,useSpeedCorrection);
-            wait(100);
-            //robotController.turnRight(turnPower,85);
-            robotController.turnRight(turnPower*.9,1,TimeUnit.SECONDS);
-            wait(100);
-            //robotController.goForward(movePower,40,DistanceUnit.INCH,false);
-            robotController.goForward(movePower,1.2,TimeUnit.SECONDS);
-            wait(300);
-            robotController.goBackward(movePower,1.2,TimeUnit.SECONDS);
-            wait(100);
-            /*robotController.goBackward(movePower);
-            telemetry.addLine("Now going back");
-            
-            wait(1000);
-
-            telemetry.addLine("I'm  
-           back");
-            telemetry.update(); */
-            
-            robotController.turnLeft(movePower*.9,0.4,TimeUnit.SECONDS);
-            wait(100);
+            wait(200);
             robotController.slideLeft(movePower);
-            wait(600);
-            robotController.stop();
-            flyWheelController.openDoor();
-            wait(2000);
-            flyWheelController.setVelocity(lowerFlywheelSpeed);
-            wait(1000);
-            flyWheelController.closeDoor();
-            wait(100);
-            flyWheelController.setVelocity(regularFlywheelSpeed);
-            robotController.slideRight(movePower);
-            wait(500);
-            robotController.stop();
+            wait(400);
+            robotController.goForward(movePower,42,DistanceUnit.INCH,useSpeedCorrection);//move forward to get third line of balls
+            wait(200);
+            robotController.turnRight(turnPower,60,TurnMethod.IMU); //turn to get 3RD row of balls
+            wait(200);
+            robotController.goForward(movePower,34,DistanceUnit.INCH,useSpeedCorrection);//move forward to get 3RD line of balls
+            wait(200);
+            robotController.goBackward(movePower,34,DistanceUnit.INCH,useSpeedCorrection);//move back with 3RD line of balls
+        
             
-            // Task2 done.
+            // Task1 is done.
+            taskOneDone = true;
+        }else if(!taskTwoDone) {
+            // Turn to get second set of balls.
+           
+           
+
+            // Task2 is done.
             taskTwoDone = true;
         }else{
             stop();
         }
     }
+    
 }
