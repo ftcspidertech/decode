@@ -30,9 +30,7 @@ public class BLUE_Auto_Position1 extends AutoDecode{
     
     @Override
     public void loop() {
-        //double left=1.0;
-        //double right=0.87;
-        //setCalibrationFactors(left,right);
+        intakeController.stopIfStalled();
         if(!taskOneDone) {
             // Go forward and turn towards the goal.
             flyWheelController.setVelocity(1650);
@@ -40,7 +38,7 @@ public class BLUE_Auto_Position1 extends AutoDecode{
             wait(200);
             robotController.turnLeft(turnPower,20,TurnMethod.IMU);// turn to shoot balls
             wait(1500);
-            flyWheelController.openDoor();
+            openDoor();
             wait(3000);
             flyWheelController.closeDoor();
             wait(100);
@@ -56,7 +54,7 @@ public class BLUE_Auto_Position1 extends AutoDecode{
             wait(200);
             robotController.goBackward(movePower,20,DistanceUnit.INCH,useSpeedCorrection);// move back to home to shoot
             wait(100);
-            flyWheelController.openDoor();//shoot second line of balls
+            openDoor();//shoot second line of balls
             wait(3000);
             flyWheelController.closeDoor();
             wait(200);
