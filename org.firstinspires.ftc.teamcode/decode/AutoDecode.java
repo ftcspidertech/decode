@@ -30,6 +30,7 @@ public abstract class AutoDecode extends OpMode{
         double leftCalib = 1.0;
         double rightCalib = 1.0; // 0.87
         robotController = new  MecanumRobotController(hardwareMap,telemetry,leftCalib,rightCalib);
+        //robotController.useSingleWheelRef = true;
         flyWheelController = new FlyWheelController(hardwareMap,gamepad1,telemetry);
         intakeController = new IntakeController(hardwareMap,gamepad1,telemetry);
         //goalTagProcessor = new GoalTagProcessor(hardwareMap,24); // ID 24 for Red Gate
@@ -66,6 +67,11 @@ public abstract class AutoDecode extends OpMode{
         flyWheelController.stop();
         intakeController.stop();
         //goalTagProcessor.close();
+    }
+    
+    protected void openDoor(){
+        flyWheelController.openDoor();
+        intakeController.restartIfStalled(true);
     }
     
     protected void wait(int ms){
