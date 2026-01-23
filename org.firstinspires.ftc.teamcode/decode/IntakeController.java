@@ -11,7 +11,7 @@ public class IntakeController {
 
     private DcMotorEx intakeMotor;
     private Gamepad gamepad;
-    private double currentPower = 0.9;
+    private double currentPower = 0.8;
     private Telemetry telemetry;
     private boolean isRunning = false;
     private boolean isIntakeMode = true;
