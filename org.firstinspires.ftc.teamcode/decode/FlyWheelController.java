@@ -22,12 +22,15 @@ public class FlyWheelController {
     private boolean rightBumperPressed = false;
     private boolean leftBumperPressed = false;
     private static final int rate = 50;
+    private double closePower = -0.25;
+    private double openPower = 0.6; // -1
+    
 
     public FlyWheelController(HardwareMap hardwareMap, Gamepad pad, Telemetry tmetry){
         flywheel = hardwareMap.get(DcMotor.class, "flywheel");
         flywheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flywheel.setDirection(DcMotor.Direction.REVERSE);
-        
+
         servo = hardwareMap.get(CRServo.class, "servo");
 
         gamepad = pad;
@@ -36,7 +39,6 @@ public class FlyWheelController {
 
     public void setCurrentVelocity(int velocity){
         currentVelocity = velocity;
-        //((DcMotorEx) flywheel).setVelocity(currentVelocity);
     }
 
 
@@ -65,22 +67,22 @@ public class FlyWheelController {
 
         // Flywheel power - - -
         // Commented out to reduce an operator's load to start/stop the flywheel.
-        /*
+        //*
         if (gamepad.xWasPressed()) {
             if(!flyWheelStarted){
                 ((DcMotorEx) flywheel).setVelocity(currentVelocity);
                 flyWheelStarted = true;
             }else{
-                ((DcMotorEx) flywheel).setVelocity(0);
-                flyWheelStarted = false;
+                //((DcMotorEx) flywheel).setVelocity(0);
+                //flyWheelStarted = false;
             }
-        }*/
+        }//*/
         
         // Servo power
         if (gamepad.y){
-            servo.setPower(-1);
+            servo.setPower(openPower);
         }else{
-            servo.setPower(-0.25);
+            servo.setPower(closePower);
         }
     }
 
@@ -99,11 +101,11 @@ public class FlyWheelController {
     }
     
     public void openDoor(){
-        servo.setPower(-1);
+        servo.setPower(openPower);
     }
 
     public void closeDoor(){
-        servo.setPower(-0.25);
+        servo.setPower(closePower);
     }
 
     public void stop(){
