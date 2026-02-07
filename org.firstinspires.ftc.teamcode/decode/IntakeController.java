@@ -11,12 +11,12 @@ public class IntakeController {
 
     private DcMotorEx intakeMotor;
     private Gamepad gamepad;
-    private double currentPower = 0.8;
+    private double currentPower = 1.0;
     private Telemetry telemetry;
     private boolean isRunning = false;
     private boolean isIntakeMode = true;
     private ElapsedTime stallTimer =  new ElapsedTime();
-    private final int MIN_VELOCITY = 1000; // ticks
+    public int MIN_VELOCITY = 250; // ticks
     private final double MIN_WAIT = 0.25; // seconds
 
     public IntakeController(HardwareMap hardwareMap, Gamepad pad, Telemetry tmetry){
@@ -84,6 +84,16 @@ public class IntakeController {
     public void stopIfStalled(){
         if(stallTimer.seconds()>MIN_WAIT && intakeMotor.getPower()!=0 && 
            Math.abs(intakeMotor.getVelocity())<MIN_VELOCITY){
+            // First, set opposite motion to release the pressure on the exit door.
+            if(isIntakeMode){
+                setPower(-currentPower);
+                try{
+                    Thread.sleep(100);
+                }catch(InterruptedException e){
+                    telemetry.addData("Error: ", e.getMessage());
+                }                
+            }        
+            // Next, stop the motion.
             stop();
         }
     }
