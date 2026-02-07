@@ -6,6 +6,7 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLResultTypes.FiducialResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes.ColorResult;
 //import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 //import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -46,21 +47,9 @@ public class LimeLight3ACamera{
 
     /*
     public Pose3D getRobotPoseRelativeToGoal(int gID, int waitTime) {
-        if(gID!=goalID){
-            goalID = gID;
-            if(goalID==20){
-                pipelineID = 0;
-            }else{
-                pipelineID = 3; // Pipeline for red
-            }
-            limelight.pipelineSwitch(pipelineID);
-        }
+        updatePipeline(gID);
 
-        try{
-            Thread.sleep(waitTime);
-        } catch (Exception e) {
-            telemetry.addData("Error: ", e.getMessage());
-        }
+        wait(waitTime);
 
         LLResult result = limelight.getLatestResult();
         Pose3D robotPose = null;
@@ -72,21 +61,9 @@ public class LimeLight3ACamera{
     }*/
 
     public double[] getRobotPoseRelativeToGoal(int gID, int waitTime) {
-        if(gID!=goalID){
-            goalID = gID;
-            if(goalID==20){
-                pipelineID = 0;
-            }else{
-                pipelineID = 3; // Pipeline for red
-            }
-            limelight.pipelineSwitch(pipelineID);
-        }
+        updatePipeline(gID);
 
-        try{
-            Thread.sleep(waitTime);
-        } catch (Exception e) {
-            telemetry.addData("Error: ", e.getMessage());
-        }
+        wait(waitTime);
 
         LLResult result = limelight.getLatestResult();
         List<FiducialResult> fiducials = result.getFiducialResults();
@@ -99,11 +76,56 @@ public class LimeLight3ACamera{
                 robotPose[1] = fiducial.getTargetYDegrees();
                 //Pose3D robotPose3D = fiducial.getRobotPoseTargetSpace();
                 //telemetry.addData("Robot pose",robotPose3D.toString());
-                robotPose[2] = fiducial.getRobotPoseTargetSpace().getPosition().y; // Distance in meters
+                //robotPose[2] = 39.3701*fiducial.getRobotPoseTargetSpace().getPosition().y; // Distance in inches
+                robotPose[2] = (32.0-13.5)/Math.tan(Math.toRadians(robotPose[1]));
                 break;
             }
         }
         return robotPose;    
+    }
+
+    public double[] getRobotPoseRelativeToBall(int waitTime) {
+        pipelineID = 1;
+        limelight.pipelineSwitch(pipelineID);
+        
+        wait(waitTime);
+        
+        LLResult result = limelight.getLatestResult();
+        List<ColorResult> colorTargets = result.getColorResults();
+        double[] robotPose = null;
+        
+        for (ColorResult colorTarget : colorTargets) {
+            
+            robotPose = new double[3];
+            
+            robotPose[0] = colorTarget.getTargetXDegrees();
+            robotPose[1] = colorTarget.getTargetYDegrees();
+            robotPose[2] = (0-13.5)/Math.tan(Math.toRadians(robotPose[1]));
+            
+            break;
+        }
+        
+        return robotPose;
+    }
+
+    private void updatePipeline(int gID){
+        if(gID!=goalID){
+            goalID = gID;
+            if(goalID==20){
+                pipelineID = 0; // Pipeline for blue
+            }else{
+                pipelineID = 2; // Pipeline for red
+            }
+            limelight.pipelineSwitch(pipelineID);
+        }
+    } 
+    
+    private void wait(int waitTime){
+        try{
+            Thread.sleep(waitTime);
+        } catch (Exception e) {
+            telemetry.addData("Error: ", e.getMessage());
+        }
     }
 
 }
