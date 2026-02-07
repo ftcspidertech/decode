@@ -45,21 +45,6 @@ public class LimeLight3ACamera{
         limelight.stop();
     }
 
-    /*
-    public Pose3D getRobotPoseRelativeToGoal(int gID, int waitTime) {
-        updatePipeline(gID);
-
-        wait(waitTime);
-
-        LLResult result = limelight.getLatestResult();
-        Pose3D robotPose = null;
-        if (result != null && result.isValid()) {
-            robotPose = result.getBotpose();
-        }
-
-        return robotPose;        
-    }*/
-
     public double[] getRobotPoseRelativeToGoal(int gID, int waitTime) {
         updatePipeline(gID);
 
@@ -74,9 +59,6 @@ public class LimeLight3ACamera{
                 robotPose = new double[3];
                 robotPose[0] = fiducial.getTargetXDegrees();
                 robotPose[1] = fiducial.getTargetYDegrees();
-                //Pose3D robotPose3D = fiducial.getRobotPoseTargetSpace();
-                //telemetry.addData("Robot pose",robotPose3D.toString());
-                //robotPose[2] = 39.3701*fiducial.getRobotPoseTargetSpace().getPosition().y; // Distance in inches
                 robotPose[2] = (32.0-13.5)/Math.tan(Math.toRadians(robotPose[1]));
                 break;
             }
