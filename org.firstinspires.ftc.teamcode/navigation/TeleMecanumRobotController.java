@@ -10,7 +10,7 @@ public class TeleMecanumRobotController {
     private MecanumRobotController robot;
     private Gamepad gamepad;
     private double moveSpeed;
-    //private double turnSpeed;
+    private double turnSpeed;
     private Telemetry telemetry;
     
     public TeleMecanumRobotController(HardwareMap hardwareMap, Gamepad pad, Telemetry tmetry) {
@@ -18,8 +18,8 @@ public class TeleMecanumRobotController {
         robot = new MecanumRobotController(hardwareMap,tmetry,1.0,1.0);
         gamepad = pad;
         
-        moveSpeed = 0.75;
-        //turnSpeed = 0.5;
+        moveSpeed = 0.25;
+        turnSpeed = 0.125;
 
         telemetry = tmetry;
     }
@@ -46,23 +46,27 @@ public class TeleMecanumRobotController {
         
         // Control robot with arrow keys.
         if(gamepad.dpad_left){
-            robot.slideLeft(moveSpeed);
+            robot.turnLeft(turnSpeed);
         }else if(gamepad.dpad_right){
-            robot.slideRight(moveSpeed);
+            robot.turnRight(turnSpeed);
         }else if(gamepad.dpad_up){
             robot.goForward(moveSpeed);
         }else if(gamepad.dpad_down){
             robot.goBackward(moveSpeed);
-        }else if(gamepad.b){
-            robot.slideTopRight(moveSpeed);
-        }else if(gamepad.a){
-            robot.slideBottomLeft(moveSpeed);
         }else{
             robot.stop();
         }
         
     }
     
+    public void turnLeft(double speed, double angle){
+        robot.turnLeft(speed,angle);
+    }
+
+    public void turnRight(double speed, double angle){
+        robot.turnRight(speed,angle);
+    }
+
     public void stop(){
         robot.stop();
     }
