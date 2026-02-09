@@ -21,6 +21,8 @@ public abstract class TeleDecode extends OpMode {
     protected double kMove = 0.9;
     protected double kTurn = 0.9;
     protected double kCorrection = 0.9;
+    protected double correctionTurnSpeed = 0.1;
+    protected double collectionMoveSpeed = 0.25;
 
     protected abstract void initTeleDecode();
 
@@ -121,6 +123,18 @@ public abstract class TeleDecode extends OpMode {
         openDoor();
     }
 
+    private void turnToBallAndCollect(int camWaitTime){
+        // Turn towards a ball.
+        turnToBall(camWaitTime);
+        
+        if(robotPose==null){
+            return;
+        }
+        
+        // Collect ball.
+        teleRobotController.goForward(collectionMoveSpeed, robotPose[2]);
+    }
+    
     private void turnToGoal(int gID, int camWaitTime){
         robotPose = limelight.getRobotPoseRelativeToGoal(gID,camWaitTime);
         if(robotPose==null){
@@ -141,9 +155,9 @@ public abstract class TeleDecode extends OpMode {
 
     private void turnRobot(){
         if(robotPose[0]<0){
-            teleRobotController.turnLeft(0.1,Math.abs(kCorrection*robotPose[0]));
+            teleRobotController.turnLeft(correctionTurnSpeed,Math.abs(kCorrection*robotPose[0]));
         }else if(robotPose[0]>0){
-            teleRobotController.turnRight(0.1,Math.abs(kCorrection*robotPose[0]));
+            teleRobotController.turnRight(correctionTurnSpeed,Math.abs(kCorrection*robotPose[0]));
         }
     }
     
