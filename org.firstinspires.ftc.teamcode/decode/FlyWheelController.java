@@ -14,7 +14,7 @@ public class FlyWheelController {
     private Gamepad gamepad;
     private CRServo servo;
     private Telemetry telemetry;
-    private int maxVelocity = 2200;
+    private int maxVelocity = 2800;
     private int minVelocity = 1000;
     private int currentVelocity = 1500;
     private double WHEELS_INCHES_TO_TICKS = (28 * 5 * 3) / (3 * Math.PI);
@@ -24,6 +24,7 @@ public class FlyWheelController {
     private static final int rate = 50;
     private double closePower = -0.25;
     private double openPower = 0.6; // -1
+    private double a=0.027392, b=3.0918, c=1386.40407;
     
 
     public FlyWheelController(HardwareMap hardwareMap, Gamepad pad, Telemetry tmetry){
@@ -93,6 +94,11 @@ public class FlyWheelController {
     
     public void setVelocity(int velocity){
         ((DcMotorEx) flywheel).setVelocity(velocity);
+        currentVelocity = velocity;
+    }
+
+    public void convertToVelocity(double x){
+        setVelocity((int)Math.min(2150, a*x*x + b*x + c));
     }
     
     public void stopFlyWheel(){
