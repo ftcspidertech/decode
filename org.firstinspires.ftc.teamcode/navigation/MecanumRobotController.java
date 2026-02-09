@@ -46,7 +46,7 @@ public class MecanumRobotController {
     private double rightCalibrationFactor = 1.0;
     
     private ElapsedTime timer = null;
-    private boolean useSingleWheelRef = false;
+    public boolean useSingleWheelRef = false;
 
     public MecanumRobotController(HardwareMap hardwareMap, Telemetry tmetry) {
         initRobotController(hardwareMap,tmetry);
@@ -107,6 +107,7 @@ public class MecanumRobotController {
         backLeftMotorTicksPerInch = backLeftMotorTicksPerRotation/(WHEEL_DIAMETER_INCH*Math.PI);
         frontRightMotorTicksPerInch = frontRightMotorTicksPerRotation/(WHEEL_DIAMETER_INCH*Math.PI);
         backRightMotorTicksPerInch = backRightMotorTicksPerRotation/(WHEEL_DIAMETER_INCH*Math.PI);
+        //telemetry.addData("Front left motor ticks per inch = ",frontLeftMotorTicksPerInch);
 
         frontLeftMotorTicksPerMM = frontLeftMotorTicksPerRotation/(WHEEL_DIAMETER_MM*Math.PI);
         backLeftMotorTicksPerMM = backLeftMotorTicksPerRotation/(WHEEL_DIAMETER_MM*Math.PI);
@@ -659,7 +660,7 @@ public class MecanumRobotController {
         }else{ //if(unit==DistanceUnit.M){
             targetPosition = (int)(distance * frontRightMotorTicksPerMM * 1000.0);        
         }
-        return targetPosition;
+        return targetPosition/4;
     }
     
     public void turnLeft(double speed, double angle, TurnMethod turnMethod){
