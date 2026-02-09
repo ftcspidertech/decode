@@ -17,8 +17,10 @@ public abstract class AutoDecode extends OpMode{
     protected IntakeController intakeController = null;
     //protected GoalTagProcessor goalTagProcessor = null;
     protected LimeLight3ACamera limelight = null;
-    private double kTurn = 0.9;
     private double[] robotPose;
+    protected double kCorrection = 0.9;
+    protected double correctionTurnSpeed = 0.1;
+    protected double collectionMoveSpeed = 0.25;
     
     private int flyWheelVelocity = 1500;
     private ElapsedTime waitTimer = new ElapsedTime();
@@ -79,28 +81,56 @@ public abstract class AutoDecode extends OpMode{
     protected void turnToGoalAndShoot(int gID, int camWaitTime, int doorOpenTime){
         // Turn towards the goal.
         turnToGoal(gID,camWaitTime);
+
+        // Return if no balls in vision.
+        if(robotPose==null){
+            return;
+        }        
+
+        // Set fly wheel velocity.
+        double distance = robotPose[2];
+        flyWheelController.convertToVelocity(distance);
         
         // Wait before shoot
-        wait(25);
+        //wait(25);
         
         // Shoot
-        openDoor();
-        wait(doorOpenTime);
-        flyWheelController.closeDoor();
+        if (x<96){
+            openDoor();
+            wait(doorOpenTime);
+            flyWheelController.closeDoor();
+        }else{
+            openDoor();
+            for(int count=0;count<3;count++){
+                wait(500);
+                intakeController.stop();
+                wait(500);
+                intakeController.start();
+            }
+            flyWheelController.closeDoor();
+        }        
     }
 
+    private void turnToBallAndCollect(int camWaitTime){
+        // Turn towards a ball.
+        turnToBall(camWaitTime);
+        
+        if(robotPose==null){
+            return;
+        }
+        
+        // Collect ball.
+        robotController.goForward(collectionMoveSpeed, robotPose[2]);
+    }
+    
     protected void turnToGoal(int gID, int camWaitTime){
         robotPose = limelight.getRobotPoseRelativeToGoal(gID,camWaitTime);
         if(robotPose==null){
             telemetry.addLine("Goal out of vision!");
             return;
         }
-        // Turn
-        if(robotPose[0]<0){
-            robotController.turnLeft(0.1,Math.abs(kTurn*robotPose[0]));
-        }else if(robotPose[0]>0){
-            robotController.turnRight(0.1,Math.abs(kTurn*robotPose[0]));
-        }
+        
+        turnRobot();
     }
 
     protected void turnToBall(int camWaitTime){
@@ -109,14 +139,18 @@ public abstract class AutoDecode extends OpMode{
             telemetry.addLine("Ball out of vision!");
             return;
         }
-        // Turn
-        if(robotPose[0]<0){
-            robotController.turnLeft(0.1,Math.abs(kTurn*robotPose[0]));
-        }else if(robotPose[0]>0){
-            robotController.turnRight(0.1,Math.abs(kTurn*robotPose[0]));
-        }
+        
+        turnRobot();
     }
 
+    private void turnRobot(){
+        if(robotPose[0]<0){
+            robotController.turnLeft(correctionTurnSpeed,Math.abs(kCorrection*robotPose[0]));
+        }else if(robotPose[0]>0){
+            robotController.turnRight(correctionTurnSpeed,Math.abs(kCorrection*robotPose[0]));
+        }
+    }
+    
     protected void openDoor(){
         flyWheelController.openDoor();
         intakeController.restartIfStalled(true);
