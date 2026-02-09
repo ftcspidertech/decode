@@ -62,6 +62,10 @@ public class TeleMecanumRobotController {
         
     }
     
+    public void goForward(double speed, double distanceInInch){
+        robot.goForward(speed,distanceInInch);
+    }
+
     public void turnLeft(double speed, double angle){
         robot.turnLeft(speed,angle);
     }
