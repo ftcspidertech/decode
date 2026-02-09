@@ -7,6 +7,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class TeleMecanumRobotController {
+    public double kMove = 1.0;
+    public double kTurn = 1.0;
+    
     private MecanumRobotController robot;
     private Gamepad gamepad;
     private double moveSpeed;
@@ -18,8 +21,8 @@ public class TeleMecanumRobotController {
         robot = new MecanumRobotController(hardwareMap,tmetry,1.0,1.0);
         gamepad = pad;
         
-        moveSpeed = 0.25;
-        turnSpeed = 0.125;
+        moveSpeed = 0.5;
+        turnSpeed = 0.25;
 
         telemetry = tmetry;
     }
@@ -30,7 +33,7 @@ public class TeleMecanumRobotController {
         float x = gamepad.left_stick_x;
         float rx = gamepad.right_stick_x;
         if (y!=0 || x!=0 || rx!=0){
-            robot.splitStickArcadeDrive(y,x,rx);            
+            robot.splitStickArcadeDrive(y*kMove,x*kMove,rx*kTurn);            
             return;
         }
         
