@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.navigation.TeleMecanumRobotController;
 import org.firstinspires.ftc.teamcode.decode.FlyWheelController;
 import org.firstinspires.ftc.teamcode.decode.IntakeController;
 import org.firstinspires.ftc.teamcode.vision.LimeLight3ACamera;
+import org.firstinspires.ftc.teamcode.decode.Utilities;
 
 public abstract class TeleDecode extends OpMode {
     //variables
@@ -14,8 +15,11 @@ public abstract class TeleDecode extends OpMode {
     private IntakeController intakeController;
     private ElapsedTime runTimer = new ElapsedTime();
     private LimeLight3ACamera limelight = null;
+    private Utilities utilities;
     private double[] robotPose;
     private boolean doorOpen = false;
+    private boolean collectionStarted = false;
+    private boolean oneByOneShootStarted = false;
     
     protected int goalID = 24;
     protected double kMove = 0.9;
@@ -39,6 +43,8 @@ public abstract class TeleDecode extends OpMode {
         teleRobotController.kMove = kMove;
         teleRobotController.kTurn = kTurn;
 
+        utilities = new Utilities(teleRobotController.getRobotController(),
+            flyWheelController,intakeController,limelight,telemetry);
 
         // Display status
         telemetry.addData("Status", "Alhamdulillah, Robot controllers initialized");
@@ -69,6 +75,7 @@ public abstract class TeleDecode extends OpMode {
             requestOpModeStop();
         }//*/
         
+        // Turn towards a goal and shoot the balls at once.
         if (gamepad1.aWasPressed()) {
             //telemetry.addLine("A was pressed");
             if(doorOpen){
@@ -77,7 +84,7 @@ public abstract class TeleDecode extends OpMode {
                 doorOpen = false;
             }else{
                 //telemetry.addLine("Door was close");
-                turnToGoalAndShoot(goalID,100);
+                turnToGoalAndShoot(100,4000);
                 doorOpen = true;
             }
             return;
@@ -92,80 +99,68 @@ public abstract class TeleDecode extends OpMode {
             }
         }
         
+        // Turn towards a goal and shoot the balls one by one.
+        if(gamepad1.right_trigger==1.0){
+            if(!oneByOneShootStarted){
+                oneByOneShootStarted = true;
+                turnToGoalAndShootOneByOne(100);
+                oneByOneShootStarted = false;
+            }// Add else for toggle behavior.
+            return;
+        }else{
+            if(oneByOneShootStarted){
+                if(keyPressed()){
+                    flyWheelController.closeDoor();
+                    intakeController.start();
+                    oneByOneShootStarted = false;
+                }else{
+                    return;
+                }
+            }
+        }
+        
+        
+        // Turn towards a ball and collect it.
+        if (gamepad1.bWasPressed()) {
+            if(!collectionStarted){
+                collectionStarted = true;
+                turnToBallAndCollect(100);
+                collectionStarted = false;
+            }// Add else for toggle behavior.
+            return;
+        }else{
+            if(collectionStarted){
+                if(keyPressed()){
+                    teleRobotController.stop();
+                    collectionStarted = false;
+                }else{
+                    return;
+                }
+            }
+        }
+        
+        // General controls.
         teleRobotController.run();
         flyWheelController.run();
         intakeController.run();
     }
 
-    private void turnToGoalAndShoot(int gID, int camWaitTime){
-        // Turn towards the goal.
-        turnToGoal(gID,camWaitTime);
-        
-        if(robotPose==null){
-            //telemetry.speak("No");
-            //telemetry.update();
-            return;
-        }
-        
-        // Set fly wheel velocity.
-        double x = robotPose[2];
-        flyWheelController.convertToVelocity(x);
-        //double velocity = 0.027392*x*x + 3.0918*x + 1386.40407;
-        //velocity = Math.min(2150, velocity);
-        //flyWheelController.setVelocity((int)velocity);
-        if (x>96){
-            return;
-        }
-        // Wait before shoot, to give the robot time to orient itself
-        //wait(25);
-        
-        // Shoot
-        openDoor();
+    private void turnToGoalAndShoot(int camWaitTime){
+        utilities.turnToGoalAndShoot(goalID,camWaitTime);
+    }
+
+    private void turnToGoalAndShoot(int camWaitTime, int doorOpenTime){
+        utilities.turnToGoalAndShoot(goalID,camWaitTime,doorOpenTime);
+    }
+
+    private void turnToGoalAndShootOneByOne(int camWaitTime){
+        utilities.turnToGoalAndShootOneByOne(goalID,camWaitTime,800,200);
     }
 
     private void turnToBallAndCollect(int camWaitTime){
-        // Turn towards a ball.
-        turnToBall(camWaitTime);
-        
-        if(robotPose==null){
-            return;
-        }
-        
-        // Collect ball.
-        teleRobotController.goForward(collectionMoveSpeed, robotPose[2]);
+        utilities.turnToBallAndCollect(camWaitTime);
     }
     
-    private void turnToGoal(int gID, int camWaitTime){
-        robotPose = limelight.getRobotPoseRelativeToGoal(gID,camWaitTime);
-        if(robotPose==null){
-            telemetry.addLine("Goal out of vision!");
-            return;
-        }
-        turnRobot();
-    }
-
-    private void turnToBall(int camWaitTime){
-        robotPose = limelight.getRobotPoseRelativeToBall(camWaitTime);
-        if(robotPose==null){
-            telemetry.addLine("Ball out of vision!");
-            return;
-        }
-        turnRobot();
-    }
-
-    private void turnRobot(){
-        if(robotPose[0]<0){
-            teleRobotController.turnLeft(correctionTurnSpeed,Math.abs(kCorrection*robotPose[0]));
-        }else if(robotPose[0]>0){
-            teleRobotController.turnRight(correctionTurnSpeed,Math.abs(kCorrection*robotPose[0]));
-        }
-    }
-    
-    private void openDoor(){
-        flyWheelController.openDoor();
-        intakeController.restartIfStalled(true);
-    }
-
     private boolean keyPressed(){
         boolean yes = false;
         // 
