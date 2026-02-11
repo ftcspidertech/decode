@@ -59,7 +59,7 @@ public class LimeLight3ACamera{
                 robotPose = new double[3];
                 robotPose[0] = fiducial.getTargetXDegrees();
                 robotPose[1] = fiducial.getTargetYDegrees();
-                robotPose[2] = (32.0-13.5)/Math.tan(Math.toRadians(robotPose[1]));
+                robotPose[2] = (26.0-12.5)/Math.tan(Math.toRadians(robotPose[1]));
                 break;
             }
         }
@@ -67,7 +67,35 @@ public class LimeLight3ACamera{
     }
 
     public double[] getRobotPoseRelativeToBall(int waitTime) {
-        pipelineID = 1;
+        double[] poseP = getRobotPoseRelativeToPurpleBall(waitTime/2);
+        double[] poseG = getRobotPoseRelativeToGreenBall(waitTime/2);
+        double[] robotPose;
+        
+        if(poseP==null){
+            robotPose = poseG;
+        }else if(poseG==null){
+            robotPose = poseP;
+        }else{
+            if(poseP[2]<=poseG[2]){
+                robotPose = poseP;
+            }else{
+                robotPose = poseG;
+            }
+        }
+        
+        return robotPose;
+    }
+
+    public double[] getRobotPoseRelativeToPurpleBall(int waitTime) {
+        return getRobotPoseRelativeToBall(1, waitTime);
+    }
+
+    public double[] getRobotPoseRelativeToGreenBall(int waitTime) {
+        return getRobotPoseRelativeToBall(3, waitTime);
+    }
+
+    public double[] getRobotPoseRelativeToBall(int id, int waitTime) {
+        pipelineID = id;
         limelight.pipelineSwitch(pipelineID);
         
         wait(waitTime);
@@ -82,7 +110,7 @@ public class LimeLight3ACamera{
             
             robotPose[0] = colorTarget.getTargetXDegrees();
             robotPose[1] = colorTarget.getTargetYDegrees();
-            robotPose[2] = (0-13.5)/Math.tan(Math.toRadians(robotPose[1]));
+            robotPose[2] = (0-12.5)/Math.tan(Math.toRadians(robotPose[1]));
             
             break;
         }
@@ -90,16 +118,18 @@ public class LimeLight3ACamera{
         return robotPose;
     }
 
+
+
     private void updatePipeline(int gID){
         if(gID!=goalID){
             goalID = gID;
-            if(goalID==20){
-                pipelineID = 0; // Pipeline for blue
-            }else{
-                pipelineID = 2; // Pipeline for red
-            }
-            limelight.pipelineSwitch(pipelineID);
         }
+        if(goalID==20){
+            pipelineID = 0; // Pipeline for blue
+        }else{
+            pipelineID = 2; // Pipeline for red
+        }
+        limelight.pipelineSwitch(pipelineID);
     } 
     
     private void wait(int waitTime){
