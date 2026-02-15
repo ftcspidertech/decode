@@ -11,12 +11,13 @@ public class IntakeController {
 
     private DcMotorEx intakeMotor;
     private Gamepad gamepad;
-    private double currentPower = 1.0;
+    private double currentPower = 0.725;
+    private double shootPower = 1.0;
     private Telemetry telemetry;
     private boolean isRunning = false;
     private boolean isIntakeMode = true;
     private ElapsedTime stallTimer =  new ElapsedTime();
-    public int MIN_VELOCITY = 250; // ticks
+    public int MIN_VELOCITY = 750; // 250 ticks
     private final double MIN_WAIT = 0.25; // seconds
 
     public IntakeController(HardwareMap hardwareMap, Gamepad pad, Telemetry tmetry){
@@ -56,10 +57,16 @@ public class IntakeController {
 
         // Start the motor for shoorting (if stalled before).
         restartIfStalled(gamepad.y);
+        if(gamepad.y){
+            setShootPower();
+        }else{
+            //if(intakeMotor.getPower()!=0){
+            //    resetPower();
+            //}
+        }
 
         // Check if the motor stalled for multiple balls.
         stopIfStalled();
-        
     }
 
     private void setPower(double power){
@@ -73,7 +80,7 @@ public class IntakeController {
             setPower(currentPower);
         }else{
             setPower(-currentPower);
-        }        
+        }       
     } 
 
     public void stop(){
@@ -102,5 +109,19 @@ public class IntakeController {
         if(youCanRestart && intakeMotor.getPower()==0){
             start();
         }
-    }    
+    }
+    
+    public void setShootPower(){
+        setPower(shootPower);
+    }
+
+    public void setShootPower(boolean youCanChange){
+        if(youCanChange){
+            setPower(shootPower);
+        }
+    }
+    
+    public void resetPower(){
+        start();
+    }
 }
