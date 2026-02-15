@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.vision.LimeLight3ACamera;
 import org.firstinspires.ftc.teamcode.navigation.NavigationType;
 
 public class Utilities {
-    private double[] robotPose = null;
+    public double[] robotPose = null;
     public double kAngle = 0.9;
     public double kDistance = 0.85;
     public double correctionTurnSpeed = 0.1;
