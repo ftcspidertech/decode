@@ -47,6 +47,8 @@ public class MecanumRobotController {
     
     private ElapsedTime timer = null;
     public boolean useSingleWheelRef = false;
+    
+    private boolean loopExit = false;
 
     public MecanumRobotController(HardwareMap hardwareMap, Telemetry tmetry) {
         initRobotController(hardwareMap,tmetry);
@@ -164,7 +166,8 @@ public class MecanumRobotController {
         if(unit==TimeUnit.MILLISECONDS){
             runTime = runTime/1000.0;
         }
-        while(timer.seconds()<runTime);
+        loopExit = false;
+        while(!loopExit && timer.seconds()<runTime);
         stop();
     }
 
@@ -178,7 +181,8 @@ public class MecanumRobotController {
         if(unit==TimeUnit.MILLISECONDS){
             runTime = runTime/1000.0;
         }
-        while(timer.seconds()<runTime);
+        loopExit = false;
+        while(!loopExit && timer.seconds()<runTime);
         stop();
     }
 
@@ -192,7 +196,8 @@ public class MecanumRobotController {
         if(unit==TimeUnit.MILLISECONDS){
             runTime = runTime/1000.0;
         }
-        while(timer.seconds()<runTime);
+        loopExit = false;
+        while(!loopExit && timer.seconds()<runTime);
         stop();
     }
 
@@ -206,7 +211,8 @@ public class MecanumRobotController {
         if(unit==TimeUnit.MILLISECONDS){
             runTime = runTime/1000.0;
         }
-        while(timer.seconds()<runTime);
+        loopExit = false;
+        while(!loopExit && timer.seconds()<runTime);
         stop();
     }
 
@@ -222,7 +228,8 @@ public class MecanumRobotController {
         if(unit==TimeUnit.MILLISECONDS){
             runTime = runTime/1000.0;
         }
-        while(timer.seconds()<runTime);
+        loopExit = false;
+        while(!loopExit && timer.seconds()<runTime);
         stop();
     }//*/
 
@@ -236,7 +243,8 @@ public class MecanumRobotController {
         if(unit==TimeUnit.MILLISECONDS){
             runTime = runTime/1000.0;
         }
-        while(timer.seconds()<runTime);
+        loopExit = false;
+        while(!loopExit && timer.seconds()<runTime);
         stop();
     }
 
@@ -253,7 +261,8 @@ public class MecanumRobotController {
         if(unit==TimeUnit.MILLISECONDS){
             runTime = runTime/1000.0;
         }
-        while(timer.seconds()<runTime);
+        loopExit = false;
+        while(!loopExit && timer.seconds()<runTime);
         stop();
     }
 
@@ -263,7 +272,8 @@ public class MecanumRobotController {
         if(unit==TimeUnit.MILLISECONDS){
             runTime = runTime/1000.0;
         }
-        while(timer.seconds()<runTime);
+        loopExit = false;
+        while(!loopExit && timer.seconds()<runTime);
         stop();
     }
 
@@ -273,7 +283,8 @@ public class MecanumRobotController {
         if(unit==TimeUnit.MILLISECONDS){
             runTime = runTime/1000.0;
         }
-        while(timer.seconds()<runTime);
+        loopExit = false;
+        while(!loopExit && timer.seconds()<runTime);
         stop();
     }
 
@@ -283,7 +294,8 @@ public class MecanumRobotController {
         if(unit==TimeUnit.MILLISECONDS){
             runTime = runTime/1000.0;
         }
-        while(timer.seconds()<runTime);
+        loopExit = false;
+        while(!loopExit && timer.seconds()<runTime);
         stop();
     }
     
@@ -304,6 +316,8 @@ public class MecanumRobotController {
     }
 
     public void stopMotor(){
+        loopExit = true;
+        
         driveMotor(0);
         
         robotMoving = false;
@@ -384,8 +398,9 @@ public class MecanumRobotController {
         speed = Math.abs(speed);
         try{            
             // Loop until within tolerance
+            loopExit = false;
             //while(notWithinTolerance(targetPosition,tolerance)){
-            while(isMotorBusy()){
+            while(!loopExit && isMotorBusy()){
             //while (leftDiff>tolerance || rightDiff>tolerance) {
                 if(distance>0){
                     goForward(speed);
@@ -420,10 +435,10 @@ public class MecanumRobotController {
         }
     }
 
-    private void goToPosition(double speed, double distance, DistanceUnit unit, NavigationType navType) {
+    public void goToPosition(double speed, double distance, DistanceUnit unit, NavigationType navType) {
         int targetPosition;
         long waitTime = 10; // milliseconds
-        int tolerance = 10;
+        int tolerance = 100;
         int leftDiff=tolerance+1,rightDiff=tolerance+1;
         
         // Reset motor encoders.
@@ -480,8 +495,9 @@ public class MecanumRobotController {
         speed = Math.abs(speed);
         try{            
             // Loop until within tolerance
-            //while(notWithinTolerance(targetPosition,tolerance)){
-            while(isMotorBusy()){
+            loopExit = false;
+            while(!loopExit && notWithinTolerance(targetPosition,tolerance)){
+            //while(!loopExit && isMotorBusy()){
             //while (leftDiff>tolerance || rightDiff>tolerance) {
                 if(navType==NavigationType.GOBACKWARD){
                     goBackward(speed);
@@ -587,8 +603,9 @@ public class MecanumRobotController {
             leftDist = tolerance + 1;
             rightDist = leftDist;
             ratio = 1.0;
+            loopExit = false;
             //while(notWithinTolerance(targetPosition,tolerance)){
-            while(isMotorBusy()){
+            while(!loopExit && isMotorBusy()){
             //while (leftDist>tolerance || rightDist>tolerance) {
                 if(ratio>1){
                     leftCalibrationFactor = 1.0/ratio;
@@ -702,8 +719,8 @@ public class MecanumRobotController {
         targetHeading = currentHeading + (Math.abs(angle)%divisor);
 
         robotMoving = true;
-        
-        while(currentHeading<targetHeading){
+        loopExit = false;
+        while(!loopExit && currentHeading<targetHeading){
             turnLeft(speed);
             try{
                 Thread.sleep(waitTime);
@@ -740,8 +757,8 @@ public class MecanumRobotController {
         targetHeading = currentHeading - (Math.abs(angle)%divisor);
 
         robotMoving = true;
-        
-        while(currentHeading>targetHeading){
+        loopExit = false;
+        while(!loopExit && currentHeading>targetHeading){
             turnRight(speed);
             try{
                 Thread.sleep(waitTime);
