@@ -15,11 +15,12 @@ public abstract class TeleDecode extends OpMode {
     private IntakeController intakeController;
     private ElapsedTime runTimer = new ElapsedTime();
     private LimeLight3ACamera limelight = null;
-    private Utilities utilities;
+    protected Utilities utilities;
     private double[] robotPose;
     private boolean doorOpen = false;
     private boolean collectionStarted = false;
     private boolean oneByOneShootStarted = false;
+    private boolean triggerPressed = false;
     
     protected int goalID = 24;
     protected double kMove = 0.9;
@@ -79,19 +80,22 @@ public abstract class TeleDecode extends OpMode {
         if (gamepad1.aWasPressed()) {
             //telemetry.addLine("A was pressed");
             if(doorOpen){
-                //telemetry.addLine("Door was open");
-                flyWheelController.closeDoor();
-                doorOpen = false;
+                // Toggle action
+                //utilities.resetRobot();
+                //doorOpen = false;
             }else{
-                //telemetry.addLine("Door was close");
-                turnToGoalAndShoot(100,4000);
                 doorOpen = true;
+                //turnToGoalAndShoot(100);
+                turnToGoalAndShoot(100,2250);
+                doorOpen = false;
             }
             return;
         }else{
             if(doorOpen){
                 if(keyPressed()){
-                    flyWheelController.closeDoor();
+                    utilities.resetRobot();
+                    //flyWheelController.closeDoor();
+                    //intakeController.resetPower();
                     doorOpen = false;
                 }else{
                     return;
@@ -100,18 +104,23 @@ public abstract class TeleDecode extends OpMode {
         }
         
         // Turn towards a goal and shoot the balls one by one.
-        if(gamepad1.right_trigger==1.0){
-            if(!oneByOneShootStarted){
+        if (gamepad1.bWasPressed()) {    
+            if(oneByOneShootStarted){
+                // Toggle action
+                //utilities.resetRobot();
+                //oneByOneShootStarted = false;
+            }else{
                 oneByOneShootStarted = true;
                 turnToGoalAndShootOneByOne(100);
                 oneByOneShootStarted = false;
-            }// Add else for toggle behavior.
+            }
             return;
         }else{
             if(oneByOneShootStarted){
                 if(keyPressed()){
-                    flyWheelController.closeDoor();
-                    intakeController.start();
+                    utilities.resetRobot();
+                    //flyWheelController.closeDoor();
+                    //intakeController.start();
                     oneByOneShootStarted = false;
                 }else{
                     return;
@@ -121,28 +130,42 @@ public abstract class TeleDecode extends OpMode {
         
         
         // Turn towards a ball and collect it.
-        if (gamepad1.bWasPressed()) {
-            if(!collectionStarted){
+        //*
+        if(gamepad1.right_trigger==1.0 && !triggerPressed){
+            triggerPressed = true;
+            if(collectionStarted){
+                // Toggle action
+                //utilities.resetRobot();
+                //collectionStarted = false;
+            }else{
                 collectionStarted = true;
                 turnToBallAndCollect(100);
+                //turnToBall(100);
                 collectionStarted = false;
-            }// Add else for toggle behavior.
+            }
             return;
         }else{
+            triggerPressed = false;
             if(collectionStarted){
                 if(keyPressed()){
-                    teleRobotController.stop();
+                    utilities.resetRobot();
+                    //teleRobotController.stop();
                     collectionStarted = false;
                 }else{
                     return;
                 }
             }
-        }
+        }//*/
         
         // General controls.
         teleRobotController.run();
         flyWheelController.run();
         intakeController.run();
+        
+        doorOpen = false;
+        oneByOneShootStarted = false;
+        collectionStarted = false;
+        triggerPressed = false;
     }
 
     private void turnToGoalAndShoot(int camWaitTime){
@@ -159,6 +182,10 @@ public abstract class TeleDecode extends OpMode {
 
     private void turnToBallAndCollect(int camWaitTime){
         utilities.turnToBallAndCollect(camWaitTime);
+    }
+    
+    private void turnToBall(int camWaitTime){
+        utilities.turnToBall(camWaitTime);
     }
     
     private boolean keyPressed(){
