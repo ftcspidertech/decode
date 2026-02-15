@@ -1,3 +1,4 @@
+
 package org.firstinspires.ftc.teamcode.navigation;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -38,6 +39,7 @@ public class TeleMecanumRobotController {
         }
         
         // Update max speeds
+        /*
         double rate = 0.001;
         if(gamepad.right_trigger==1.0){
             moveSpeed = Math.min(1,(1.0+rate)*moveSpeed);
@@ -45,7 +47,7 @@ public class TeleMecanumRobotController {
         }else if(gamepad.left_trigger==1.0){
             moveSpeed = Math.max(0.5,(1-rate)*moveSpeed);
             telemetry.addData("Max move speed: ", moveSpeed);
-        }
+        }*/
         
         // Control robot with arrow keys.
         if(gamepad.dpad_left){
@@ -60,6 +62,10 @@ public class TeleMecanumRobotController {
             robot.stop();
         }
         
+    }
+    
+    public MecanumRobotController getRobotController(){
+        return robot;
     }
     
     public void goForward(double speed, double distanceInInch){
