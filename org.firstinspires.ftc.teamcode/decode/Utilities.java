@@ -2,11 +2,14 @@ package org.firstinspires.ftc.teamcode.decode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import java.util.concurrent.TimeUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import org.firstinspires.ftc.teamcode.navigation.MecanumRobotController;
 import org.firstinspires.ftc.teamcode.decode.FlyWheelController;
 import org.firstinspires.ftc.teamcode.decode.IntakeController;
 import org.firstinspires.ftc.teamcode.vision.LimeLight3ACamera;
+import org.firstinspires.ftc.teamcode.navigation.NavigationType;
 
 public class Utilities {
     private double[] robotPose = null;
@@ -23,6 +26,8 @@ public class Utilities {
     private LimeLight3ACamera limelight;
     private Telemetry telemetry;
     
+    private boolean loopExit = false;
+    
     public Utilities(MecanumRobotController rbtController,
         FlyWheelController fwController,
         IntakeController inController,
@@ -37,12 +42,16 @@ public class Utilities {
     }
     
     public void turnToGoalAndShoot(int goalID, int camWaitTime){
+        // Speed up well ahead so that no delay in shooting.
+        intakeController.setShootPower();
+        
         // Turn towards the goal.
         turnToGoal(goalID,camWaitTime);
 
         // Return if no target in vision.
         if(robotPose==null){
-            telemetry.speak("No");
+            //telemetry.speak("No");
+            intakeController.resetPower();
             return;
         }        
 
@@ -51,16 +60,24 @@ public class Utilities {
         flyWheelController.convertToVelocity(distance);
         
         // Shoot
-        openDoor();
+        if (distance<96){
+            shootOnce();
+        }else{
+            shootOneByOne(800, 200); //800 ms: the gate will be open; 200ms: intake will be stopped in between two shots 
+        }        
     }
 
     public void turnToGoalAndShoot(int goalID, int camWaitTime, int doorOpenTime){
+        // Speed up well ahead so that no delay in shooting.
+        intakeController.setShootPower();
+
         // Turn towards the goal.
         turnToGoal(goalID,camWaitTime);
 
         // Return if no balls in vision.
         if(robotPose==null){
-            telemetry.speak("No");
+            //telemetry.speak("No");
+            intakeController.resetPower();
             return;
         }        
 
@@ -86,7 +103,7 @@ public class Utilities {
 
         // Return if no balls in vision.
         if(robotPose==null){
-            telemetry.speak("No");
+            //telemetry.speak("No");
             return;
         }        
 
@@ -97,22 +114,36 @@ public class Utilities {
         // Shoot
         shootOneByOne(intakeOnTime, intakeOffTime);
     }
+
+    public void shootOnce(){
+        flyWheelController.openDoor();
+    }
     
     public void shootOnce(int doorOpenTime){
-        openDoor();
+        intakeController.setShootPower();
+        flyWheelController.openDoor();
+        
         wait(doorOpenTime);
+        
         flyWheelController.closeDoor();
+        intakeController.resetPower();
     }
     
     public void shootOneByOne(int intakeOnTime, int intakeOffTime){
-        openDoor();
+        intakeController.stop();
+        flyWheelController.openDoor();
         for(int count=0;count<3;count++){
-            wait(intakeOnTime);
-            intakeController.stop();
             wait(intakeOffTime);
-            intakeController.start();
+            if(!loopExit){
+                intakeController.setShootPower();
+            }
+            wait(intakeOnTime);
+            if(!loopExit){
+                intakeController.stop();
+            }
         }
         flyWheelController.closeDoor();
+        intakeController.resetPower();// 
     }
     
     public void turnToBallAndCollect(int camWaitTime){
@@ -120,18 +151,25 @@ public class Utilities {
         turnToBall(camWaitTime);
         
         if(robotPose==null){
-            telemetry.speak("No");
+            //telemetry.speak("No");
             return;
         }
         
         // Collect ball.
         robotController.goForward(collectionMoveSpeed, kDistance*robotPose[2]);
+        
+        //wait(100);
+        //robotController.goForward(collectionMoveSpeed, robotPose[2]/22.0, TimeUnit.SECONDS);
+        
+        //robotController.goToPosition(collectionMoveSpeed, robotPose[2], DistanceUnit.INCH, NavigationType.GOFORWARD);
+        
+        //robotController.goForward(collectionMoveSpeed);
     }
     
     public void turnToGoal(int gID, int camWaitTime){
         robotPose = limelight.getRobotPoseRelativeToGoal(gID,camWaitTime);
         if(robotPose==null){
-            telemetry.addLine("Goal out of vision!");
+            //telemetry.addLine("Goal out of vision!");
             return;
         }
         
@@ -141,11 +179,11 @@ public class Utilities {
     public void turnToBall(int camWaitTime){
         robotPose = limelight.getRobotPoseRelativeToBall(camWaitTime);
         if(robotPose==null){
-            telemetry.addLine("Ball out of vision!");
+            //telemetry.addLine("Ball out of vision!");
             return;
         }
         
-        turnRobot(0.5,1.0);
+        turnRobot(0.5,1.0); // these two are modulating factors for left/right rotation
     }
 
     private void turnRobot(){
@@ -173,13 +211,20 @@ public class Utilities {
     }
     
     public void openDoor(){
+        intakeController.setShootPower();
         flyWheelController.openDoor();
-        intakeController.restartIfStalled(true);
     }
     
     public void wait(int ms){
         waitTimer.reset();
-        while(waitTimer.milliseconds()<ms);
+        loopExit = false;
+        while(!loopExit && waitTimer.milliseconds()<ms);
     }
     
+    public void resetRobot(){
+        loopExit = true;
+        robotController.stop();
+        flyWheelController.closeDoor();
+        intakeController.start();        
+    }
 }
