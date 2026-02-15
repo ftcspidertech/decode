@@ -67,8 +67,8 @@ public class LimeLight3ACamera{
     }
 
     public double[] getRobotPoseRelativeToBall(int waitTime) {
-        double[] poseP = getRobotPoseRelativeToPurpleBall(waitTime/2);
-        double[] poseG = getRobotPoseRelativeToGreenBall(waitTime/2);
+        double[] poseP = getRobotPoseRelativeToPurpleBall(waitTime);
+        double[] poseG = getRobotPoseRelativeToGreenBall(waitTime);
         double[] robotPose;
         
         if(poseP==null){
