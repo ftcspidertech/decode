@@ -103,11 +103,11 @@ public abstract class AutoDecode extends OpMode{
         robotController.setCalibrationFactors(left, right);
     }
 
-    protected void setGoalPipelineID(){
-        limelight.setPipelineID(goalPipelineID);
+    protected void setGoalPipelineID(int waitTime){
+        limelight.setPipelineID(goalPipelineID,waitTime);
     }
 
-    protected void setBallPipelineID(){
-        limelight.setPipelineID(ballPipelineID);
+    protected void setBallPipelineID(int waitTime){
+        limelight.setPipelineID(ballPipelineID,waitTime);
     }    
 }
