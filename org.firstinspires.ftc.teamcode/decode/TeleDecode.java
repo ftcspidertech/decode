@@ -23,11 +23,13 @@ public abstract class TeleDecode extends OpMode {
     private boolean triggerPressed = false;
     
     protected int goalID = 24;
-    protected double kMove = 0.9;
-    protected double kTurn = 0.9;
+    protected double kMove = 0.85;
+    protected double kTurn = 0.75;
     protected double kCorrection = 0.9;
     protected double correctionTurnSpeed = 0.1;
     protected double collectionMoveSpeed = 0.25;
+    protected double kCorrLeft = 0.9;
+    protected double kCorrRight = 0.9;
 
     protected abstract void initTeleDecode();
 
@@ -169,15 +171,15 @@ public abstract class TeleDecode extends OpMode {
     }
 
     private void turnToGoalAndShoot(int camWaitTime){
-        utilities.turnToGoalAndShoot(goalID,camWaitTime);
+        utilities.turnToGoalAndShoot(goalID,camWaitTime,kCorrLeft,kCorrRight);
     }
 
     private void turnToGoalAndShoot(int camWaitTime, int doorOpenTime){
-        utilities.turnToGoalAndShoot(goalID,camWaitTime,doorOpenTime);
+        utilities.turnToGoalAndShoot(goalID,camWaitTime,doorOpenTime,kCorrLeft,kCorrRight);
     }
 
     private void turnToGoalAndShootOneByOne(int camWaitTime){
-        utilities.turnToGoalAndShootOneByOne(goalID,camWaitTime,800,200);
+        utilities.turnToGoalAndShootOneByOne(goalID,camWaitTime,800,200,kCorrLeft,kCorrRight);
     }
 
     private void turnToBallAndCollect(int camWaitTime){
