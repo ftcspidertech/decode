@@ -48,13 +48,13 @@ public class LimeLight3ACamera{
     }
 
     public double[] getRobotPoseRelativeToGoal(int gID, int waitTime) {
-        updatePipeline(gID);
-        wait(50);
+        updatePipeline(gID,waitTime);
+        //wait(50);
         
         LLResult result;// = limelight.getLatestResult();
         List<FiducialResult> fiducials;// = result.getFiducialResults();
         double[] robotPose = null;
-        double ms;
+        //double ms;
         
         waitTimer.reset();
         result = limelight.getLatestResult();
@@ -62,8 +62,7 @@ public class LimeLight3ACamera{
         while(!result.isValid() && waitTimer.milliseconds()<=waitTime){
             result = limelight.getLatestResult();
             //ms = waitTimer.milliseconds();
-        }
-        
+        }        
         if(result.isValid()){
             telemetry.addLine("Valid result found");
         }else{
@@ -83,8 +82,7 @@ public class LimeLight3ACamera{
         }else{
             telemetry.addLine("Tag not found");
             return robotPose;
-        }
-        
+        }        
 
         for (FiducialResult fiducial : fiducials) {
             if(fiducial.getFiducialId()==goalID){
@@ -188,18 +186,40 @@ public class LimeLight3ACamera{
 
     public double[] getRobotPoseRelativeToBall(int id, int waitTime) {
         pipelineID = id;
-        while(!limelight.pipelineSwitch(pipelineID));
+        setPipelineID(pipelineID,waitTime);
+        //while(!limelight.pipelineSwitch(pipelineID));        
+        //wait(waitTime);
         
-        wait(waitTime);
-        
-        LLResult result = limelight.getLatestResult();
-        List<ColorResult> colorTargets = result.getColorResults();
+        LLResult result;// = limelight.getLatestResult();
+        List<ColorResult> colorTargets;// = result.getColorResults();
         double[] robotPose = null;
-        
-        for (ColorResult colorTarget : colorTargets) {
+
+        waitTimer.reset();
+        result = limelight.getLatestResult();
+        while(!result.isValid() && waitTimer.milliseconds()<=waitTime){
+            result = limelight.getLatestResult();
+        }        
+        if(result.isValid()){
+            telemetry.addData("Valid ball result found",id);
+        }else{
+            telemetry.addData("Valid ball result not found",id);
+            return robotPose;
+        }
+
+        waitTimer.reset();
+        colorTargets = result.getColorResults();
+        while(colorTargets.size()==0 && waitTimer.milliseconds()<=waitTime){
+            colorTargets = result.getColorResults();
+        }
+        if(colorTargets.size()>0){
+            telemetry.addData("Ball found",id);
+        }else{
+            telemetry.addData("Ball not found",id);
+            return robotPose;
+        }
             
-            robotPose = new double[3];
-            
+        for (ColorResult colorTarget : colorTargets) {            
+            robotPose = new double[3];            
             robotPose[0] = colorTarget.getTargetXDegrees();
             robotPose[1] = colorTarget.getTargetYDegrees();
             robotPose[2] = (0-14)/Math.tan(Math.toRadians(robotPose[1]+3));
@@ -210,9 +230,7 @@ public class LimeLight3ACamera{
         return robotPose;
     }
 
-
-
-    private void updatePipeline(int gID){
+    private void updatePipeline(int gID, int waitTime){
         if(gID!=goalID){
             goalID = gID;
         }
@@ -221,7 +239,8 @@ public class LimeLight3ACamera{
         }else{
             pipelineID = 2; // Pipeline for red
         }
-        while(!limelight.pipelineSwitch(pipelineID));
+        //while(!limelight.pipelineSwitch(pipelineID));
+        setPipelineID(pipelineID,waitTime);
     } 
     
     /*
