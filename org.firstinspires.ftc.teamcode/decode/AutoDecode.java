@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.decode.FlyWheelController;
 import org.firstinspires.ftc.teamcode.decode.IntakeController;
 //import org.firstinspires.ftc.teamcode.vision.GoalTagProcessor;
 import org.firstinspires.ftc.teamcode.vision.LimeLight3ACamera;
+import org.firstinspires.ftc.teamcode.decode.Utilities;
 
 
 public abstract class AutoDecode extends OpMode{
@@ -17,18 +18,31 @@ public abstract class AutoDecode extends OpMode{
     protected IntakeController intakeController = null;
     //protected GoalTagProcessor goalTagProcessor = null;
     protected LimeLight3ACamera limelight = null;
-    private double[] robotPose;
+    protected double[] robotPose;
     protected double kCorrection = 0.9;
     protected double correctionTurnSpeed = 0.1;
-    protected double collectionMoveSpeed = 0.25;
-    
+    protected double collectionMoveSpeed = 0.125;
+    protected int goalID = 24; // Default is Red
+    protected int goalPipelineID = 2; // For Red
+    protected int ballPipelineID = 1; // For purple ball
+
     private int flyWheelVelocity = 1500;
-    private ElapsedTime waitTimer = new ElapsedTime();
+    //private ElapsedTime waitTimer = new ElapsedTime();
+    
+    protected Utilities utilities;
+    
+    protected abstract void initAutoDecode();
     
     @Override
     public void init() {
         // Initialize controllers
         initControllers();
+        // Goal specific initialization.
+        initAutoDecode();
+        utilities.correctionTurnSpeed = correctionTurnSpeed;
+        utilities.collectionMoveSpeed = collectionMoveSpeed;
+        // Display status
+        telemetry.addData("Status", "Alhamdulillah, Robot controllers initialized");
     }
 
     private void initControllers(){
@@ -43,20 +57,7 @@ public abstract class AutoDecode extends OpMode{
         limelight = new LimeLight3ACamera(hardwareMap,telemetry);
         limelight.start();
         
-        // Initially pause camera stream.
-        //goalTagProcessor.stopStreaming();
-        
-        // Close exit door.
-        //flyWheelController.closeDoor();
-        
-        // Starting flywheel early.
-        //flyWheelController.setVelocity(flyWheelVelocity);
-    
-        // Start intake wheels
-        //intakeController.start();
-        
-        // Display status
-        telemetry.addData("Status", "Robot controllers initialized");                
+        utilities = new Utilities(robotController,flyWheelController,intakeController,limelight,telemetry);
     }
     
     @Override
@@ -78,90 +79,35 @@ public abstract class AutoDecode extends OpMode{
         limelight.stop();
     }
     
-    protected void turnToGoalAndShoot(int gID, int camWaitTime, int doorOpenTime){
-        // Turn towards the goal.
-        turnToGoal(gID,camWaitTime);
-
-        // Return if no balls in vision.
-        if(robotPose==null){
-            return;
-        }        
-
-        // Set fly wheel velocity.
-        double distance = robotPose[2];
-        flyWheelController.convertToVelocity(distance);
-        
-        // Wait before shoot
-        //wait(25);
-        
-        // Shoot
-        if (x<96){
-            openDoor();
-            wait(doorOpenTime);
-            flyWheelController.closeDoor();
-        }else{
-            openDoor();
-            for(int count=0;count<3;count++){
-                wait(500);
-                intakeController.stop();
-                wait(500);
-                intakeController.start();
-            }
-            flyWheelController.closeDoor();
-        }        
+    protected void turnToGoalAndShoot(int camWaitTime, int doorOpenTime){
+        utilities.turnToGoalAndShoot(goalID,camWaitTime,doorOpenTime);
     }
 
-    private void turnToBallAndCollect(int camWaitTime){
-        // Turn towards a ball.
-        turnToBall(camWaitTime);
-        
-        if(robotPose==null){
-            return;
-        }
-        
-        // Collect ball.
-        robotController.goForward(collectionMoveSpeed, robotPose[2]);
-    }
-    
-    protected void turnToGoal(int gID, int camWaitTime){
-        robotPose = limelight.getRobotPoseRelativeToGoal(gID,camWaitTime);
-        if(robotPose==null){
-            telemetry.addLine("Goal out of vision!");
-            return;
-        }
-        
-        turnRobot();
+    protected void turnToGoalAndShootOneByOne(int camWaitTime,int intakeOnTime, int intakeOffTime){
+        utilities.turnToGoalAndShootOneByOne(goalID, camWaitTime, intakeOnTime, intakeOffTime);    
     }
 
-    protected void turnToBall(int camWaitTime){
-        robotPose = limelight.getRobotPoseRelativeToBall(camWaitTime);
-        if(robotPose==null){
-            telemetry.addLine("Ball out of vision!");
-            return;
-        }
-        
-        turnRobot();
-    }
-
-    private void turnRobot(){
-        if(robotPose[0]<0){
-            robotController.turnLeft(correctionTurnSpeed,Math.abs(kCorrection*robotPose[0]));
-        }else if(robotPose[0]>0){
-            robotController.turnRight(correctionTurnSpeed,Math.abs(kCorrection*robotPose[0]));
-        }
+    protected void turnToBallAndCollect(int camWaitTime){
+        utilities.turnToBallAndCollect(camWaitTime);
     }
     
     protected void openDoor(){
-        flyWheelController.openDoor();
-        intakeController.restartIfStalled(true);
+        utilities.openDoor();
     }
     
     protected void wait(int ms){
-        waitTimer.reset();
-        while(waitTimer.milliseconds()<ms);
+        utilities.wait(ms);
     }
     
     protected void setCalibrationFactors(double left, double right){
         robotController.setCalibrationFactors(left, right);
+    }
+
+    protected void setGoalPipelineID(){
+        limelight.setPipelineID(goalPipelineID);
+    }
+
+    protected void setBallPipelineID(){
+        limelight.setPipelineID(ballPipelineID);
     }    
 }
