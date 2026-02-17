@@ -55,7 +55,7 @@ public class BLUE_Auto_Position2  extends BLUE_AutoDecode{
                 wait(shootTime);
                 flyWheelController.closeDoor();
             }
-            //setBallPipelineID();
+            setBallPipelineID(100);
             
             // Task1 done             
             taskOneDone = true;
@@ -71,7 +71,7 @@ public class BLUE_Auto_Position2  extends BLUE_AutoDecode{
             if(utilities.robotPose==null){
                 robotController.goForward(movePower*.5,2.3,TimeUnit.SECONDS);
             }
-            //setGoalPipelineID();
+            setGoalPipelineID(100);
             wait(100);
             robotController.goBackward(movePower*.5,2.2,TimeUnit.SECONDS);
             
@@ -86,7 +86,7 @@ public class BLUE_Auto_Position2  extends BLUE_AutoDecode{
                 wait(2000);
                 flyWheelController.closeDoor();
             }
-            //setBallPipelineID();
+            setBallPipelineID(100);
 
             // Task2 done.
             taskTwoDone = true;
@@ -104,7 +104,7 @@ public class BLUE_Auto_Position2  extends BLUE_AutoDecode{
             if(utilities.robotPose==null){
                 robotController.goForward(movePower*.5,2.5,TimeUnit.SECONDS);
             }
-            //setGoalPipelineID();
+            setGoalPipelineID(100);
             
             wait(100);
             robotController.goBackward(movePower,1.25,TimeUnit.SECONDS);
