@@ -66,8 +66,8 @@ public class TestCamera extends OpMode {
             telemetry.addData("Out of vision","");
         }*/
         
-        //double[] robotPose = limelight.getRobotPoseRelativeToGoal(20,100);
-        double[] robotPose = limelight.getRobotPoseRelativeToBall(100);
+        double[] robotPose = limelight.getRobotPoseRelativeToGoal(20,100);
+        //double[] robotPose = limelight.getRobotPoseRelativeToBall(200);
         if(robotPose==null){
             telemetry.addLine("Goal out of vision!");
             return;
@@ -77,20 +77,22 @@ public class TestCamera extends OpMode {
 
         if(!turnTaskDone){
             
+            /*
             if(robotPose[0]<0){
                 robot.turnLeft(0.1,Math.abs(kTurn*robotPose[0]));
             }else if(robotPose[0]>0){
                 robot.turnRight(0.1,Math.abs(kTurn*robotPose[0]));
-            }
+            }*/
             
             turnTaskDone = true;
         }
         
+        /*
         if(!moveTaskDone){
             robot.goForward(0.1,Math.abs(kMove*robotPose[2]));
             
             moveTaskDone = true;
-        }
+        }*/
         
     }
     
