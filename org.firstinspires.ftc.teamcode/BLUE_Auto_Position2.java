@@ -48,13 +48,14 @@ public class BLUE_Auto_Position2  extends BLUE_AutoDecode{
             // Open the exit door. Keep it open for long enough to throw all the balls.
             utilities.turnToGoalAndShoot(goalID,200,shootTime,kGoalLeft,kGoalRight);
             if(utilities.robotPose==null){
-                 telemetry.addLine("Task1-No-Shoot");
-                  telemetry.update();
-                telemetry.addLine("No");
+                //telemetry.addLine("Task1-No-Shoot");
+                //telemetry.update();
+                //telemetry.addLine("No");
                 utilities.openDoor();
                 wait(shootTime);
                 flyWheelController.closeDoor();
             }
+            //setBallPipelineID();
             
             // Task1 done             
             taskOneDone = true;
@@ -66,11 +67,11 @@ public class BLUE_Auto_Position2  extends BLUE_AutoDecode{
             //wait(100);
 
             kDistance = 0.85;
-            utilities.turnToBallAndCollect(200,kBallLeft,kBallRight,movePower,kDistance);
-            
+            utilities.turnToBallAndCollect(200,kBallLeft,kBallRight,movePower,kDistance);            
             if(utilities.robotPose==null){
                 robotController.goForward(movePower*.5,2.3,TimeUnit.SECONDS);
             }
+            //setGoalPipelineID();
             wait(100);
             robotController.goBackward(movePower*.5,2.2,TimeUnit.SECONDS);
             
@@ -79,12 +80,13 @@ public class BLUE_Auto_Position2  extends BLUE_AutoDecode{
             wait(100);
             utilities.turnToGoalAndShoot(goalID,200,shootTime,kGoalLeft,kGoalRight);
             if(utilities.robotPose==null){
-                telemetry.addLine("Task2-No-Shoot");
-                telemetry.update();
+                //telemetry.addLine("Task2-No-Shoot");
+                //telemetry.update();
                 utilities.openDoor();
                 wait(2000);
                 flyWheelController.closeDoor();
             }
+            //setBallPipelineID();
 
             // Task2 done.
             taskTwoDone = true;
@@ -102,6 +104,8 @@ public class BLUE_Auto_Position2  extends BLUE_AutoDecode{
             if(utilities.robotPose==null){
                 robotController.goForward(movePower*.5,2.5,TimeUnit.SECONDS);
             }
+            //setGoalPipelineID();
+            
             wait(100);
             robotController.goBackward(movePower,1.25,TimeUnit.SECONDS);
             wait(100);
@@ -111,13 +115,13 @@ public class BLUE_Auto_Position2  extends BLUE_AutoDecode{
             wait(100);
             utilities.turnToGoalAndShoot(goalID,200,shootTime,kGoalLeft,kGoalRight);
             if(utilities.robotPose==null){
-                 telemetry.addLine("Task3-No-Shoot");
-                  telemetry.update();
+                //telemetry.addLine("Task3-No-Shoot");
+                //telemetry.update();
                 utilities.openDoor();
                 wait(2000);
                 flyWheelController.closeDoor();
             }
-
+            
             robotController.slideLeft(movePower,1000,TimeUnit.MILLISECONDS);
 
             // Task3 done.
