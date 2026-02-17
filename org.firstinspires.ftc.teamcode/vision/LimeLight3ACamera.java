@@ -237,6 +237,10 @@ public class LimeLight3ACamera{
         waitTimer.reset();
         while(waitTimer.milliseconds()<ms);
     }
-    
+
+    public void setPipelineID(int pipelineID, int timeout){
+        waitTimer.reset();
+        while(!limelight.pipelineSwitch(pipelineID) && waitTimer.milliseconds()<=timeout);
+    }
 
 }
