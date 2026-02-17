@@ -11,13 +11,13 @@ public class IntakeController {
 
     private DcMotorEx intakeMotor;
     private Gamepad gamepad;
-    private double currentPower = 0.725;
+    private double regularPower = 1.0;
     private double shootPower = 1.0;
     private Telemetry telemetry;
     private boolean isRunning = false;
     private boolean isIntakeMode = true;
     private ElapsedTime stallTimer =  new ElapsedTime();
-    public int MIN_VELOCITY = 750; // 250 ticks
+    public int MIN_VELOCITY = 250; // 250 ticks
     private final double MIN_WAIT = 0.25; // seconds
 
     public IntakeController(HardwareMap hardwareMap, Gamepad pad, Telemetry tmetry){
@@ -31,23 +31,23 @@ public class IntakeController {
     public void run(){
         if (gamepad.startWasPressed()) {
             if(!isRunning){
-                setPower(currentPower);
+                setPower(regularPower);
             }else{
                 if(isIntakeMode){ // intakeMotor.getPower()<0
                     stop();
                 }else{
                     stop();
-                    setPower(currentPower);
+                    setPower(regularPower);
                 }
             }
             isIntakeMode = true;
         }else if(gamepad.backWasPressed()){
             if(!isRunning){
-                setPower(-currentPower);
+                setPower(-regularPower);
             }else{
                 if(isIntakeMode){ // intakeMotor.getPower()>0
                     stop();
-                    setPower(-currentPower);
+                    setPower(-regularPower);
                 }else{
                     stop();
                 }
@@ -57,19 +57,23 @@ public class IntakeController {
 
         // Start the motor for shoorting (if stalled before).
         restartIfStalled(gamepad.y);
+        //*
         if(gamepad.y){
             setShootPower();
         }else{
-            //if(intakeMotor.getPower()!=0){
-            //    resetPower();
-            //}
-        }
+            if(intakeMotor.getPower()!=0 && intakeMotor.getPower()!=regularPower){
+                resetPower();
+            }
+        }//*/
 
         // Check if the motor stalled for multiple balls.
         stopIfStalled();
     }
 
     private void setPower(double power){
+        if(power==intakeMotor.getPower()){
+            return;
+        }
         intakeMotor.setPower(power);
         isRunning = true;
         stallTimer.reset();
@@ -77,9 +81,9 @@ public class IntakeController {
     
     public void start(){
         if(isIntakeMode){
-            setPower(currentPower);
+            setPower(regularPower);
         }else{
-            setPower(-currentPower);
+            setPower(-regularPower);
         }       
     } 
 
@@ -93,7 +97,7 @@ public class IntakeController {
            Math.abs(intakeMotor.getVelocity())<MIN_VELOCITY){
             // First, set opposite motion to release the pressure on the exit door.
             if(isIntakeMode){
-                setPower(-currentPower);
+                setPower(-regularPower);
                 try{
                     Thread.sleep(100);
                 }catch(InterruptedException e){
@@ -124,4 +128,5 @@ public class IntakeController {
     public void resetPower(){
         start();
     }
+    
 }
