@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.CRServo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.decode.IntakeController;
 
 public class FlyWheelController {
 
@@ -16,7 +17,7 @@ public class FlyWheelController {
     private Telemetry telemetry;
     private int maxVelocity = 2800;
     private int minVelocity = 1000;
-    private int currentVelocity = 1500;
+    private int currentVelocity = 1600;
     private double WHEELS_INCHES_TO_TICKS = (28 * 5 * 3) / (3 * Math.PI);
     private boolean flyWheelStarted = false;
     private boolean rightBumperPressed = false;
@@ -25,7 +26,7 @@ public class FlyWheelController {
     private double closePower = -0.25;
     private double openPower = 0.6; // -1
     private double a=0.027392, b=3.0918, c=1386.40407;
-    
+
 
     public FlyWheelController(HardwareMap hardwareMap, Gamepad pad, Telemetry tmetry){
         flywheel = hardwareMap.get(DcMotor.class, "flywheel");
@@ -74,16 +75,16 @@ public class FlyWheelController {
                 ((DcMotorEx) flywheel).setVelocity(currentVelocity);
                 flyWheelStarted = true;
             }else{
-                //((DcMotorEx) flywheel).setVelocity(0);
-                //flyWheelStarted = false;
+                ((DcMotorEx) flywheel).setVelocity(0);
+                flyWheelStarted = false;
             }
         }//*/
         
         // Servo power
         if (gamepad.y){
-            servo.setPower(openPower);
+             openDoor();
         }else{
-            servo.setPower(closePower);
+            closeDoor();
         }
     }
 
@@ -98,7 +99,7 @@ public class FlyWheelController {
     }
 
     public void convertToVelocity(double x){
-        setVelocity((int)Math.min(2150, a*x*x + b*x + c));
+        setVelocity((int)Math.min(2150, 0.97*(a*x*x + b*x + c)));
     }
     
     public void stopFlyWheel(){
@@ -117,7 +118,6 @@ public class FlyWheelController {
     public void stop(){
         stopFlyWheel();
         closeDoor();
-       // openDoor();
     }
 
 }
