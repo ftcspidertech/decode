@@ -5,7 +5,10 @@ import org.firstinspires.ftc.teamcode.decode.AutoDecode;
 public abstract class RED_AutoDecode extends AutoDecode{
 
     protected void initAutoDecode(){
-        goalID = 20;
+        goalID = 24;
+        goalPipelineID = 0;
+        //correctionTurnSpeed = 0.1;
+        //collectionMoveSpeed = 0.125;
     }
     
 }
