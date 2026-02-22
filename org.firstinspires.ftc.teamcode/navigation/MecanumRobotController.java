@@ -437,6 +437,104 @@ public class MecanumRobotController {
         }
     }
 
+    public void goToPosition(double speed, double distance, DistanceUnit unit, NavigationType navType) {
+        int targetPosition;
+        long waitTime = 10; // milliseconds
+        int tolerance = 100;
+        int leftDiff=tolerance+1,rightDiff=tolerance+1;
+        
+        // Reset motor encoders.
+        frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        if(!useSingleWheelRef){        
+            backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
+            frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
+            backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
+        
+        // Calculate target tick number.
+        targetPosition = getTargetTickNumber(distance, unit);
+
+        // Set target positions
+        if(navType==NavigationType.GOFORWARD){
+            frontLeftMotor.setTargetPosition(frontLeftMotor.getCurrentPosition() + targetPosition);
+            if(!useSingleWheelRef){
+                backLeftMotor.setTargetPosition(backLeftMotor.getCurrentPosition() + targetPosition);
+                frontRightMotor.setTargetPosition(frontRightMotor.getCurrentPosition() + targetPosition);
+                backRightMotor.setTargetPosition(backRightMotor.getCurrentPosition() + targetPosition);
+            }
+        }else if(navType==NavigationType.GOBACKWARD){
+            frontLeftMotor.setTargetPosition(frontLeftMotor.getCurrentPosition() - targetPosition);
+            if(!useSingleWheelRef){
+                backLeftMotor.setTargetPosition(backLeftMotor.getCurrentPosition() - targetPosition);
+                frontRightMotor.setTargetPosition(frontRightMotor.getCurrentPosition() - targetPosition);
+                backRightMotor.setTargetPosition(backRightMotor.getCurrentPosition() - targetPosition);
+            }
+        }else if(navType==NavigationType.TURNLEFT){
+            frontLeftMotor.setTargetPosition(frontLeftMotor.getCurrentPosition() - targetPosition);
+            if(!useSingleWheelRef){
+                backLeftMotor.setTargetPosition(backLeftMotor.getCurrentPosition() - targetPosition);
+                frontRightMotor.setTargetPosition(frontRightMotor.getCurrentPosition() + targetPosition);
+                backRightMotor.setTargetPosition(backRightMotor.getCurrentPosition() + targetPosition);
+            }
+        }else{//navType==NavigationType.TURNRIGHT
+            frontLeftMotor.setTargetPosition(frontLeftMotor.getCurrentPosition() + targetPosition);
+            if(!useSingleWheelRef){
+                backLeftMotor.setTargetPosition(backLeftMotor.getCurrentPosition() + targetPosition);
+                frontRightMotor.setTargetPosition(frontRightMotor.getCurrentPosition() - targetPosition);
+                backRightMotor.setTargetPosition(backRightMotor.getCurrentPosition() - targetPosition);
+            }
+        }
+        
+        // Set motor options
+        frontLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+       if(!useSingleWheelRef){
+            backLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            frontRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            backRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+       }
+        
+        // Set power and move the robot. Wait until it's done.
+        speed = Math.abs(speed);
+        try{            
+            // Loop until within tolerance
+            loopExit = false;
+            while(!loopExit && notWithinTolerance(targetPosition,tolerance)){
+            //while(!loopExit && isMotorBusy()){
+            //while (leftDiff>tolerance || rightDiff>tolerance) {
+                if(navType==NavigationType.GOBACKWARD){
+                    goBackward(speed);
+                }else{
+                    goForward(speed);
+                }
+                Thread.sleep(waitTime);
+
+                if(useSingleWheelRef){
+                    leftDiff = Math.abs(Math.abs(frontLeftMotor.getCurrentPosition())-Math.abs(targetPosition));
+                    rightDiff = 0;
+                }else{
+                    leftDiff = (Math.abs(Math.abs(frontLeftMotor.getCurrentPosition())-Math.abs(targetPosition)) + 
+                               Math.abs(Math.abs(backLeftMotor.getCurrentPosition())-Math.abs(targetPosition)))/2;
+                    rightDiff = (Math.abs(Math.abs(frontRightMotor.getCurrentPosition())-Math.abs(targetPosition)) + 
+                               Math.abs(Math.abs(backRightMotor.getCurrentPosition())-Math.abs(targetPosition)))/2;
+                }
+            }                        
+        } catch (Exception e) {
+            telemetry.addData("Error: ", e.getMessage());
+            telemetry.update();
+        }
+        
+        // Stop motors.
+        stop();
+
+        // Switch back to normal mode
+        frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        if(!useSingleWheelRef){
+            backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+    }
+    
     public void goToPosition(double speed, double distance, DistanceUnit unit, NavigationType navType, int timeout) {
         int targetPosition;
         long waitTime = 10; // milliseconds
