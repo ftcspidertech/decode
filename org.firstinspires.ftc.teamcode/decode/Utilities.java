@@ -242,7 +242,24 @@ public class Utilities {
         // Collect ball.
         //kDistance = 0.9;
         //robotController.goForward(collectionMoveSpeed, kDistance*robotPose[2]);
-        robotController.goToPosition(moveSpeed, kDist*robotPose[2], DistanceUnit.INCH, NavigationType.GOFORWARD);
+        robotController.goToPosition(moveSpeed, kDist*robotPose[2], DistanceUnit.INCH, NavigationType.GOFORWARD, timeout);
+    }
+
+    
+    public void turnToBallAndCollect(int camWaitTime, double kLeft, double kRight, 
+        double moveSpeed, double kDist, int timeout){
+        // Turn towards a ball.
+        turnToBall(camWaitTime,kLeft,kRight);
+        
+        if(robotPose==null){
+            //telemetry.speak("No");
+            return;
+        }
+        
+        // Collect ball.
+        //kDistance = 0.9;
+        //robotController.goForward(collectionMoveSpeed, kDistance*robotPose[2]);
+        robotController.goToPosition(moveSpeed, kDist*robotPose[2], DistanceUnit.INCH, NavigationType.GOFORWARD, timeout);
     }
     
     public void turnToBallAndCollect(int camWaitTime){
