@@ -46,6 +46,7 @@ public class MecanumRobotController {
     private double rightCalibrationFactor = 1.0;
     
     private ElapsedTime timer = null;
+    private ElapsedTime timeoutTimer = null;
     public boolean useSingleWheelRef = false;
     
     private boolean loopExit = false;
@@ -126,6 +127,7 @@ public class MecanumRobotController {
         
         // Timer
         timer = new ElapsedTime();
+        timeoutTimer = new ElapsedTime();
     }
 
     public void setPower(double frontLeftPower, double backLeftPower, 
@@ -435,7 +437,7 @@ public class MecanumRobotController {
         }
     }
 
-    public void goToPosition(double speed, double distance, DistanceUnit unit, NavigationType navType) {
+    public void goToPosition(double speed, double distance, DistanceUnit unit, NavigationType navType, int timeout) {
         int targetPosition;
         long waitTime = 10; // milliseconds
         int tolerance = 100;
@@ -496,7 +498,8 @@ public class MecanumRobotController {
         try{            
             // Loop until within tolerance
             loopExit = false;
-            while(!loopExit && notWithinTolerance(targetPosition,tolerance)){
+            timeoutTimer.reset();
+            while(!loopExit && notWithinTolerance(targetPosition,tolerance) && timeoutTimer.milliseconds()<=timeout){
             //while(!loopExit && isMotorBusy()){
             //while (leftDiff>tolerance || rightDiff>tolerance) {
                 if(navType==NavigationType.GOBACKWARD){
