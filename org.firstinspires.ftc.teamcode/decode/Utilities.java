@@ -17,6 +17,9 @@ public class Utilities {
     public double kDistance = 0.85;
     public double correctionTurnSpeed = 0.1;
     public double collectionMoveSpeed = 0.125;
+    public double firstShootK = 1.05;
+    public double secondShootK = 0.9;
+    public double thirdShootK = 0.7;
     
     private ElapsedTime waitTimer = new ElapsedTime();
     
@@ -55,16 +58,12 @@ public class Utilities {
             return;
         }        
 
-        // Set fly wheel velocity.
-        double distance = robotPose[2];
-        flyWheelController.convertToVelocity(distance);
-        
         // Shoot
-        if (distance<96){
+        //if (distance<96){
             shootOnce();
-        }else{
-            shootOneByOne(800, 200); //800 ms: the gate will be open; 200ms: intake will be stopped in between two shots 
-        }        
+        //}else{
+        //    shootOneByOne(800, 200); //800 ms: the gate will be open; 200ms: intake will be stopped in between two shots 
+        //}        
     }
 
     public void turnToGoalAndShoot(int goalID, int camWaitTime, double kLeft, double kRight){
@@ -81,16 +80,12 @@ public class Utilities {
             return;
         }        
 
-        // Set fly wheel velocity.
-        double distance = robotPose[2];
-        flyWheelController.convertToVelocity(distance);
-        
         // Shoot
-        if (distance<96){
+        //if (distance<96){
             shootOnce();
-        }else{
-            shootOneByOne(800, 200); //800 ms: the gate will be open; 200ms: intake will be stopped in between two shots 
-        }        
+        //}else{
+        //    shootOneByOne(800, 200); //800 ms: the gate will be open; 200ms: intake will be stopped in between two shots 
+        //}        
     }
 
     public void turnToGoalAndShoot(int goalID, int camWaitTime, int doorOpenTime){
@@ -107,19 +102,12 @@ public class Utilities {
             return;
         }        
 
-        // Set fly wheel velocity.
-        double distance = robotPose[2];
-        flyWheelController.convertToVelocity(distance);
-        
-        // Wait before shoot
-        //wait(25);
-        
         // Shoot
-        if (distance<96){
+        //if (distance<96){
             shootOnce(doorOpenTime);
-        }else{
-            shootOneByOne(800, 200);
-        }        
+        //}else{
+        //    shootOneByOne(800, 200);
+        //}        
     }
 
     public void turnToGoalAndShoot(int goalID, int camWaitTime, int doorOpenTime, double kLeft, double kRight){
@@ -136,19 +124,12 @@ public class Utilities {
             return;
         }        
 
-        // Set fly wheel velocity.
-        double distance = robotPose[2];
-        flyWheelController.convertToVelocity(distance);
-        
-        // Wait before shoot
-        //wait(25);
-        
         // Shoot
-        if (distance<96){
+        //if (distance<96){
             shootOnce(doorOpenTime);
-        }else{
-            shootOneByOne(800, 200);
-        }        
+        //}else{
+        //    shootOneByOne(800, 200);
+        //}        
     }
     
     public void turnToGoalAndShootOneByOne(int goalID, int camWaitTime,
@@ -162,10 +143,6 @@ public class Utilities {
             return;
         }        
 
-        // Set fly wheel velocity.
-        double distance = robotPose[2];
-        flyWheelController.convertToVelocity(distance);
-        
         // Shoot
         shootOneByOne(intakeOnTime, intakeOffTime);
     }
@@ -181,31 +158,30 @@ public class Utilities {
             return;
         }        
 
-        // Set fly wheel velocity.
-        double distance = robotPose[2];
-        flyWheelController.convertToVelocity(distance);
-        
         // Shoot
         shootOneByOne(intakeOnTime, intakeOffTime);
     }
 
     public void shootOnce(){
+        flyWheelController.convertToVelocity(firstShootK*robotPose[2]);
         flyWheelController.openDoor();
         wait(666);
-        flyWheelController.convertToVelocity(0.95*robotPose[2]);
+        flyWheelController.convertToVelocity(secondShootK*robotPose[2]);
         wait(666);
-        flyWheelController.convertToVelocity(0.9*robotPose[2]);
+        flyWheelController.convertToVelocity(thirdShootK*robotPose[2]);
         wait(666);
     }
     
     public void shootOnce(int doorOpenTime){
+        flyWheelController.convertToVelocity(1.1*robotPose[2]);
+        
         intakeController.setShootPower();
         flyWheelController.openDoor();
         
         wait(doorOpenTime/3);
         flyWheelController.convertToVelocity(0.9*robotPose[2]);
         wait(doorOpenTime/3);
-        flyWheelController.convertToVelocity(0.8*robotPose[2]);
+        flyWheelController.convertToVelocity(0.7*robotPose[2]);
         wait(doorOpenTime/3);
         
         flyWheelController.closeDoor();
@@ -213,6 +189,7 @@ public class Utilities {
     }
     
     public void shootOneByOne(int intakeOnTime, int intakeOffTime){
+        flyWheelController.convertToVelocity(robotPose[2]);
         intakeController.stop();
         flyWheelController.openDoor();
         for(int count=0;count<3;count++){
@@ -226,7 +203,23 @@ public class Utilities {
             }
         }
         flyWheelController.closeDoor();
-        intakeController.resetPower();// 
+        intakeController.resetPower();
+    }
+
+    public void turnToBallAndCollect(int camWaitTime, double kLeft, double kRight, 
+        double moveSpeed, double kDist, int timeout){
+        // Turn towards a ball.
+        turnToBall(camWaitTime,kLeft,kRight);
+        
+        if(robotPose==null){
+            return;
+        }
+        
+        // Collect ball.
+        int preTimeout = robotController.timeout;
+        robotController.timeout = timeout;
+        robotController.goToPosition(moveSpeed, kDist*robotPose[2], DistanceUnit.INCH, NavigationType.GOFORWARD);
+        robotController.timeout = preTimeout;
     }
 
     public void turnToBallAndCollect(int camWaitTime, double kLeft, double kRight, 
@@ -242,24 +235,7 @@ public class Utilities {
         // Collect ball.
         //kDistance = 0.9;
         //robotController.goForward(collectionMoveSpeed, kDistance*robotPose[2]);
-        robotController.goToPosition(moveSpeed, kDist*robotPose[2], DistanceUnit.INCH, NavigationType.GOFORWARD, timeout);
-    }
-
-    
-    public void turnToBallAndCollect(int camWaitTime, double kLeft, double kRight, 
-        double moveSpeed, double kDist, int timeout){
-        // Turn towards a ball.
-        turnToBall(camWaitTime,kLeft,kRight);
-        
-        if(robotPose==null){
-            //telemetry.speak("No");
-            return;
-        }
-        
-        // Collect ball.
-        //kDistance = 0.9;
-        //robotController.goForward(collectionMoveSpeed, kDistance*robotPose[2]);
-        robotController.goToPosition(moveSpeed, kDist*robotPose[2], DistanceUnit.INCH, NavigationType.GOFORWARD, timeout);
+        robotController.goToPosition(moveSpeed, kDist*robotPose[2], DistanceUnit.INCH, NavigationType.GOFORWARD);
     }
     
     public void turnToBallAndCollect(int camWaitTime){
@@ -288,7 +264,6 @@ public class Utilities {
             //telemetry.addLine("Goal out of vision!");
             return;
         }
-        
         turnRobot();
     }
 
@@ -298,7 +273,6 @@ public class Utilities {
             //telemetry.addLine("Goal out of vision!");
             return;
         }
-        
         turnRobot(kLeft,kRight);
     }
 
@@ -324,6 +298,7 @@ public class Utilities {
     }
 
     private void turnRobot(){
+        wait(100);
         if(robotPose[0]<0){
             robotController.turnLeft(correctionTurnSpeed,Math.abs(kAngle*robotPose[0]));
         }else if(robotPose[0]>0){
@@ -332,6 +307,7 @@ public class Utilities {
     }
 
     private void turnRobot(double k){
+        wait(100);
         if(robotPose[0]<0){
             robotController.turnLeft(correctionTurnSpeed,Math.abs(k*robotPose[0]));
         }else if(robotPose[0]>0){
@@ -340,9 +316,13 @@ public class Utilities {
     }
 
     private void turnRobot(double kLeft, double kRight){
+        //telemetry.addData("tx",robotPose[0]);
+        wait(200);
         if(robotPose[0]<0){
+            //telemetry.addData("tx",kLeft*robotPose[0]);
             robotController.turnLeft(correctionTurnSpeed,Math.abs(kLeft*robotPose[0]));
         }else if(robotPose[0]>0){
+            //telemetry.addData("tx",kLeft*robotPose[0]);
             robotController.turnRight(correctionTurnSpeed,Math.abs(kRight*robotPose[0]));
         }
     }
