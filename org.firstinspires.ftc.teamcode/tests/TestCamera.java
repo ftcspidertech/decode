@@ -10,6 +10,10 @@ import org.firstinspires.ftc.teamcode.vision.GoalTagProcessor;
 import org.firstinspires.ftc.teamcode.navigation.MecanumRobotController;
 import org.firstinspires.ftc.teamcode.vision.LimeLight3ACamera;
 
+//import com.qualcomm.robotcore.util.ReadWriteFile;
+//import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+//import java.io.File;
+
 @TeleOp()
 public class TestCamera extends OpMode {
     //variables
@@ -20,7 +24,8 @@ public class TestCamera extends OpMode {
     private double kTurn = 0.9;
     private double kMove = 0.8;
     //private double[] rangeBearing;
-  
+    //StringBuilder sb = null;
+
     @Override
     public void init() {
 
@@ -28,6 +33,8 @@ public class TestCamera extends OpMode {
         limelight.start();
         
         robot = new MecanumRobotController(hardwareMap, telemetry);
+        
+        //sb = new StringBuilder();
 
         // Display status
         telemetry.addData("Status", "Initialized");
@@ -74,15 +81,15 @@ public class TestCamera extends OpMode {
         }
         telemetry.addData(">> Robot position","tx=%f deg, ty=%f deg, tz=%f inch",
             robotPose[0],robotPose[1],robotPose[2]);
+        //sb.append(robotPose[0]+","+robotPose[1]+","+robotPose[2]).append("\n");    
 
         if(!turnTaskDone){
             
-            /*
             if(robotPose[0]<0){
-                robot.turnLeft(0.1,Math.abs(kTurn*robotPose[0]));
+                robot.turnLeft(0.1,Math.abs(1.0*robotPose[0]));
             }else if(robotPose[0]>0){
-                robot.turnRight(0.1,Math.abs(kTurn*robotPose[0]));
-            }*/
+                robot.turnRight(0.1,Math.abs(0.75*robotPose[0]));
+            }
             
             turnTaskDone = true;
         }
@@ -101,5 +108,9 @@ public class TestCamera extends OpMode {
         robot.stop();
         //goalTagProcessor.close();
         limelight.stop();
+        
+        //String filename = "robotpose.txt";
+        //File file = AppUtil.getInstance().getSettingsFile(filename);
+        //ReadWriteFile.writeFile(file,sb.toString());
     }
 }
