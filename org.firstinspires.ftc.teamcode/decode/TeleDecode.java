@@ -10,11 +10,11 @@ import org.firstinspires.ftc.teamcode.decode.Utilities;
 
 public abstract class TeleDecode extends OpMode {
     //variables
-    private TeleMecanumRobotController teleRobotController;
-    private FlyWheelController flyWheelController;
-    private IntakeController intakeController;
+    protected TeleMecanumRobotController teleRobotController;
+    protected FlyWheelController flyWheelController;
+    protected IntakeController intakeController;
     private ElapsedTime runTimer = new ElapsedTime();
-    private LimeLight3ACamera limelight = null;
+    protected LimeLight3ACamera limelight = null;
     protected Utilities utilities;
     private double[] robotPose;
     private boolean doorOpen = false;
@@ -30,6 +30,10 @@ public abstract class TeleDecode extends OpMode {
     protected double collectionMoveSpeed = 0.25;
     protected double kCorrLeft = 0.9;
     protected double kCorrRight = 0.9;
+    protected int shootTime = 2250; // ms
+    protected int cameraWaitTime = 100; // ms
+    protected int doorOpenTime = 800;// 800 ms
+    protected int doorCloseTime = 700;// 200 ms
 
     protected abstract void initTeleDecode();
 
@@ -39,6 +43,8 @@ public abstract class TeleDecode extends OpMode {
         teleRobotController = new TeleMecanumRobotController(hardwareMap,gamepad1,telemetry);
         flyWheelController = new FlyWheelController(hardwareMap,gamepad1,telemetry);
         intakeController = new IntakeController(hardwareMap,gamepad1,telemetry);
+        intakeController.MIN_VELOCITY = 500;
+        intakeController.regularPower = 1.0;
         limelight = new LimeLight3ACamera(hardwareMap,telemetry);
         limelight.start();
         
@@ -48,6 +54,8 @@ public abstract class TeleDecode extends OpMode {
 
         utilities = new Utilities(teleRobotController.getRobotController(),
             flyWheelController,intakeController,limelight,telemetry);
+        utilities.correctionTurnSpeed=0.25;
+        
 
         // Display status
         telemetry.addData("Status", "Alhamdulillah, Robot controllers initialized");
@@ -78,7 +86,10 @@ public abstract class TeleDecode extends OpMode {
             requestOpModeStop();
         }//*/
         
-        // Turn towards a goal and shoot the balls at once.
+        /* 
+        Turn towards a goal and shoot the balls at once.
+        Assumption: Robot is on the line.
+        */
         if (gamepad1.aWasPressed()) {
             //telemetry.addLine("A was pressed");
             if(doorOpen){
@@ -88,7 +99,36 @@ public abstract class TeleDecode extends OpMode {
             }else{
                 doorOpen = true;
                 //turnToGoalAndShoot(100);
-                turnToGoalAndShoot(100,2250);
+                turnToGoalAndShoot(cameraWaitTime,shootTime);
+                doorOpen = false;
+            }
+            return;
+        }else{
+            if(doorOpen){
+                if(keyPressed()){
+                    utilities.resetRobot();
+                    //flyWheelController.closeDoor();
+                    //intakeController.resetPower();
+                    doorOpen = false;
+                }else{
+                    return;
+                }
+            }
+        }
+        
+        /* 
+        Turn towards a goal and shoot the balls at once.
+        Assumption: Robot is inside the bigger triangle.
+        */
+        if (gamepad1.xWasPressed()) {
+            //telemetry.addLine("X was pressed");
+            if(doorOpen){
+                // Toggle action
+                //utilities.resetRobot();
+                //doorOpen = false;
+            }else{
+                doorOpen = true;
+                turnToGoalAndShootFromInside(cameraWaitTime,shootTime);
                 doorOpen = false;
             }
             return;
@@ -112,8 +152,9 @@ public abstract class TeleDecode extends OpMode {
                 //utilities.resetRobot();
                 //oneByOneShootStarted = false;
             }else{
+                telemetry.addLine("B pressed for shooting");
                 oneByOneShootStarted = true;
-                turnToGoalAndShootOneByOne(100);
+                turnToGoalAndShootOneByOne(cameraWaitTime);
                 oneByOneShootStarted = false;
             }
             return;
@@ -132,7 +173,7 @@ public abstract class TeleDecode extends OpMode {
         
         
         // Turn towards a ball and collect it.
-        //*
+        /*
         if(gamepad1.right_trigger==1.0 && !triggerPressed){
             triggerPressed = true;
             if(collectionStarted){
@@ -157,7 +198,7 @@ public abstract class TeleDecode extends OpMode {
                     return;
                 }
             }
-        }//*/
+        }*/
         
         // General controls.
         teleRobotController.run();
@@ -177,9 +218,19 @@ public abstract class TeleDecode extends OpMode {
     private void turnToGoalAndShoot(int camWaitTime, int doorOpenTime){
         utilities.turnToGoalAndShoot(goalID,camWaitTime,doorOpenTime,kCorrLeft,kCorrRight);
     }
+    
+    private void turnToGoalAndShootFromInside(int camWaitTime, int doorOpenTime){
+        utilities.turnToGoalAndShootFromInside(goalID,camWaitTime,doorOpenTime,kCorrLeft,kCorrRight);
+    }
 
     private void turnToGoalAndShootOneByOne(int camWaitTime){
-        utilities.turnToGoalAndShootOneByOne(goalID,camWaitTime,800,200,kCorrLeft,kCorrRight);
+        utilities.turnToGoalAndShootOneByOne(goalID,camWaitTime,doorOpenTime,
+            doorCloseTime,kCorrLeft,kCorrRight);
+    }
+
+    private void turnToGoalAndShootOneByOne(int camWaitTime, int openTime, int closeTime){
+        utilities.turnToGoalAndShootOneByOne(goalID,camWaitTime,openTime,
+            closeTime,kCorrLeft,kCorrRight);
     }
 
     private void turnToBallAndCollect(int camWaitTime){
