@@ -19,8 +19,8 @@ public class Utilities {
     public double collectionMoveSpeed = 0.125;
     public double firstShootK = 1.05;
     public double secondShootK = 0.9;
-    public double thirdShootK = 0.7;
-    
+    public double thirdShootK = 0.6;
+
     private ElapsedTime waitTimer = new ElapsedTime();
     
     private MecanumRobotController robotController;
@@ -30,6 +30,7 @@ public class Utilities {
     private Telemetry telemetry;
     
     private boolean loopExit = false;
+    private double CameraOffset = 6;
     
     public Utilities(MecanumRobotController rbtController,
         FlyWheelController fwController,
@@ -131,6 +132,24 @@ public class Utilities {
         //    shootOneByOne(800, 200);
         //}        
     }
+
+    public void turnToGoalAndShootFromInside(int goalID, int camWaitTime, int doorOpenTime, double kLeft, double kRight){
+        // Speed up well ahead so that no delay in shooting.
+        intakeController.setShootPower();
+
+        // Turn towards the goal.
+        turnToGoal(goalID,camWaitTime,kLeft,kRight);
+
+        // Return if no balls in vision.
+        if(robotPose==null){
+            //telemetry.speak("No");
+            intakeController.resetPower();
+            return;
+        }        
+
+        // Shoot
+        shootOnceFromInside(doorOpenTime);
+    }
     
     public void turnToGoalAndShootOneByOne(int goalID, int camWaitTime,
         int intakeOnTime, int intakeOffTime){
@@ -163,25 +182,41 @@ public class Utilities {
     }
 
     public void shootOnce(){
-        flyWheelController.convertToVelocity(firstShootK*robotPose[2]);
+        flyWheelController.convertToLineVelocity(firstShootK*robotPose[2]);
         flyWheelController.openDoor();
         wait(666);
-        flyWheelController.convertToVelocity(secondShootK*robotPose[2]);
+        flyWheelController.convertToLineVelocity(secondShootK*robotPose[2]);
         wait(666);
-        flyWheelController.convertToVelocity(thirdShootK*robotPose[2]);
+        flyWheelController.convertToLineVelocity(thirdShootK*robotPose[2]);
         wait(666);
     }
     
     public void shootOnce(int doorOpenTime){
-        flyWheelController.convertToVelocity(1.1*robotPose[2]);
+        flyWheelController.convertToLineVelocity(firstShootK*robotPose[2]);
         
         intakeController.setShootPower();
         flyWheelController.openDoor();
         
         wait(doorOpenTime/3);
-        flyWheelController.convertToVelocity(0.9*robotPose[2]);
+        flyWheelController.convertToLineVelocity(secondShootK*robotPose[2]);
         wait(doorOpenTime/3);
-        flyWheelController.convertToVelocity(0.7*robotPose[2]);
+        flyWheelController.convertToLineVelocity(thirdShootK*robotPose[2]);
+        wait(doorOpenTime/3);
+        
+        flyWheelController.closeDoor();
+        intakeController.resetPower();
+    }
+
+    public void shootOnceFromInside(int doorOpenTime){
+        flyWheelController.convertToInsideVelocity(1.1*robotPose[2]);
+        
+        intakeController.setShootPower();
+        flyWheelController.openDoor();
+        
+        wait(doorOpenTime/3);
+        flyWheelController.convertToInsideVelocity(0.9*robotPose[2]);
+        wait(doorOpenTime/3);
+        flyWheelController.convertToInsideVelocity(0.6*robotPose[2]);
         wait(doorOpenTime/3);
         
         flyWheelController.closeDoor();
@@ -189,7 +224,8 @@ public class Utilities {
     }
     
     public void shootOneByOne(int intakeOnTime, int intakeOffTime){
-        flyWheelController.convertToVelocity(robotPose[2]);
+        double[] k = {0.9,0.8,0.7};
+        flyWheelController.convertToAwayVelocity(k[1]*robotPose[2]);
         intakeController.stop();
         flyWheelController.openDoor();
         for(int count=0;count<3;count++){
@@ -200,6 +236,9 @@ public class Utilities {
             wait(intakeOnTime);
             if(!loopExit){
                 intakeController.stop();
+                if(count<2){
+                    flyWheelController.convertToAwayVelocity(k[count+1]*robotPose[2]);
+                }
             }
         }
         flyWheelController.closeDoor();
@@ -207,7 +246,7 @@ public class Utilities {
     }
 
     public void turnToBallAndCollect(int camWaitTime, double kLeft, double kRight, 
-        double moveSpeed, double kDist, int timeout){
+        double moveSpeed, double kDistance, int timeout){
         // Turn towards a ball.
         turnToBall(camWaitTime,kLeft,kRight);
         
@@ -218,12 +257,14 @@ public class Utilities {
         // Collect ball.
         int preTimeout = robotController.timeout;
         robotController.timeout = timeout;
-        robotController.goToPosition(moveSpeed, kDist*robotPose[2], DistanceUnit.INCH, NavigationType.GOFORWARD);
+        //robotController.goForward(moveSpeed, kDistance*robotPose[2],true);
+        //robotController.goToPosition(moveSpeed, kDist*robotPose[2], DistanceUnit.INCH, NavigationType.GOFORWARD);
+        robotController.goToPositionWithSpeedModulation(moveSpeed, kDistance*robotPose[2], 0.5, 3, DistanceUnit.INCH);
         robotController.timeout = preTimeout;
     }
 
     public void turnToBallAndCollect(int camWaitTime, double kLeft, double kRight, 
-        double moveSpeed, double kDist){
+        double moveSpeed, double kDistance){
         // Turn towards a ball.
         turnToBall(camWaitTime,kLeft,kRight);
         
@@ -233,9 +274,9 @@ public class Utilities {
         }
         
         // Collect ball.
-        //kDistance = 0.9;
-        //robotController.goForward(collectionMoveSpeed, kDistance*robotPose[2]);
-        robotController.goToPosition(moveSpeed, kDist*robotPose[2], DistanceUnit.INCH, NavigationType.GOFORWARD);
+        //robotController.goForward(moveSpeed, kDistance*robotPose[2],true);
+        robotController.goToPosition(moveSpeed, kDistance*robotPose[2], DistanceUnit.INCH, NavigationType.GOFORWARD);
+        //robotController.goToPositionWithSpeedModulation(moveSpeed, kDistance*robotPose[2], 0.5, 3, DistanceUnit.INCH);
     }
     
     public void turnToBallAndCollect(int camWaitTime){
@@ -282,7 +323,7 @@ public class Utilities {
             //telemetry.addLine("Ball out of vision!");
             return;
         }
-        
+        robotPose[0] = robotPose[0] + CameraOffset;
         turnRobot(kLeft,kRight); // these two are modulating factors for left/right rotation
     }
 
@@ -293,8 +334,8 @@ public class Utilities {
             //telemetry.addLine("Ball out of vision!");
             return;
         }
-        
-        turnRobot(0.5,1.0); // these two are modulating factors for left/right rotation
+        robotPose[0] = robotPose[0] + CameraOffset;
+        turnRobot(0.9,0.9); // these two are modulating factors for left/right rotation
     }
 
     private void turnRobot(){
