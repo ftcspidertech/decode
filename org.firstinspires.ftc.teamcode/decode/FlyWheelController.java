@@ -25,8 +25,21 @@ public class FlyWheelController {
     private static final int rate = 50;
     private double closePower = -0.25;
     private double openPower = 0.6; // -1
-    private double a=0.027392, b=3.0918, c=1386.40407;
+    //private double a=0.027392, b=3.0918, c=1386.40407; Old Settings
+    private double a=0.0657839, b=-1.03599, c=1473.18477; //On the line and small triangle
+    //private double a=0.220436, b=-21.43438, c=2149.36458; //Inside Big Triangle?
+    private double[] redLineCoefs = {5.71968,1339.26486};
+    private double[] redInsideCoefs = {5.4326,1343.0535};
+    private double[] redAwayCoefs = {9.52381,964.28571};
 
+    private double[] blueLineCoefs = {5.71968,1339.26486};
+    private double[] blueInsideCoefs = {5.4326,1343.0535};
+    private double[] blueAwayCoefs = {9.52381,964.28571};
+
+    private double[] lineCoefs = new double[2];
+    private double[] insideCoefs = new double[2];
+    private double[] awayCoefs = new double[2];
+    private double bK = 0.95;
 
     public FlyWheelController(HardwareMap hardwareMap, Gamepad pad, Telemetry tmetry){
         flywheel = hardwareMap.get(DcMotor.class, "flywheel");
@@ -37,6 +50,30 @@ public class FlyWheelController {
 
         gamepad = pad;
         telemetry = tmetry;
+        
+        setRedCoef();
+    }
+    
+    public void setRedCoef(){
+        lineCoefs[0] = redLineCoefs[0];
+        lineCoefs[1] = bK*redLineCoefs[1];
+        
+        insideCoefs[0] = redInsideCoefs[0];
+        insideCoefs[1] = bK*redInsideCoefs[1];
+        
+        awayCoefs[0] = redAwayCoefs[0];
+        awayCoefs[1] = redAwayCoefs[1];
+    }
+
+    public void setBlueCoef(){
+        lineCoefs[0] = blueLineCoefs[0];
+        lineCoefs[1] = bK*blueLineCoefs[1];
+        
+        insideCoefs[0] = blueInsideCoefs[0];
+        insideCoefs[1] = bK*blueInsideCoefs[1];
+        
+        awayCoefs[0] = blueAwayCoefs[0];
+        awayCoefs[1] = blueAwayCoefs[1];
     }
 
     public void setCurrentVelocity(int velocity){
@@ -69,7 +106,7 @@ public class FlyWheelController {
 
         // Flywheel power - - -
         // Commented out to reduce an operator's load to start/stop the flywheel.
-        //*
+        /*
         if (gamepad.xWasPressed()) {
             if(!flyWheelStarted){
                 ((DcMotorEx) flywheel).setVelocity(currentVelocity);
@@ -78,7 +115,7 @@ public class FlyWheelController {
                 ((DcMotorEx) flywheel).setVelocity(0);
                 flyWheelStarted = false;
             }
-        }//*/
+        }*/
         
         // Servo power
         if (gamepad.y){
@@ -99,7 +136,19 @@ public class FlyWheelController {
     }
 
     public void convertToVelocity(double x){
-        setVelocity((int)Math.min(2150, 0.97*(a*x*x + b*x + c)));
+        setVelocity((int)Math.min(2000, 1.0*(a*x*x + b*x + c)));
+    }
+
+    public void convertToLineVelocity(double x){
+        setVelocity((int)Math.min(2200, lineCoefs[0]*x + lineCoefs[1]));
+    }
+
+    public void convertToInsideVelocity(double x){
+        setVelocity((int)Math.min(2200, insideCoefs[0]*x + insideCoefs[1]));
+    }
+    
+    public void convertToAwayVelocity(double x){
+        setVelocity((int)Math.min(2200, awayCoefs[0]*x + awayCoefs[1]));
     }
     
     public void stopFlyWheel(){
