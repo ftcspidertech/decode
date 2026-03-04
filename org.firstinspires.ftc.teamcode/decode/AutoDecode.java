@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.decode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.navigation.NavigationType;
 import org.firstinspires.ftc.teamcode.navigation.MecanumRobotController;
 import org.firstinspires.ftc.teamcode.decode.FlyWheelController;
 import org.firstinspires.ftc.teamcode.decode.IntakeController;
@@ -53,6 +55,9 @@ public abstract class AutoDecode extends OpMode{
         //robotController.useSingleWheelRef = true;
         flyWheelController = new FlyWheelController(hardwareMap,gamepad1,telemetry);
         intakeController = new IntakeController(hardwareMap,gamepad1,telemetry);
+        intakeController.MIN_VELOCITY = 1700;
+        intakeController.regularPower = 1.0;
+        
         //goalTagProcessor = new GoalTagProcessor(hardwareMap,24); // ID 24 for Red Gate
         limelight = new LimeLight3ACamera(hardwareMap,telemetry);
         limelight.start();
@@ -109,5 +114,57 @@ public abstract class AutoDecode extends OpMode{
 
     protected void setBallPipelineID(int waitTime){
         limelight.setPipelineID(ballPipelineID,waitTime);
-    }    
+    }
+    
+    protected void goForward(double moveSpeed, double distance, int timeout){
+        //robotController.goToPosition(moveSpeed, distance, DistanceUnit.INCH, NavigationType.GOFORWARD);
+        int preTimeout = robotController.timeout;
+        robotController.timeout = timeout;
+        robotController.goToPositionWithSpeedModulation(moveSpeed,Math.abs(distance),0.5,3,DistanceUnit.INCH);
+        robotController.timeout = preTimeout;
+    }
+
+    protected void goForward(double moveSpeed, double distance, int timeout, boolean slowDownBeforeStop){
+        int preTimeout = robotController.timeout;
+        boolean preSlowDownBeforeStop = robotController.slowDownBeforeStop;
+        
+        robotController.timeout = timeout;
+        robotController.slowDownBeforeStop = slowDownBeforeStop;
+        
+        robotController.goToPositionWithSpeedModulation(moveSpeed,Math.abs(distance),0.5,3,DistanceUnit.INCH);
+        
+        robotController.slowDownBeforeStop = preSlowDownBeforeStop;
+        robotController.timeout = preTimeout;
+    }
+    
+    protected void goBackward(double moveSpeed, double distance, int timeout){
+        //robotController.goToPosition(moveSpeed, distance, DistanceUnit.INCH, NavigationType.GOBACKWARD);
+        int preTimeout = robotController.timeout;
+        robotController.timeout = timeout;
+        robotController.goToPositionWithSpeedModulation(moveSpeed,-Math.abs(distance),1.25,3,DistanceUnit.INCH);
+        robotController.timeout = preTimeout;
+    }
+
+    protected void goBackward(double moveSpeed, double distance, int timeout, boolean slowDownBeforeStop){
+        int preTimeout = robotController.timeout;
+        boolean preSlowDownBeforeStop = robotController.slowDownBeforeStop;
+        
+        robotController.timeout = timeout;
+        robotController.slowDownBeforeStop = slowDownBeforeStop;
+        
+        robotController.goToPositionWithSpeedModulation(moveSpeed,-Math.abs(distance),1.25,3,DistanceUnit.INCH);
+        
+        robotController.slowDownBeforeStop = preSlowDownBeforeStop;
+        robotController.timeout = preTimeout;
+    }
+    
+    protected void shootWithoutCamera(int doorOpenTime){
+        intakeController.setShootPower();
+        flyWheelController.openDoor();
+        
+        wait(doorOpenTime);
+
+        flyWheelController.closeDoor();
+        intakeController.resetPower();
+    }
 }
