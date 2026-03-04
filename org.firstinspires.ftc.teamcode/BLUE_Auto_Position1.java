@@ -46,6 +46,7 @@ public class BLUE_Auto_Position1 extends BLUE_AutoDecode{
             wait(200);
             robotController.turnLeft(turnPower,0.55,TimeUnit.SECONDS);// turn to shoot balls
             wait(150);
+            kGoalRight = 0.2;
             utilities.turnToGoalAndShootOneByOne(goalID,200,800,700,kGoalLeft,kGoalRight);
              //utilities.turnToGoalAndShoot(goalID,200,shootTime,kGoalLeft,kGoalRight);
               if(utilities.robotPose==null){
@@ -61,14 +62,14 @@ public class BLUE_Auto_Position1 extends BLUE_AutoDecode{
             // Turn to get second set of balls.
             robotController.goForward(movePower,0.7,TimeUnit.SECONDS);
             wait(150);
-            robotController.turnLeft(turnPower,0.9,TimeUnit.SECONDS);
+            robotController.turnLeft(turnPower,1.0,TimeUnit.SECONDS);
             wait(150);
             utilities.turnToBall(200,kBallLeft,kBallRight);
             if (utilities.robotPose==null){
                 telemetry.addLine("Didn't see 1st set of balls");
             }
             setGoalPipelineID(100);
-            wait(150);
+            wait(150); 
             robotController.goForward(movePower*.5,2.3,TimeUnit.SECONDS);
             wait(150);
             robotController.goBackward(movePower*.5,2.2,TimeUnit.SECONDS);
@@ -77,7 +78,7 @@ public class BLUE_Auto_Position1 extends BLUE_AutoDecode{
             wait(150);
             robotController.goBackward(movePower,0.75,TimeUnit.SECONDS);
             wait(150);
-            kGoalRight=0.7;
+            kGoalRight=0.5;
             utilities.turnToGoalAndShootOneByOne(goalID,300,800,700,kGoalLeft,kGoalRight);
             //utilities.turnToGoalAndShoot(goalID,200,shootTime,kGoalLeft,kGoalRight);
               if(utilities.robotPose==null){
@@ -85,11 +86,12 @@ public class BLUE_Auto_Position1 extends BLUE_AutoDecode{
                 telemetry.update();
                 shootWithoutCamera(shootTime);
             }
+            robotController.goForward(movePower,0.75,TimeUnit.SECONDS);
             setBallPipelineID(100);
             // Task2 is done.
             taskTwoDone = true;
         }else if(!taskThreeDone) {
-            robotController.turnLeft(turnPower,0.9,TimeUnit.SECONDS);
+            robotController.turnLeft(turnPower,0.75,TimeUnit.SECONDS);
             utilities.turnToBall(200,kBallLeft,kBallRight);
             if (utilities.robotPose==null){
                 telemetry.addLine("Didn't see 2nd set of balls");
