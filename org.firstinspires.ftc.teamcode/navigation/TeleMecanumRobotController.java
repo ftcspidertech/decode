@@ -10,6 +10,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class TeleMecanumRobotController {
     public double kMove = 1.0;
     public double kTurn = 1.0;
+    private double rate = 0.01;
+    private boolean leftTriggerPressed = false;
+    private boolean rightTriggerPressed = false;
     
     private MecanumRobotController robot;
     private Gamepad gamepad;
@@ -29,6 +32,26 @@ public class TeleMecanumRobotController {
     }
     
     public void run(){
+        // Update max speeds
+        //*
+        if(gamepad.right_trigger==1.0 && !rightTriggerPressed){
+            rightTriggerPressed = true;
+            kMove = Math.min(1,kMove+rate);
+            kTurn = Math.min(1,kTurn+rate);
+            telemetry.addData("Navigation","kMove=%f, kTurn=%f",kMove,kTurn);
+        }else{
+            rightTriggerPressed = false;
+        }
+
+        if(gamepad.left_trigger==1.0 && !leftTriggerPressed){
+            leftTriggerPressed = true;
+            kMove = Math.max(0.1,kMove-rate);
+            kTurn = Math.max(0.1,kTurn-rate);
+            telemetry.addData("Navigation","kMove=%f, kTurn=%f",kMove,kTurn);
+        }else{
+            leftTriggerPressed = false;
+        }//*/
+
         // Control robot with joystick.
         float y = -gamepad.left_stick_y;
         float x = gamepad.left_stick_x;
@@ -37,17 +60,6 @@ public class TeleMecanumRobotController {
             robot.splitStickArcadeDrive(y*kMove,x*kMove,rx*kTurn);            
             return;
         }
-        
-        // Update max speeds
-        /*
-        double rate = 0.001;
-        if(gamepad.right_trigger==1.0){
-            moveSpeed = Math.min(1,(1.0+rate)*moveSpeed);
-            telemetry.addData("Max move speed: ", moveSpeed);
-        }else if(gamepad.left_trigger==1.0){
-            moveSpeed = Math.max(0.5,(1-rate)*moveSpeed);
-            telemetry.addData("Max move speed: ", moveSpeed);
-        }*/
         
         // Control robot with arrow keys.
         if(gamepad.dpad_left){
