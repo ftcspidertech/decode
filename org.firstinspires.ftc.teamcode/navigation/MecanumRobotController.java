@@ -50,10 +50,18 @@ public class MecanumRobotController {
     
     private ElapsedTime timer = null;
     private ElapsedTime timeoutTimer = null;
-    public int timeout = 5000;
-    public boolean useSingleWheelRef = false;
     
     private boolean loopExit = false;
+    private int numCyclesToIgnore = 1;
+
+    public int timeout = 5000;
+    public boolean useSingleWheelRef = false;
+    public double kForward = 0.5; // for low battery: 0.35
+    public double kBackward = 1.25; // for low battery: 1.0
+    public double tickTolerance = 3; // tick percentage
+    public String filename = null;
+    public boolean saveFile = false;
+    public boolean slowDownBeforeStop = true;
     
     public MecanumRobotController(HardwareMap hardwareMap, Telemetry tmetry) {
         initRobotController(hardwareMap,tmetry);
@@ -363,6 +371,7 @@ public class MecanumRobotController {
     public void goForward(double speed, double distance, DistanceUnit unit, boolean useSpeedCorrection) {
         if(useSpeedCorrection){
             goToPositionWithSpeedCorrection(speed, Math.abs(distance), unit);
+            //goToPositionWithSpeedModulation(speed, Math.abs(distance), kForward, tickTolerance, unit);
         }else{
             goForward(speed,distance,unit);
         }
@@ -371,8 +380,8 @@ public class MecanumRobotController {
     private void goToPosition(double speed, double distance, DistanceUnit unit) {
         int targetPosition;
         long waitTime = 0; // milliseconds
-        int tolerance = 100;
-        int leftDiff=tolerance+1,rightDiff=tolerance+1;
+        int tolerance;
+        int leftDiff,rightDiff;
         
         int frontLeftMotorPosition = 0;
         int backLeftMotorPosition = 0;
@@ -382,11 +391,20 @@ public class MecanumRobotController {
         int backLeftMotorTargetPosition = 0;
         int frontRightMotorTargetPosition = 0;
         int backRightMotorTargetPosition = 0;
-        /*
-        String filename = "withoutspeedcontrol.txt";
-        File file = AppUtil.getInstance().getSettingsFile(filename);
-        StringBuilder sb = new StringBuilder();
-        */
+
+        File file = null;
+        StringBuilder sb = null;
+
+        if(saveFile && filename!=null){
+            try{
+                file = AppUtil.getInstance().getSettingsFile(filename);
+                sb = new StringBuilder();
+            } catch (Exception e) {
+                telemetry.addData("Error", e.getMessage());
+                file = null;
+                sb = null;
+            }
+        }
         
         // Reset motor encoders.
         frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
@@ -397,6 +415,10 @@ public class MecanumRobotController {
         }        
         // Calculate target tick number.
         targetPosition = getTargetTickNumber(distance, unit);
+        tolerance = (int)(targetPosition*tickTolerance/100.0);
+        tolerance = Math.max(10,tolerance);
+        leftDiff = tolerance+1;
+        rightDiff = tolerance+1;
 
         // Set target positions
         frontLeftMotorPosition = frontLeftMotor.getCurrentPosition();
@@ -416,14 +438,14 @@ public class MecanumRobotController {
             frontRightMotor.setTargetPosition(frontRightMotorTargetPosition);
             backRightMotor.setTargetPosition(backRightMotorTargetPosition);
         }
-        /*
-        sb.append("0"+","+frontLeftMotorTargetPosition+","+
-            backLeftMotorTargetPosition+","+frontRightMotorTargetPosition+","+
-            backRightMotorTargetPosition).append("\n");
-        sb.append("0"+","+frontLeftMotorPosition+","+
-            backLeftMotorPosition+","+frontRightMotorPosition+","+
-            backRightMotorPosition).append("\n");
-        */
+        if(sb!=null){
+            sb.append("0"+","+frontLeftMotorTargetPosition+","+
+                backLeftMotorTargetPosition+","+frontRightMotorTargetPosition+","+
+                backRightMotorTargetPosition).append("\n");
+            sb.append("0"+","+frontLeftMotorPosition+","+
+                backLeftMotorPosition+","+frontRightMotorPosition+","+
+                backRightMotorPosition).append("\n");
+        }
 
         // Set motor options
         frontLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -463,12 +485,11 @@ public class MecanumRobotController {
                     rightDiff = (Math.abs(Math.abs(frontRightMotorPosition)-Math.abs(targetPosition)) + 
                                Math.abs(Math.abs(backRightMotorPosition)-Math.abs(targetPosition)))/2;
                 }
-                /*
-                sb.append(timeoutTimer.milliseconds()+","+frontLeftMotorPosition+","+
-                    backLeftMotorPosition+","+frontRightMotorPosition+","+
-                    backRightMotorPosition).append("\n");
-                */
-                
+                if(sb!=null){
+                    sb.append(timeoutTimer.milliseconds()+","+frontLeftMotorPosition+","+
+                        backLeftMotorPosition+","+frontRightMotorPosition+","+
+                        backRightMotorPosition).append("\n");
+                }
             }                        
         } catch (Exception e) {
             telemetry.addData("Error: ", e.getMessage());
@@ -484,14 +505,21 @@ public class MecanumRobotController {
             frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
-        //ReadWriteFile.writeFile(file,sb.toString());
+        
+        if(file!=null){
+            try{
+                ReadWriteFile.writeFile(file,sb.toString());
+            } catch (Exception e) {
+                telemetry.addData("Error", e.getMessage());
+            }
+            saveFile = false;
+            filename = null;
+        }
     }
 
     public void goToPosition(double speed, double distance, DistanceUnit unit, NavigationType navType) {
         int targetPosition;
         long waitTime = 10; // milliseconds
-        int tolerance = 100;
-        int leftDiff=tolerance+1,rightDiff=tolerance+1;
         
         // Reset motor encoders.
         frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -503,6 +531,8 @@ public class MecanumRobotController {
         
         // Calculate target tick number.
         targetPosition = getTargetTickNumber(distance, unit);
+        int tolerance = Math.max(10,(int)(targetPosition*tickTolerance/100.0));
+        int leftDiff=tolerance+1,rightDiff=tolerance+1;
 
         // Set target positions
         if(navType==NavigationType.GOFORWARD){
@@ -601,6 +631,7 @@ public class MecanumRobotController {
     public void goBackward(double speed, double distance, DistanceUnit unit, boolean useSpeedCorrection) {
         if(useSpeedCorrection){
             goToPositionWithSpeedCorrection(speed, -Math.abs(distance), unit);
+            //goToPositionWithSpeedModulation(speed, -Math.abs(distance), kBackward, tickTolerance, unit);
         }else{
             goBackward(speed,distance,unit);
         }
@@ -612,7 +643,6 @@ public class MecanumRobotController {
         }
         int targetPosition, leftPose, rightPose, leftDist, rightDist;
         long waitTime = 0; // milliseconds
-        int tolerance = 100;
         double ratio, k=0.75, preLeftCalib, preRightCalib;
         int tickTh = 100;
         int frontLeftMotorPosition = 0;
@@ -639,6 +669,7 @@ public class MecanumRobotController {
         
         // Calculate target tick number.
         targetPosition = getTargetTickNumber(distance, unit);
+        int tolerance = 100;//Math.max(10,(int)(targetPosition*tickTolerance/100.0));
 
         // Set target positions
         frontLeftMotorPosition = frontLeftMotor.getCurrentPosition();
@@ -807,6 +838,15 @@ public class MecanumRobotController {
         long waitTime = 0; // 10 milliseconds
         double divisor = 360.0;
         double noiseThreshold = 1.0; //degree
+        int numCycles = 0;
+        
+        // Extra caution: Stop robot, reset encoder, and set regular mode
+        stop();
+        
+        frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         
         // With Yaw reset, current heading is always close to 0.
         imu.resetYaw();
@@ -819,18 +859,22 @@ public class MecanumRobotController {
         robotMoving = true;
         loopExit = false;
         while(!loopExit && currentHeading<targetHeading){
+            numCycles = numCycles +1;
             turnLeft(speed);
             try{
                 Thread.sleep(waitTime);
             }catch(InterruptedException e){
                 telemetry.addData("Error: ", e.getMessage());
             }
-            currentHeading = getHeading(AngleUnit.DEGREES);
-            if(currentHeading<-noiseThreshold && currentHeading<initialHeading){
-                currentHeading = divisor + currentHeading;
+            if(numCycles>numCyclesToIgnore){
+                currentHeading = getHeading(AngleUnit.DEGREES);
+                if(currentHeading<-noiseThreshold && currentHeading<initialHeading){
+                    currentHeading = divisor + currentHeading;
+                }
             }
         }
         stop();
+        //telemetry.addData("numCycles",numCycles);
 
         robotMoving = false;
     }
@@ -846,6 +890,15 @@ public class MecanumRobotController {
         long waitTime = 0; // milliseconds
         double divisor = 360.0;
         double noiseThreshold = 1.0; // degree
+        int numCycles = 0;
+        
+        // Extra caution: Stop robot, reset encoder, and set regular mode
+        stop();
+        
+        frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         
         // With Yaw reset, current heading is always close to 0.
         imu.resetYaw();
@@ -857,18 +910,25 @@ public class MecanumRobotController {
         robotMoving = true;
         loopExit = false;
         while(!loopExit && currentHeading>targetHeading){
+            numCycles = numCycles + 1;
             turnRight(speed);
             try{
                 Thread.sleep(waitTime);
             }catch(InterruptedException e){
                 telemetry.addData("Error: ",e.getMessage());
             }
-            currentHeading = getHeading(AngleUnit.DEGREES);
-            if(currentHeading>noiseThreshold && currentHeading>initialHeading){
-                currentHeading = currentHeading - divisor;
+            if(numCycles>numCyclesToIgnore){
+                currentHeading = getHeading(AngleUnit.DEGREES);
+                if(currentHeading>noiseThreshold && currentHeading>initialHeading){
+                    currentHeading = currentHeading - divisor;
+                }
             }
+            //else{
+            //    telemetry.addData("numCycles",numCycles);                
+            //}
         }
         stop();
+        //telemetry.addData("numCycles",numCycles);
 
         robotMoving = false;
     }
@@ -921,4 +981,203 @@ public class MecanumRobotController {
         leftCalibrationFactor = left;
         rightCalibrationFactor = right;
     }
+    
+    private double findMax(double a, double b, double c, double d) {
+        return Math.max(Math.max(a, b), Math.max(c, d));
+    }
+
+    private double findMin(double a, double b, double c, double d) {
+        return Math.min(Math.min(a, b), Math.min(c, d));
+    }
+
+    public void goToPositionWithSpeedModulation(double speed, double distance, double K, double tol, DistanceUnit unit) {
+        if(distance==0){
+            return;
+        }
+        
+        int targetPosition;
+        int frontLeftMotorPosition = 0;
+        int backLeftMotorPosition = 0;
+        int frontRightMotorPosition = 0;
+        int backRightMotorPosition = 0;
+        int frontLeftMotorTargetPosition = 0;
+        int backLeftMotorTargetPosition = 0;
+        int frontRightMotorTargetPosition = 0;
+        int backRightMotorTargetPosition = 0;
+
+        long waitTime = 0; // milliseconds
+        
+        double flK=1.0, blK=1.0, frK=1.0, brK=1.0, ref, flp, blp, frp, brp;
+        double speedOrg;
+
+        File file = null;
+        StringBuilder sb = null;
+
+        if(saveFile && filename!=null){
+            try{
+                file = AppUtil.getInstance().getSettingsFile(filename);
+                sb = new StringBuilder();
+            } catch (Exception e) {
+                telemetry.addData("Error", e.getMessage());
+                file = null;
+                sb = null;
+            }
+        }
+        
+        // Reset motor encoders.
+        frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
+        frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
+        backRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);     
+        
+        // Calculate target tick number.
+        targetPosition = getTargetTickNumber(distance, unit);
+        int tolerance = Math.max(10,(int)(targetPosition*tol/100.0));
+
+        // Set target positions
+        frontLeftMotorPosition = frontLeftMotor.getCurrentPosition();
+        frontLeftMotorTargetPosition = frontLeftMotorPosition + targetPosition;
+        frontLeftMotor.setTargetPosition(frontLeftMotorTargetPosition);
+
+        backLeftMotorPosition = backLeftMotor.getCurrentPosition();
+        backLeftMotorTargetPosition = backLeftMotorPosition + targetPosition;
+        backLeftMotor.setTargetPosition(backLeftMotorTargetPosition);
+        
+        frontRightMotorPosition = frontRightMotor.getCurrentPosition();
+        frontRightMotorTargetPosition = frontRightMotorPosition + targetPosition;
+        frontRightMotor.setTargetPosition(frontRightMotorTargetPosition);
+        
+        backRightMotorPosition = backRightMotor.getCurrentPosition();
+        backRightMotorTargetPosition = backRightMotorPosition + targetPosition;            
+        backRightMotor.setTargetPosition(backRightMotorTargetPosition);
+
+        if(sb!=null){
+            sb.append("0"+","+frontLeftMotorTargetPosition+","+
+                backLeftMotorTargetPosition+","+frontRightMotorTargetPosition+","+
+                backRightMotorTargetPosition+","+flK+","+blK+","+frK+","+brK).append("\n");
+            sb.append("0"+","+frontLeftMotorPosition+","+
+                backLeftMotorPosition+","+frontRightMotorPosition+","+
+                backRightMotorPosition+","+flK+","+blK+","+frK+","+brK).append("\n");
+        }
+
+        // Set motor options
+        frontLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        
+        // Set power and move the robot. Wait until it's done.
+        speed = Math.abs(speed);
+        speedOrg = speed;
+
+        // Move to the target distance.
+        try{            
+            // Loop until within tolerance
+            loopExit = false;
+            timeoutTimer.reset();
+            while(!loopExit && notWithinTolerance(targetPosition,tolerance) && timeoutTimer.milliseconds()<=timeout){
+            //while(!loopExit && isMotorBusy() && timeoutTimer.milliseconds()<=timeout){
+
+                if(distance>0){
+                    goForward(speed);
+                    setPower(flK*speed,blK*speed,frK*speed,brK*speed);
+                }else{
+                    setPower(-flK*speed,-blK*speed,-frK*speed,-brK*speed);
+                }
+                Thread.sleep(waitTime);
+
+                frontLeftMotorPosition = frontLeftMotor.getCurrentPosition();
+                backLeftMotorPosition = backLeftMotor.getCurrentPosition();
+                frontRightMotorPosition = frontRightMotor.getCurrentPosition();
+                backRightMotorPosition = backRightMotor.getCurrentPosition();
+                
+                flp = Math.abs((double)frontLeftMotorPosition);
+                blp = Math.abs((double)backLeftMotorPosition);
+                frp = Math.abs((double)frontRightMotorPosition);
+                brp = Math.abs((double)backRightMotorPosition);
+
+                //*
+                ref = findMax(flp,blp,frp,brp);
+                flK = (flp==0)?1.0:ref/flp;
+                blK = (blp==0)?1.0:ref/blp;
+                frK = (frp==0)?1.0:ref/frp;
+                brK = (brp==0)?1.0:ref/brp;
+                //*/
+                
+                /*
+                ref = findMin(flp,blp,frp,brp);
+                flK = (flp==0)?1.0:ref/flp;
+                blK = (blp==0)?1.0:ref/blp;
+                frK = (frp==0)?1.0:ref/frp;
+                brK = (brp==0)?1.0:ref/brp;
+                */
+                
+                /*
+                if(notWithinTolerance(targetPosition,3*targetPosition/4)){
+                    speed = Math.min(0.25,speedOrg/4.0);
+                    flK = flK*K;
+                    blK = blK*K;
+                    frK = frK*K;
+                    brK = brK*K;
+                }else if(notWithinTolerance(targetPosition,targetPosition/2)){
+                    speed = speedOrg;
+                    flK = flK*K;
+                    blK = blK*K;
+                    frK = frK*K;
+                    brK = brK*K;
+                }else if(notWithinTolerance(targetPosition,targetPosition/4)){
+                    speed = speedOrg;
+                    flK = flK*K;
+                    blK = blK*K;
+                    frK = frK*K;
+                    brK = brK*K;
+                }else{ //if(notWithinTolerance(targetPosition,3*targetPosition/4)){
+                    speed = Math.min(0.25,speedOrg/4.0);
+                    flK = flK*K;
+                    blK = blK*K;
+                    frK = frK*K;
+                    brK = brK*K;
+                }
+                */
+                    
+                if(slowDownBeforeStop && !notWithinTolerance(targetPosition,targetPosition/2)){
+                    speed = Math.min(0.125,speedOrg/4.0);
+                }
+                
+                flK = 1.0 + (flK-1.0)*K;
+                blK = 1.0 + (blK-1.0)*K;
+                frK = 1.0 + (frK-1.0)*K;
+                brK = 1.0 + (brK-1.0)*K;
+                
+                if(sb!=null){
+                    sb.append(timeoutTimer.milliseconds()+","+frontLeftMotorPosition+","+
+                        backLeftMotorPosition+","+frontRightMotorPosition+","+
+                        backRightMotorPosition+","+flK+","+blK+","+frK+","+brK).append("\n");
+                }
+                
+            } // while loop ends
+        } catch (Exception e) {
+            telemetry.addData("Error", e.getMessage());
+            telemetry.update();
+        }
+
+        // Stop motors.
+        stop();
+
+        // Switch back to normal mode
+        frontLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        
+        if(file!=null){
+            try{
+                ReadWriteFile.writeFile(file,sb.toString());
+            } catch (Exception e) {
+                telemetry.addData("Error", e.getMessage());
+            }
+            saveFile = false;
+            filename = null;
+        }
+    }    
 }
