@@ -20,6 +20,7 @@ public class Utilities {
     public double firstShootK = 1.05;
     public double secondShootK = 0.9;
     public double thirdShootK = 0.6;
+    public boolean closeDoorAfterShooting = true;
 
     private ElapsedTime waitTimer = new ElapsedTime();
     
@@ -192,39 +193,46 @@ public class Utilities {
     }
     
     public void shootOnce(int doorOpenTime){
+        doorOpenTime = Math.max(2000,doorOpenTime);
         flyWheelController.convertToLineVelocity(firstShootK*robotPose[2]);
         
         intakeController.setShootPower();
         flyWheelController.openDoor();
         
-        wait(doorOpenTime/3);
+        wait(666);//(doorOpenTime/3);
         flyWheelController.convertToLineVelocity(secondShootK*robotPose[2]);
-        wait(doorOpenTime/3);
+        wait(666);//(doorOpenTime/3);
         flyWheelController.convertToLineVelocity(thirdShootK*robotPose[2]);
-        wait(doorOpenTime/3);
+        wait(doorOpenTime-2*666);//(doorOpenTime/3);
         
-        flyWheelController.closeDoor();
-        intakeController.resetPower();
+        if(closeDoorAfterShooting){
+            telemetry.addData("closeDoorAfterShooting",closeDoorAfterShooting);
+            flyWheelController.closeDoor();
+            intakeController.resetPower();
+        }
     }
 
     public void shootOnceFromInside(int doorOpenTime){
-        flyWheelController.convertToInsideVelocity(1.1*robotPose[2]);
+        doorOpenTime = Math.max(2000,doorOpenTime);
+        flyWheelController.convertToInsideVelocity(firstShootK*robotPose[2]);
         
         intakeController.setShootPower();
         flyWheelController.openDoor();
         
-        wait(doorOpenTime/3);
+        wait(666);//(doorOpenTime/3);
         flyWheelController.convertToInsideVelocity(0.9*robotPose[2]);
-        wait(doorOpenTime/3);
+        wait(666);//(doorOpenTime/3);
         flyWheelController.convertToInsideVelocity(0.6*robotPose[2]);
-        wait(doorOpenTime/3);
+        wait(doorOpenTime-2*666);//(doorOpenTime/3);
         
-        flyWheelController.closeDoor();
-        intakeController.resetPower();
+        if(closeDoorAfterShooting){
+            flyWheelController.closeDoor();
+            intakeController.resetPower();
+        }
     }
     
     public void shootOneByOne(int intakeOnTime, int intakeOffTime){
-        double[] k = {0.9,0.8,0.7};
+        double[] k = {0.95,0.95,0.95};
         flyWheelController.convertToAwayVelocity(k[1]*robotPose[2]);
         intakeController.stop();
         flyWheelController.openDoor();
@@ -241,8 +249,11 @@ public class Utilities {
                 }
             }
         }
-        flyWheelController.closeDoor();
-        intakeController.resetPower();
+        
+        if(closeDoorAfterShooting){
+            flyWheelController.closeDoor();
+            intakeController.resetPower();
+        }
     }
 
     public void turnToBallAndCollect(int camWaitTime, double kLeft, double kRight, 
@@ -252,6 +263,11 @@ public class Utilities {
         
         if(robotPose==null){
             return;
+        }
+
+        if(!closeDoorAfterShooting){
+            flyWheelController.closeDoor();
+            intakeController.resetPower();
         }
         
         // Collect ball.
@@ -273,6 +289,11 @@ public class Utilities {
             return;
         }
         
+        if(!closeDoorAfterShooting){
+            flyWheelController.closeDoor();
+            intakeController.resetPower();
+        }
+        
         // Collect ball.
         //robotController.goForward(moveSpeed, kDistance*robotPose[2],true);
         robotController.goToPosition(moveSpeed, kDistance*robotPose[2], DistanceUnit.INCH, NavigationType.GOFORWARD);
@@ -286,6 +307,11 @@ public class Utilities {
         if(robotPose==null){
             //telemetry.speak("No");
             return;
+        }
+        
+        if(!closeDoorAfterShooting){
+            flyWheelController.closeDoor();
+            intakeController.resetPower();
         }
         
         // Collect ball.
@@ -380,6 +406,7 @@ public class Utilities {
     }
     
     public void resetRobot(){
+        //telemetry.addLine("resetRobot");
         loopExit = true;
         robotController.stop();
         flyWheelController.closeDoor();
