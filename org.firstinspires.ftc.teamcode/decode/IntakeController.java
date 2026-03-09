@@ -18,7 +18,9 @@ public class IntakeController {
     private boolean isIntakeMode = true;
     private ElapsedTime stallTimer =  new ElapsedTime();
     public int MIN_VELOCITY = 250; // 250 ticks
-    private final double MIN_WAIT = 0.25; // seconds
+    private final double MIN_WAIT = 1.0; // seconds
+    //public double minVel = 0.6;
+    private double velocity,maxVelocity=0;
 
     public IntakeController(HardwareMap hardwareMap, Gamepad pad, Telemetry tmetry){
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intakeMotor");
@@ -29,6 +31,12 @@ public class IntakeController {
     }
 
     public void run(){
+        velocity = intakeMotor.getVelocity();
+        if(velocity>maxVelocity){
+            maxVelocity = velocity;//(intakeMotor.getVelocity() + maxVelocity)/2.0;
+        }
+        //telemetry.addData("Max intake velocity",maxVelocity);
+        //telemetry.addData("Current intake velocity",velocity);
         if (gamepad.startWasPressed()) {
             if(!isRunning){
                 setPower(regularPower);
@@ -67,7 +75,8 @@ public class IntakeController {
         }//*/
 
         // Check if the motor stalled for multiple balls.
-        stopIfStalled();
+        //stopIfStalled();
+        releaseBallIfStalled();
     }
 
     private void setPower(double power){
@@ -92,6 +101,12 @@ public class IntakeController {
         isRunning = false;
     }
     
+    public void releaseBallIfStop(){
+        if(intakeMotor.getPower()==0){
+            releaseBall(500);
+        }
+    }
+    
     public void stopIfStalled(){
         if(stallTimer.seconds()>MIN_WAIT && intakeMotor.getPower()!=0 && 
            Math.abs(intakeMotor.getVelocity())<MIN_VELOCITY){
@@ -108,8 +123,31 @@ public class IntakeController {
             stop();
         }
     }
+
+    public void releaseBallIfStalled(){
+        if(stallTimer.seconds()>MIN_WAIT && intakeMotor.getPower()!=0 && 
+           Math.abs(intakeMotor.getVelocity())<MIN_VELOCITY){
+               
+               stop();
+               releaseBall(600);
+               
+        }
+    }
     
-   public void restartIfStalled(boolean youCanRestart){
+    private void releaseBall(int waitTime){
+        // Run the motor to reverse direction   
+        setPower(-regularPower);
+        // Wait enough to release one ball
+        try{
+            Thread.sleep(waitTime);
+        }catch(InterruptedException e){
+            telemetry.addData("Error: ", e.getMessage());
+        }
+        // Reset the motor to its regular motion direction.
+        setPower(regularPower);
+    }
+    
+    public void restartIfStalled(boolean youCanRestart){
         if(youCanRestart && intakeMotor.getPower()==0){
             start();
         }
