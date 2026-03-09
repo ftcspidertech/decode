@@ -70,7 +70,7 @@ public class FlyWheelController {
         lineCoefs[1] = bK*blueLineCoefs[1];
         
         insideCoefs[0] = blueInsideCoefs[0];
-        insideCoefs[1] = bK*blueInsideCoefs[1];
+        insideCoefs[1] = 1.0*blueInsideCoefs[1];
         
         awayCoefs[0] = blueAwayCoefs[0];
         awayCoefs[1] = blueAwayCoefs[1];
