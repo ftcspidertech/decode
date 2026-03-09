@@ -155,6 +155,10 @@ public abstract class AutoDecode extends OpMode{
         robotController.slowDownBeforeStop = preSlowDownBeforeStop;
         robotController.timeout = preTimeout;
     }
+
+    protected void goBackward(double speed, double runTime, TimeUnit unit){
+        robotController.goBackward(speed,runTime,unit);
+    }
     
     protected void goBackward(double moveSpeed, double distance, int timeout){
         //robotController.goToPosition(moveSpeed, distance, DistanceUnit.INCH, NavigationType.GOBACKWARD);
@@ -175,6 +179,30 @@ public abstract class AutoDecode extends OpMode{
         
         robotController.slowDownBeforeStop = preSlowDownBeforeStop;
         robotController.timeout = preTimeout;
+    }
+
+    protected void slideLeft(double speed, double runTime, TimeUnit unit){
+        robotController.slideLeft(speed, runTime, unit);
+    }
+
+    protected void slideRight(double speed, double runTime, TimeUnit unit){
+        robotController.slideRight(speed, runTime, unit);
+    }
+
+    protected void turnLeft(double speed, double runTime, TimeUnit unit){
+        robotController.turnLeft(speed, runTime, unit);
+    }
+
+    protected void turnLeft(double speed, double angle){
+        robotController.turnLeft(speed, angle);
+    }
+    
+    protected void turnRight(double speed, double runTime, TimeUnit unit){
+        robotController.turnRight(speed, runTime, unit);
+    }
+
+    protected void turnRight(double speed, double angle){
+        robotController.turnRight(speed, angle);
     }
     
     protected void shootWithoutCamera(int doorOpenTime){
