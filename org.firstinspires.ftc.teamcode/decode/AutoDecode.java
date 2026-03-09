@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.decode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import java.util.concurrent.TimeUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -27,6 +28,7 @@ public abstract class AutoDecode extends OpMode{
     protected int goalID = 24; // Default is Red
     protected int goalPipelineID = 2; // For Red
     protected int ballPipelineID = 1; // For purple ball
+    protected int shootTime = 2000;
 
     private int flyWheelVelocity = 1500;
     //private ElapsedTime waitTimer = new ElapsedTime();
@@ -55,7 +57,7 @@ public abstract class AutoDecode extends OpMode{
         //robotController.useSingleWheelRef = true;
         flyWheelController = new FlyWheelController(hardwareMap,gamepad1,telemetry);
         intakeController = new IntakeController(hardwareMap,gamepad1,telemetry);
-        intakeController.MIN_VELOCITY = 1700;
+        intakeController.MIN_VELOCITY = 250;
         intakeController.regularPower = 1.0;
         
         //goalTagProcessor = new GoalTagProcessor(hardwareMap,24); // ID 24 for Red Gate
@@ -63,6 +65,7 @@ public abstract class AutoDecode extends OpMode{
         limelight.start();
         
         utilities = new Utilities(robotController,flyWheelController,intakeController,limelight,telemetry);
+        utilities.closeDoorAfterShooting = false;
     }
     
     @Override
@@ -116,9 +119,23 @@ public abstract class AutoDecode extends OpMode{
         limelight.setPipelineID(ballPipelineID,waitTime);
     }
     
+    protected void resetRobotIfDoorNotClosedAfterShooting(){
+        if(!utilities.closeDoorAfterShooting){
+            utilities.resetRobot();
+        }
+    }
+    
+    protected void goForward(double speed, double runTime, TimeUnit unit){
+        resetRobotIfDoorNotClosedAfterShooting();
+        robotController.goForward(speed,runTime,unit);
+    }
+    
     protected void goForward(double moveSpeed, double distance, int timeout){
         //robotController.goToPosition(moveSpeed, distance, DistanceUnit.INCH, NavigationType.GOFORWARD);
         int preTimeout = robotController.timeout;
+        
+        resetRobotIfDoorNotClosedAfterShooting();
+        
         robotController.timeout = timeout;
         robotController.goToPositionWithSpeedModulation(moveSpeed,Math.abs(distance),0.5,3,DistanceUnit.INCH);
         robotController.timeout = preTimeout;
@@ -127,6 +144,8 @@ public abstract class AutoDecode extends OpMode{
     protected void goForward(double moveSpeed, double distance, int timeout, boolean slowDownBeforeStop){
         int preTimeout = robotController.timeout;
         boolean preSlowDownBeforeStop = robotController.slowDownBeforeStop;
+        
+        resetRobotIfDoorNotClosedAfterShooting();
         
         robotController.timeout = timeout;
         robotController.slowDownBeforeStop = slowDownBeforeStop;
@@ -164,7 +183,9 @@ public abstract class AutoDecode extends OpMode{
         
         wait(doorOpenTime);
 
-        flyWheelController.closeDoor();
-        intakeController.resetPower();
+        if(utilities.closeDoorAfterShooting){
+            flyWheelController.closeDoor();
+            intakeController.resetPower();
+        }
     }
 }
