@@ -21,6 +21,7 @@ public abstract class TeleDecode extends OpMode {
     private boolean collectionStarted = false;
     private boolean oneByOneShootStarted = false;
     private boolean triggerPressed = false;
+    private boolean shootKeyPressed = false;
     
     protected int goalID = 24;
     protected double kMove = 0.85;
@@ -30,7 +31,7 @@ public abstract class TeleDecode extends OpMode {
     protected double collectionMoveSpeed = 0.25;
     protected double kCorrLeft = 0.9;
     protected double kCorrRight = 0.9;
-    protected int shootTime = 2250; // ms
+    protected int shootTime = 2500; // ms
     protected int cameraWaitTime = 100; // ms
     protected int doorOpenTime = 800;// 800 ms
     protected int doorCloseTime = 700;// 200 ms
@@ -43,19 +44,19 @@ public abstract class TeleDecode extends OpMode {
         teleRobotController = new TeleMecanumRobotController(hardwareMap,gamepad1,telemetry);
         flyWheelController = new FlyWheelController(hardwareMap,gamepad1,telemetry);
         intakeController = new IntakeController(hardwareMap,gamepad1,telemetry);
-        intakeController.MIN_VELOCITY = 500;
-        intakeController.regularPower = 1.0;
+        //intakeController.MIN_VELOCITY = 500;
+        //intakeController.regularPower = 1.0;
         limelight = new LimeLight3ACamera(hardwareMap,telemetry);
         limelight.start();
-        
-        initTeleDecode();
-        teleRobotController.kMove = kMove;
-        teleRobotController.kTurn = kTurn;
 
         utilities = new Utilities(teleRobotController.getRobotController(),
             flyWheelController,intakeController,limelight,telemetry);
         utilities.correctionTurnSpeed=0.25;
-        
+        utilities.closeDoorAfterShooting = false;
+
+        initTeleDecode();
+        teleRobotController.kMove = kMove;
+        teleRobotController.kTurn = kTurn;
 
         // Display status
         telemetry.addData("Status", "Alhamdulillah, Robot controllers initialized");
@@ -97,6 +98,7 @@ public abstract class TeleDecode extends OpMode {
                 //utilities.resetRobot();
                 //doorOpen = false;
             }else{
+                shootKeyPressed = true;
                 doorOpen = true;
                 //turnToGoalAndShoot(100);
                 turnToGoalAndShoot(cameraWaitTime,shootTime);
@@ -110,7 +112,11 @@ public abstract class TeleDecode extends OpMode {
                     //flyWheelController.closeDoor();
                     //intakeController.resetPower();
                     doorOpen = false;
+                    shootKeyPressed = false;
                 }else{
+                    //if(!utilities.closeDoorAfterShooting){
+                    //    utilities.resetRobot();
+                    //}
                     return;
                 }
             }
@@ -127,6 +133,7 @@ public abstract class TeleDecode extends OpMode {
                 //utilities.resetRobot();
                 //doorOpen = false;
             }else{
+                shootKeyPressed = true;
                 doorOpen = true;
                 turnToGoalAndShootFromInside(cameraWaitTime,shootTime);
                 doorOpen = false;
@@ -139,7 +146,11 @@ public abstract class TeleDecode extends OpMode {
                     //flyWheelController.closeDoor();
                     //intakeController.resetPower();
                     doorOpen = false;
+                    shootKeyPressed = false;
                 }else{
+                    //if(!utilities.closeDoorAfterShooting){
+                    //    utilities.resetRobot();
+                    //}
                     return;
                 }
             }
@@ -152,7 +163,8 @@ public abstract class TeleDecode extends OpMode {
                 //utilities.resetRobot();
                 //oneByOneShootStarted = false;
             }else{
-                telemetry.addLine("B pressed for shooting");
+                //telemetry.addLine("B pressed for shooting");
+                shootKeyPressed = true;
                 oneByOneShootStarted = true;
                 turnToGoalAndShootOneByOne(cameraWaitTime);
                 oneByOneShootStarted = false;
@@ -165,7 +177,11 @@ public abstract class TeleDecode extends OpMode {
                     //flyWheelController.closeDoor();
                     //intakeController.start();
                     oneByOneShootStarted = false;
+                    shootKeyPressed = false;
                 }else{
+                    //if(!utilities.closeDoorAfterShooting){
+                    //    utilities.resetRobot();
+                    //}
                     return;
                 }
             }
@@ -199,6 +215,15 @@ public abstract class TeleDecode extends OpMode {
                 }
             }
         }*/
+        
+        if(shootKeyPressed && !utilities.closeDoorAfterShooting && !keyPressed()){
+            return;
+        }else{
+            if(shootKeyPressed){
+                shootKeyPressed = false;
+                utilities.resetRobot();
+            }
+        }
         
         // General controls.
         teleRobotController.run();
