@@ -16,43 +16,44 @@ public class BLUE_Auto_Position1 extends BLUE_AutoDecode{
     */
 
     
-     private double movePower = .25;
+    private double movePower = .25;
     private double turnPower = 0.2;
-    private boolean useSpeedCorrection = true;
-    private double kGoalLeft = 0.95;
-    private double kGoalRight = 0.35;
-    private double kBallLeft = 0.25;
-    private double kBallRight = 0.5;
-    private int shootTime = 2000; // milliseconds
+    private int doorOpenTime = 800;
+    private int doorCloseTime = 700;
+    private int camWaitTime = 200;
+
+    private double kGoalLeft;
+    private double kGoalRight;
+    private double kBallLeft;
+    private double kBallRight;
     private double kDistance;
-    private double doorOpenTime = 800;
-    private double doorCloseTime = 200;
     
     // Task variables
     // Task 1: Throw pre-loaded balls. 
     private boolean taskOneDone = false;
     // Task 2: Collect and throw another set of balls.
     private boolean taskTwoDone = false;
+    // Task 3: If possible, collect balls from the loading zone.
     private boolean taskThreeDone = true;
-    
 
     
     @Override
     public void loop() {
-        intakeController.stopIfStalled();
+        intakeController.releaseBallIfStalled();
+        //shootTime=2000;
         if(!taskOneDone) {
             // Go forward and turn towards the goal.
-            robotController.goForward(movePower,0.5,TimeUnit.SECONDS);
+            goForward(movePower,0.5,TimeUnit.SECONDS);
             wait(200);
             robotController.turnLeft(turnPower,0.55,TimeUnit.SECONDS);// turn to shoot balls
             wait(150);
-            kGoalRight = 0.2;
-            utilities.turnToGoalAndShootOneByOne(goalID,200,800,700,kGoalLeft,kGoalRight);
-             //utilities.turnToGoalAndShoot(goalID,200,shootTime,kGoalLeft,kGoalRight);
-              if(utilities.robotPose==null){
-                telemetry.addLine("Task1-No-Shoot");
-                telemetry.update();
+            kGoalLeft = 0.95;
+            kGoalRight = 0.35;
+            utilities.turnToGoalAndShootOneByOne(goalID,camWaitTime,doorOpenTime,doorCloseTime,kGoalLeft,kGoalRight);
+            // utilities.turnToGoalAndShoot(goalID,camWaitTime,shootTime,kGoalLeft,kGoalRight);
+            if(utilities.robotPose==null){
                 shootWithoutCamera(shootTime);
+                //telemetry.addLine("Task1-No-Shoot");
             }
             setBallPipelineID(100);
             
@@ -60,48 +61,64 @@ public class BLUE_Auto_Position1 extends BLUE_AutoDecode{
             taskOneDone = true;
         }else if(!taskTwoDone) {
             // Turn to get second set of balls.
-            robotController.goForward(movePower,0.7,TimeUnit.SECONDS);
+            goForward(movePower,0.85,TimeUnit.SECONDS);
             wait(150);
-            robotController.turnLeft(turnPower,1.0,TimeUnit.SECONDS);
+            robotController.turnLeft(turnPower,0.9,TimeUnit.SECONDS);
             wait(150);
-            utilities.turnToBall(200,kBallLeft,kBallRight);
+            kBallLeft = 0.7;
+            kBallRight = 0.7;
+            kDistance=1.25;
+            //utilities.turnToBall(camWaitTime,kBallLeft,kBallRight);
+            //wait(150);
+            //goForward(movePower*.5,2.3,TimeUnit.SECONDS);
+            utilities.turnToBallAndCollect(camWaitTime,kBallLeft,kBallRight,0.5*movePower,kDistance,2400);
             if (utilities.robotPose==null){
-                telemetry.addLine("Didn't see 1st set of balls");
+                goForward(movePower*.5,2.3,TimeUnit.SECONDS);
+                //telemetry.addLine("Didn't see 1st set of balls");
             }
             setGoalPipelineID(100);
-            wait(150); 
-            robotController.goForward(movePower*.5,2.3,TimeUnit.SECONDS);
             wait(150);
-            robotController.goBackward(movePower*.5,2.2,TimeUnit.SECONDS);
+            robotController.goBackward(movePower*.5,2.1,TimeUnit.SECONDS);
             wait(150);
-            robotController.turnRight(turnPower,0.8,TimeUnit.SECONDS);
+            robotController.turnRight(turnPower,0.85,TimeUnit.SECONDS);
             wait(150);
-            robotController.goBackward(movePower,0.75,TimeUnit.SECONDS);
+            robotController.goBackward(movePower,1.05,TimeUnit.SECONDS);
             wait(150);
-            kGoalRight=0.5;
-            utilities.turnToGoalAndShootOneByOne(goalID,300,800,700,kGoalLeft,kGoalRight);
-            //utilities.turnToGoalAndShoot(goalID,200,shootTime,kGoalLeft,kGoalRight);
-              if(utilities.robotPose==null){
-                telemetry.addLine("Task2-No-Shoot");
-                telemetry.update();
+            kGoalRight=0.7;
+            kGoalLeft=0.6;
+            utilities.turnToGoalAndShootOneByOne(goalID,camWaitTime,doorOpenTime,doorCloseTime,kGoalLeft,kGoalRight);
+            if(utilities.robotPose==null){
                 shootWithoutCamera(shootTime);
+                //telemetry.addLine("Task2-No-Shoot");
             }
-            robotController.goForward(movePower,0.75,TimeUnit.SECONDS);
+            
+            if(taskThreeDone){ // If the robot does not aim for the third task.
+                goForward(movePower,1.0,TimeUnit.SECONDS);
+            }
+            
             setBallPipelineID(100);
+            
             // Task2 is done.
             taskTwoDone = true;
         }else if(!taskThreeDone) {
-            robotController.turnLeft(turnPower,0.75,TimeUnit.SECONDS);
-            utilities.turnToBall(200,kBallLeft,kBallRight);
+            robotController.turnLeft(turnPower,0.86,TimeUnit.SECONDS);
+            wait(150);
+            robotController.slideRight(movePower,700,TimeUnit.MILLISECONDS);
+            wait(150);
+            kBallLeft=0.25; // Don't turn too much. It may bump into the wall.
+            kBallRight=0.25;
+            kDistance = 1.25;
+            //utilities.turnToBall(camWaitTime,kBallLeft,kBallRight);
+            //goForward(movePower*.5,3,TimeUnit.SECONDS);
+            utilities.turnToBallAndCollect(camWaitTime,kBallLeft,kBallRight,0.5*movePower,kDistance,3000);
             if (utilities.robotPose==null){
-                telemetry.addLine("Didn't see 2nd set of balls");
+                goForward(movePower*.5,3,TimeUnit.SECONDS);
+                //telemetry.addLine("Didn't see 2nd set of balls");
             }
             wait(150);
-            robotController.slideLeft(movePower,800,TimeUnit.MILLISECONDS);
-            wait(150);
-            robotController.goForward(movePower*.5,3,TimeUnit.SECONDS);
-            wait(150);
-            robotController.goBackward(movePower*.5,2.5,TimeUnit.SECONDS);
+            robotController.goBackward(movePower*.5,2.3,TimeUnit.SECONDS);
+
+            // Task3 is done.
             taskThreeDone = true;
         }else{
             stop();
