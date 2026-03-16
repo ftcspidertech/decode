@@ -334,6 +334,10 @@ public class Utilities {
         turnRobot();
     }
 
+    public void getRobotPoseRelativeToGoal(gID,camWaitTime){
+        robotPose = limelight.getRobotPoseRelativeToGoal(gID,camWaitTime);
+    }
+    
     public void turnToGoal(int gID, int camWaitTime, double kLeft, double kRight){
         robotPose = limelight.getRobotPoseRelativeToGoal(gID,camWaitTime);
         if(robotPose==null){
